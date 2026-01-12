@@ -20,5 +20,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@boheco1.com',
             'password' => bcrypt('password123'),
         ]);
+        User::factory()->create([
+            'name' => 'ecom',
+            'email' => 'ecom@boheco1.com',
+            'password' => bcrypt('password123'),
+        ]);
     }
 }

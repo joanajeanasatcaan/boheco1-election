@@ -4,36 +4,42 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/districts', function () {
-    return view('districts');
+    return view('admin.districts');
 })->middleware(['auth', 'verified'])->name('districts');
 
 Route::get('/nominees', function () {
-    return view('nominees');
+    return view('admin.nominees');
 })->middleware(['auth', 'verified'])->name('nominees');
 
 Route::get('/tally-results',function(){
-    return view('tally-results');
+    return view('admin.tally-results');
 })->middleware(['auth', 'verified'])->name('tally-results');
 
 Route::get('/schedule', function () {
-    return view('schedule');
+    return view('admin.schedule');
 })->middleware(['auth', 'verified'])->name('schedule');
 
 Route::get('/ecom-accounts', function () {
-    return view('ecom-accounts');
+    return view('admin.ecom-accounts');
 })->middleware(['auth', 'verified'])->name('ecom-accounts');
 
 Route::get('/masterlists', function () {
-    return view('masterlists');
+    return view('admin.masterlists');
 })->middleware(['auth', 'verified'])->name('masterlists');
+
+//Ecom Routes
+Route::get('/ecom', function () {
+    return view('ecom.dashboard');
+})->middleware(['auth', 'verified'])->name('ecom');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

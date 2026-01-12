@@ -28,6 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if(Auth::user()->name=="ecom"){
+            return redirect()->intended(route('ecom', absolute: false));
+        }
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
