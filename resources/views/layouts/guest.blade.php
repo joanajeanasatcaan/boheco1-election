@@ -15,25 +15,28 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div class="flex items-center space-x-3">
-                <img
-                    src="{{ asset('images/logo.png') }}"
-                    alt="BOHECO 1 Logo"
-                    class="w-16 h-16"
-                >
-                <div class="leading-tight">
-                    <div class="text-lg font-bold text-gray-800">
-                        BOHECO 1
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        Bohol 1 Electric Cooperative, Inc.
+        <div class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+            <div class="w-full max-w-4xl flex flex-col sm:flex-row items-start sm:items-center gap-8 sm:gap-12 py-12">
+                
+                <div class="flex justify-start items-center space-x-3 sm:w-1/2">
+
+                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+
+                    <div class="leading-tight text-left">
+                        <div class="text-2xl font-bold text-gray-800">
+                            BOHECO 1
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Bohol 1 Electric Cooperative, Inc.
+                        </div>
                     </div>
                 </div>
-            </div>  
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+                <div class="sm:w-1/2 flex justify-end w-full">
+                    <div class="w-full sm:max-w-md border border-gray-500 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+                        {{ $slot }}
+                    </div>
+                </div>
             </div>
         </div>
     </body>

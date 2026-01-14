@@ -1,0 +1,1 @@
+<img src="/images/total-districts.png" alt="Total Districts Logo" class="w-8 h-8 fill-current text-gray-500">

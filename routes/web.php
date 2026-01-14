@@ -40,6 +40,14 @@ Route::get('/ecom', function () {
     return view('ecom.dashboard');
 })->middleware(['auth', 'verified'])->name('ecom');
 
+Route::get('/history', function () {
+    return view('ecom.history');
+})->middleware(['auth', 'verified'])->name('history');
+
+Route::get('/online-voters-receipts', function () {
+    return view('ecom.online-voters-receipts');
+})->middleware(['auth', 'verified'])->name('online-voters-receipts');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

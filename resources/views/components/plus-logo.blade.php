@@ -1,0 +1,1 @@
+<img src="/images/plus.png" alt="Plus Logo" class="w-6 h-6 fill-current text-gray-500">
