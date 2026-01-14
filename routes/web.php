@@ -37,7 +37,7 @@ Route::get('/masterlists', function () {
 
 //Ecom Routes
 Route::get('/ecom', function () {
-    return view('ecom.dashboard');
+    return view('ecom.data');
 })->middleware(['auth', 'verified'])->name('ecom');
 
 Route::get('/history', function () {

@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-gray-100">
-
+<div>
     <nav class="bg-white border-b border-gray-300 shadow-xl py-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -64,12 +45,12 @@
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto p-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
 
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">
-                    District # Voting Dashboard
+                    District # Election Voters
                 </h1>
                 <p class="text-sm text-gray-600">
                     List of registered voters
@@ -81,39 +62,20 @@
             </div>
 
             <div class="flex items-center">
-                <nav-link
-                    class="flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                    :href="route('online-voters-receipts')">
+                <x-nav-link :href="route('online-voters-receipts')" :active="request()->routeIs('online-voters-receipts')"
+                    class="flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <x-print-logo class="h-6 w-6 pr-2 ml-4 cursor-pointer hover:bg-gray-200 rounded-full" />
-                </nav-link>
-
-                <x-history-no-color-logo class="h-6 w-6 p-2 ml-4 cursor-pointer hover:bg-gray-200 rounded-full" />
+                </x-nav-link>
+                <x-nav-link :href="route('history')" :active="request()->routeIs('history')"
+                    class="flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <x-history-no-color-logo class="h-6 w-6 p-2 ml-4 cursor-pointer hover:bg-gray-200 rounded-full" />
+                </x-nav-link>
             </div>
         </div>
-
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class=" min-w-full border border-gray-200">
-                <thead class="bg-green-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Profile</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Id Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date/Time Voted
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Action</th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-gray-200">
-
-
-                </tbody>
-            </table>
-        </div>
-
     </div>
-
+    <main class="flex-1 overflow-y-auto">
+        {{ $slot }}
+    </main>
     <script>
         const btn = document.getElementById('profileButton');
         const dropdown = document.getElementById('profileDropdown');
@@ -128,7 +90,3 @@
             }
         });
     </script>
-
-</body>
-
-</html>
