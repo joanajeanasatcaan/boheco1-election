@@ -3,6 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Districts;
+use App\Models\MasterList;
+use App\Models\VotersList;
+use App\Models\OnlineVotersReceipts;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -25,5 +30,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'ecom@boheco1.com',
             'password' => bcrypt('password123'),
         ]);
+
+        $this->call(DistrictsSeeder::class);
+        $this->call(MasterListSeeder::class);
+        $this->call(VotersListSeeder::class);
+        $this->call(OnlineVotersReceiptsSeeder::class);
     }
 }

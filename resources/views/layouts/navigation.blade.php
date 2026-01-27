@@ -1,8 +1,6 @@
 <div x-data="{ open: false }" class="flex h-screen bg-gray-100">
 
-    <!-- Sidebar -->
     <aside class="w-64 bg-white border-r hidden md:flex flex-col" x-data="{ open: false }">
-        <!-- Logo -->
         <div class="h-20 flex items-center border-b border-gray-300 shadow px-1 space-x-3">
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <x-application-logo class="h-10 w-10" />
@@ -24,7 +22,6 @@
 
 
         <div class="flex-1 flex pl-4 pr-4 flex-col justify-between overflow-y-auto">
-            <!-- Links -->
             <x-nav-link class="flex pt-4 px-4 py-6 text-center hover:bg-green-600 rounded-xl block text-sm"
                 :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 <x-dashboard-logo class="h-6 w-auto mx-auto" />
@@ -93,33 +90,32 @@
             </div>
 
             <div class="flex text-center">
-                <form method="POST" action="{{ route('logout') }}" class="flex mt-3 w-full">
-                    @csrf
-                    <x-logout-logo class="h-6 w-auto mx-auto" />
-                    <button class="text-sm text-red-600 hover:underline">
-                        Log Out
-                    </button>
+               <form method="POST" action="{{ route('logout') }}" class="mt-4 w-full">
+                @csrf
+                <button type="submit" class="flex items-center gap-2 text-sm text-red-600 hover:text-800 transition-colors duration-200 group w-full p-2 rounded-lg hover:bg-red-50">
+                    <x-logout-logo class="h-5 w-5"/>
+                    <span>Log Out</span>
+                </button>
             </div>
-            </form>
+
         </div>
     </aside>
 
     <!-- Mobile Sidebar -->
     <div class="md:hidden flex">
-        <button @click="open = !open" class="p-4">
+        <button @click="open = !open" class="absolute top-0 left-0 p-4">
             ☰
         </button>
 
         <div x-show="open" @click.away="open = false" class="fixed inset-0 bg-black bg-opacity-40 z-40"></div>
 
         <aside x-show="open" class="fixed z-50 w-64 h-full bg-white border-r">
-            <!-- Logo -->
             <div class="h-20 flex items-center border-b border-gray-300 shadow px-6 space-x-3">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                     <x-application-logo class="h-10 w-auto" />
                 </a>
                 <div class="leading-tight">
-                    <div class="text-lg font-bold text-gray-900 text-shadow-lg/30">
+                    <div class="font-helvetica text-lg font-bold text-gray-900 text-shadow-lg/30">
                         BOHECO 1
                     </div>
                     <div class="text-sm text-gray-600">
@@ -187,8 +183,9 @@
                 </x-nav-link>
 
             </div>
+
             <!-- User -->
-            <div class="border-t mt-auto px-4 py-4">
+            <div class="border-t absolute inset-x-0 bottom-0 mt-auto px-4 py-4">
                 <div class="text-sm font-medium text-gray-800">
                     {{ Auth::user()->name }}
                 </div>
@@ -197,19 +194,19 @@
                 </div>
 
                 <div class="flex text-center">
-                    <form method="POST" action="{{ route('logout') }}" class="flex mt-3 w-full">
+                    <form method="POST" action="{{ route('logout') }}" class="w-full mt-4">
                         @csrf
-                        <x-logout-logo class="h-6 w-auto mx-auto" />
-                        <button class="text-sm text-red-600 hover:underline">
-                            Log Out
-                        </button>
+                        <button type="submit" class="flex items-center gap-2 text-sm text-red-600 hover:text-red-800 transition-colors duration-200 group w-full p-2 rounded-lg hover:bg-red-50">
+                        <x-logout-logo class="h-5 w-5" />
+                        <span>Log out</span>
+                    </button>
+                    </form>
+
                 </div>
-                </form>
             </div>
         </aside>
     </div>
 
-    <!-- Main Content -->
     <main class="flex-1 overflow-y-auto">
         {{ $slot }}
     </main>
