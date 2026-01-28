@@ -11,22 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('districts', function (Blueprint $table) {
+        Schema::create('ECRM_VoteVerification', function (Blueprint $table) {
             $table->id();
-            $table->string('district_name');
-            $table->string('nominees');
-            $table->string('registered_voters');
-            $table->string('votes_cast');
-            $table->string('status');
+            $table->string('voter_id');
+            $table->boolean('is_verified')->default(false);
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
+            $table->unique(['voter_id']);
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('districts');
+        Schema::dropIfExists('ECRM_VoteVerification');
     }
 };

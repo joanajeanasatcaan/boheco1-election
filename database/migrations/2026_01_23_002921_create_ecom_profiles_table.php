@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('online_voters_receipts', function (Blueprint $table) {
+        Schema::create('ECRM_EcomProfiles', function (Blueprint $table) {
             $table->id();
-            $table->string('profile')->nullable();
-            $table->string('name');
-            $table->string('id_number')->unique();
-            $table->timestamp('date_time_voted')->nullable();
-            $table->string('remarks')->default('Voted Online');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('district');
             $table->timestamps();
         });
+
     }
 
     /**
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('online_voters_receipts');
+        Schema::dropIfExists('ecom_profiles');
     }
 };
