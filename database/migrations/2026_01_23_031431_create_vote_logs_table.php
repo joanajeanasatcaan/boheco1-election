@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('ECRM_VoteLogs', function (Blueprint $table) {
         $table->id();
-        $table->unsignedBigInteger('nominee_id');
         $table->string('member_id');  
         $table->unsignedBigInteger('household_id');
         $table->string('ip_address')->nullable();
-        $table->timestamps();
-
-        $table->foreign('nominee_id')->references('id')->on('nominees')->cascadeOnDelete();
+        $table->foreignId('nominee_id')->constrained('ECRM_Nominees')->cascadeOnDelete();
         $table->foreign('member_id')->references('Id')->on('CRM_MemberConsumers')->cascadeOnDelete();
+
+        $table->timestamps();
 
         $table->unique(['nominee_id', 'household_id']);
     });

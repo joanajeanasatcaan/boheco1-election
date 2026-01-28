@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ECRM_VoteVerification', function (Blueprint $table) {
+        Schema::create('ECRM_VoterVerifications', function (Blueprint $table) {
             $table->id();
             $table->string('voter_id');
             $table->boolean('is_verified')->default(false);
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ECRM_VoteVerification');
+        Schema::dropIfExists('ECRM_VoterVerifications');
     }
 };

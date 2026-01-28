@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('ECRM_Voters', function (Blueprint $table) {
             $table->id();
             $table->boolean('has_voted')->default(false);
-            $table->unsignedBigInteger('nominee_id');
-            $table->foreign('nominee_id')->references('id')->on('nominees')->onDelete('cascade');
+            $table->foreignId('nominee_id')->constrained('ECRM_Nominees')->cascadeOnDelete();
             $table->timestamps();
         });
     }
