@@ -86,4 +86,27 @@ class EcomProfileController extends Controller
 
         return new EcomUserResource($request->user());
     }
+    
+    public function destroy($id)
+    {
+        $profile = EcomProfile::where('user_id', $id)->first();
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profile not found'
+            ], 404);
+        }
+
+        $user = $profile->user;
+        $profile->delete();
+
+        if ($user) {
+            $user->delete();
+        }
+
+        return response()->json([
+            'message' => 'Profile and user deleted successfully'
+        ]);
+    }
+
 }

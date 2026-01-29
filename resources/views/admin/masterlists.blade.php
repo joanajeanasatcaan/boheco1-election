@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', loadMasterlists);
                             ${voter.district}
                         </span>
                         <div class="text-xs text-gray-500">
-                            ${voter.email || 'No email'}
+                            ${voter.email || voter.phone || 'No contact info'}
                         </div>
                     </div>
                 </td>

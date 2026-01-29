@@ -199,11 +199,15 @@
                             <select id="district" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 bg-white">
                                 <option value="">Select District</option>
-                                <option value="District 1">District 1</option>
-                                <option value="District 2">District 2</option>
-                                <option value="District 3">District 3</option>
-                                <option value="District 4">District 4</option>
-                                <option value="District 5">District 5</option>
+                                <option value="1">District 1</option>
+                                <option value="2">District 2</option>
+                                <option value="3">District 3</option>
+                                <option value="4">District 4</option>
+                                <option value="5">District 5</option>
+                                <option value="6">District 6</option>
+                                <option value="7">District 7</option>
+                                <option value="8">District 8</option>
+                                <option value="9">District 9</option>
                             </select>
                         </div>
 
@@ -259,7 +263,83 @@
 </x-app-layout>
 
 <script>
+   let ecomAccounts = [];
 
+/* LOAD DATA FROM API */
+async function loadEcomAccounts() {
+    try {
+        const response = await fetch('/api/ecom-profile');
+        const json = await response.json();
+
+
+        ecomAccounts = (json.data ?? []).map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            district: user.district != null ? "District " + user.district : 'N/A',
+            status: user.status ?? 'Active',
+            createdAt: user.created_at
+        }));
+
+        renderAccountsTable();
+    } catch (error) {
+        console.error('Failed to load ECOM accounts:', error);
+    }
+}
+
+/* RENDER TABLE */
+function renderAccountsTable() {
+    const tbody = document.getElementById('accounts-table-body');
+    const counter = document.getElementById('account-count');
+
+    tbody.innerHTML = '';
+
+    if (ecomAccounts.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="px-6 py-6 text-center text-gray-500">
+                    No ECOM accounts found
+                </td>
+            </tr>
+        `;
+        counter.textContent = 'Showing 0 accounts';
+        return;
+    }
+
+    counter.textContent = `Showing ${ecomAccounts.length} accounts`;
+
+    ecomAccounts.forEach(acc => {
+        tbody.innerHTML += `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <div class="font-semibold text-gray-900">${acc.name}</div>
+                    <div class="text-sm text-gray-500">${acc.email}</div>
+                </td>
+
+                <td class="px-6 py-4">
+                    <div class="text-gray-900">${acc.district}</div>
+                </td>
+
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        ${acc.status}
+                    </span>
+                </td>
+
+                <td class="px-6 py-4">
+                    <button onclick="editAccount(${acc.id})"
+                        class="text-blue-600 hover:underline mr-3">
+                        Edit
+                    </button>
+                    <button onclick="deleteAccount(${acc.id})"
+                        class="text-red-600 hover:underline">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
     function editAccount(id) {
         const account = ecomAccounts.find(acc => acc.id === id);
         if (!account) return;
@@ -315,55 +395,86 @@
         }
     }
 
-    function deleteAccount(id) {
-        if (confirm('Are you sure you want to delete this account?')) {
-            const index = ecomAccounts.findIndex(acc => acc.id === id);
-            if (index !== -1) {
-                ecomAccounts.splice(index, 1);
-                filterAccounts();
-                alert('Account deleted successfully!');
+    async function deleteAccount(id) {
+        if (!confirm('Delete this profile?')) return;
+
+        try {
+            const response = await fetch(`/api/ecom-profile/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content')
+                }
+            });
+
+            const json = await response.json();
+
+            if (!response.ok) {
+                alert(json.message || 'Delete failed');
+                return;
             }
+
+            ecomAccounts = ecomAccounts.filter(acc => acc.id !== id);
+            renderAccountsTable();
+        } catch (error) {
+            console.error(error);
+            alert('Error deleting profile');
         }
     }
 
-    function addNewAccount() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        const district = document.getElementById('district').value;
-        const status = document.querySelector('input[name="status"]:checked').value;
-        
-        if (!username || !password || !confirmPassword || !district) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            alert('Passwords do not match.');
-            return;
-        }
-        
-        if (ecomAccounts.some(acc => acc.username === username)) {
-            alert('Username already exists. Please choose a different one.');
-            return;
-        }
-        
-        const newAccount = {
-            id: ecomAccounts.length + 1,
-            username,
-            password,
-            district,
-            status,
-            lastLogin: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + 
-                      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            createdDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        };
-        
-        ecomAccounts.push(newAccount);
-        alert('Account created successfully!');
-        closeAddAccountModal();
-        filterAccounts();
+
+
+    async function addNewAccount() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const district = document.getElementById('district').value;
+
+    if (!username || !password || !confirmPassword || !district) {
+        alert('Please fill in all required fields.');
+        return;
     }
+
+    if (password !== confirmPassword) {
+        alert('Passwords do not match.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/ecom-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            },
+            body: JSON.stringify({
+                name: username,
+                email: `${username}@example.com`, 
+                password: password,
+                password_confirmation: confirmPassword,
+                district: district
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            alert(err.message ?? 'Failed to create account');
+            return;
+        }
+
+        closeAddAccountModal();
+        loadEcomAccounts();
+        alert('Account created successfully!');
+
+    } catch (error) {
+        console.error(error);
+        alert('Something went wrong.');
+    }
+}
+
 
     function openAddAccountModal() {
 
@@ -386,23 +497,36 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        renderAccountsTable();
-        
-        document.getElementById('search-input').addEventListener('input', filterAccounts);
-        document.getElementById('status-filter').addEventListener('change', filterAccounts);
-        document.getElementById('district-filter').addEventListener('change', filterAccounts);
-        
-        document.addEventListener('keydown', function(event) {
+    document.addEventListener('DOMContentLoaded', function () {
+        loadEcomAccounts();
+
+        const searchInput = document.getElementById('search-input');
+        const statusFilter = document.getElementById('status-filter');
+        const districtFilter = document.getElementById('district-filter');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterAccounts);
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', filterAccounts);
+        }
+
+        if (districtFilter) {
+            districtFilter.addEventListener('change', filterAccounts);
+        }
+
+        document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 closeAddAccountModal();
             }
         });
-        
-        document.getElementById('addAccountModal').addEventListener('click', function(event) {
+
+        document.getElementById('addAccountModal')?.addEventListener('click', function (event) {
             if (event.target === this) {
                 closeAddAccountModal();
             }
         });
     });
+
 </script>

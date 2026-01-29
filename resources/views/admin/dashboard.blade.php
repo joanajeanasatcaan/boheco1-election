@@ -301,10 +301,11 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('votingChart').getContext('2d');
+            document.addEventListener('DOMContentLoaded', function () {
 
-                // Gradient for bars
+                // Voting Chart (existing code)
+                const ctx = document.getElementById('votingChart').getContext('2d');
+                let votesData = [150, 230, 180, 210, 195]; // initial data
                 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
                 gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
                 gradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
@@ -387,6 +388,78 @@
                         }
                     }
                 });
+
+
+                // Recent Activity container
+                const activityContainer = document.getElementById('recent-activity-list');
+
+                // Function to prepend activity
+                function prependActivity(title, description, color = 'blue', icon = 'plus', timestamp = 'Just now') {
+                    const colors = {
+                        blue: ['bg-blue-100', 'text-blue-600'],
+                        green: ['bg-green-100', 'text-green-600'],
+                        purple: ['bg-purple-100', 'text-purple-600'],
+                    };
+                    const selected = colors[color] || colors.blue;
+
+                    const activityHTML = `
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full ${selected[0]} flex items-center justify-center">
+                                    <svg class="h-5 w-5 ${selected[1]}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        ${icon === 'plus' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />` : ''}
+                                        ${icon === 'check' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />` : ''}
+                                        ${icon === 'user' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />` : ''}
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-gray-900">${title}</h4>
+                                    <span class="text-xs text-gray-500">${timestamp}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">${description}</p>
+                            </div>
+                        </div>
+                    `;
+                    // Prepend and keep max 3 items
+                    activityContainer.insertAdjacentHTML('afterbegin', activityHTML);
+                    while (activityContainer.children.length > 3) {
+                        activityContainer.removeChild(activityContainer.lastChild);
+                    }
+                }
+
+                // Initialize Reverb
+                const client = new Reverb.Client('wss://your-reverb-server.example.com');
+
+                client.on('message', event => {
+                    const data = JSON.parse(event.data);
+
+                    // Update chart votes
+                    if (data.district && data.votes !== undefined) {
+                        votesData[data.district - 1] = data.votes;
+                        votingChart.data.datasets[0].data = votesData;
+                        votingChart.update();
+                    }
+
+                    // Update recent activity
+                    if (data.activity) {
+                        // Example activity payload:
+                        // { activity: true, title: "New Nominee Registered", description: "Jane Doe registered in District 2", color: "purple", icon: "user", timestamp: "1 min ago" }
+                        prependActivity(
+                            data.title,
+                            data.description,
+                            data.color || 'blue',
+                            data.icon || 'plus',
+                            data.timestamp || 'Just now'
+                        );
+                    }
+                });
+
+                client.connect().then(() => console.log('Connected to Reverb WebSocket')).catch(err => console.error('Reverb connection failed:', err));
+
             });
-        </script>
+            </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/reverb-websocket@latest/dist/reverb.min.js"></script>
 </x-app-layout>
