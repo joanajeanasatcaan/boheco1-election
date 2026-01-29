@@ -54,7 +54,7 @@ class Member extends Model
 
         return implode(', ', array_filter([$barangay, $sitio, $town]));
     }
-
+    
     public function spouse()
     {
         return $this->hasOne(

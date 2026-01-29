@@ -7,6 +7,9 @@ use App\Http\Controllers\DistrictsController;
 use App\Http\Controllers\NomineesController;
 use App\Http\Controllers\VotersListController;
 use App\Http\Controllers\OnlineVotersReceiptsController;
+use App\Http\Controllers\Api\MembersController;
+
+
 
 Route::get('/', function () {
     return view('auth.login');

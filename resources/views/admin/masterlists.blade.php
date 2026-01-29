@@ -394,80 +394,49 @@
 </x-app-layout>
 
 <script>
-    const masterlists = [
-        {
-            id: 1,
-            firstName: "John",
-            middleName: "Michael",
-            lastName: "Feltimos",
-            suffix: "Jr.",
-            fullName: "John Michael Feltimos Jr.",
-            district: "District 1",
-            status: "Verified",
-            voterId: "VTR001234",
-            email: "john.feltimos@email.com",
-            phone: "+639171234567",
-            address: "123 Macarinas St, Barangay Pooc Oriental, Tubigon"
-        },
-        {
-            id: 2,
-            firstName: "Chris",
-            middleName: "Marie",
-            lastName: "Calesa",
-            suffix: "",
-            fullName: "Chris Marie Calesa",
-            district: "District 2",
-            status: "Pending",
-            voterId: "VTR001235",
-            email: "marie.a@email.com",
-            phone: "+639271234568",
-            address: "Sitio 123 pakapaka, Barangay Tinangnan, Loon"
-        },
-        {
-            id: 3,
-            firstName: "Jessie James",
-            middleName: "Lebita",
-            lastName: "Astacaan",
-            suffix: "III",
-            fullName: "Jessie James Lebita Astacaan III",
-            district: "District 3",
-            status: "Verified",
-            voterId: "VTR001236",
-            email: "jessiejames@email.com",
-            phone: "+639371234569",
-            address: "123 Malisod, Barangay Cabilao, Inabanga"
-        },
-        {
-            id: 4,
-            firstName: "Wilson",
-            middleName: "Auditor",
-            lastName: "Alampayan",
-            suffix: "",
-            fullName: "Wilson Auditor Alampayan",
-            district: "District 1",
-            status: "Pending",
-            voterId: "VTR001237",
-            email: "wilson@email.com",
-            phone: "+639471234570",
-            address: "321 chiko, Barangay siaw, Albur"
-        },
-        {
-            id: 5,
-            firstName: "Michael",
-            middleName: "Sadura",
-            lastName: "Tan",
-            suffix: "",
-            fullName: "Micheal Sadura Tan",
-            district: "District 2",
-            status: "Verified",
-            voterId: "VTR001238",
-            email: "michael@email.com",
-            phone: "+639571234571",
-            address: "ilado St, Barangay kanlaom, Loon"
-        }
-    ];
+let masterlists = [];
 
-    let currentEditId = null;
+async function loadMasterlists() {
+    try {
+        const response = await fetch('/api/members');
+        const json = await response.json();
+
+        masterlists = (json.data ?? []).map(member => {
+            const id = member.id ?? member.member_id ?? '';
+            
+            let firstName = member.first_name ?? '';
+            let middleName = member.middle_name ?? '';
+            let lastName = member.last_name ?? '';
+
+            if (member.is_verified !== undefined) {
+                member.status = member.is_verified ? 'Verified' : 'Pending';
+            }
+
+            let completeDistrict = member.district != null ? "District " + member.district : 'N/A';
+
+            return {
+                id: id,
+                firstName: member.first_name ?? firstName,
+                middleName: member.middle_name ?? middleName,
+                lastName: member.last_name ?? lastName,
+                suffix: member.suffix ?? '',
+                district: completeDistrict,
+                status: member.status ?? 'Pending',
+                voterId: id,
+                email: member.email ?? '',
+                phone: member.contact_number ?? member.phone ?? '',
+                address: member.address ?? member.full_address ?? ''
+            };
+        });
+
+        renderMasterlistsTable(masterlists);
+    } catch (error) {
+        console.error('Failed to load masterlists:', error);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', loadMasterlists);
 
     function getFullName(voter) {
         let name = `${voter.firstName} `;

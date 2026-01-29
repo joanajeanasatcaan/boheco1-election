@@ -36,8 +36,11 @@ class MemberResource extends JsonResource
         if ($model instanceof \App\Models\Member) {
             return [
                 'member_id' => (string) $model->Id,
-                'full_name' => $model->FullName,
-                'address'   => $model->FullAddress,
+                'first_name' => $model->FirstName,
+                'middle_name' => $model->MiddleName,
+                'last_name' => $model->LastName,
+                'suffix'    => $model->Suffix,
+                'district'  => $model->townDetail?->District,
                 'gender'    => $model->Gender,
                 'birth_date'=> $model->BirthDate,
                 'contact_number' => $model->ContactNumbers,
@@ -46,12 +49,7 @@ class MemberResource extends JsonResource
 
                 'spouse' => $model->spouse ? [
                     'id'        => (string) $model->spouse->id,
-                    'full_name' => $model->spouse->FullName,
-                    'address'   => $model->spouse->FullAddress,
-                    'gender'    => $model->spouse->Gender,
-                    'birth_date'=> $model->spouse->BirthDate,
-                    'contact_number' => $model->spouse->ContactNumbers,
-                    'email'     => $model->spouse->EmailAddress,
+                    'full_name' => $model->spouse->FullName
                 ] : null,
             ];
         }
@@ -59,8 +57,11 @@ class MemberResource extends JsonResource
         if ($model instanceof \App\Models\MemberSpouse) {
             return [
                 'id'        => (string) $model->id,
-                'full_name' => $model->FullName,
-                'address'   => $model->FullAddress,
+                'first_name' => $model->FirstName,
+                'middle_name' => $model->MiddleName,
+                'last_name' => $model->LastName,
+                'suffix'    => $model->Suffix,
+                'district'  => $model->townDetail?->District,
                 'gender'    => $model->Gender,
                 'birth_date'=> $model->BirthDate,
                 'contact_number' => $model->ContactNumbers,
@@ -70,11 +71,6 @@ class MemberResource extends JsonResource
                 'member' => $model->member ? [
                     'member_id' => (string) $model->member->Id,
                     'full_name' => $model->member->FullName,
-                    'address'   => $model->member->FullAddress,
-                    'gender'    => $model->member->Gender,
-                    'birth_date'=> $model->member->BirthDate,
-                    'contact_number' => $model->member->ContactNumbers,
-                    'email'     => $model->member->EmailAddress,
                 ] : null,
             ];
         }
