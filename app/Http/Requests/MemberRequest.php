@@ -11,7 +11,7 @@ class MemberRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,17 @@ class MemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'FirstName'      => 'required|string|max:255',
+            'MiddleName'     => 'nullable|string|max:255',
+            'LastName'       => 'required|string|max:255',
+            'Suffix'         => 'nullable|string|max:50',
+            'Gender'         => 'required|in:Male,Female',
+            'BirthDate'      => 'required|date',
+            'Sitio'          => 'required|string|max:255',
+            'Barangay'       => 'required|string|max:255',
+            'Town'           => 'required|string|max:255',
+            'ContactNumbers' => 'required|string|max:50',
+            'EmailAddress'   => 'required|email|unique:CRM_MemberConsumers,EmailAddress',
         ];
     }
 }

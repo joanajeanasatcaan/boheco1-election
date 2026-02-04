@@ -22,10 +22,6 @@ class Nominee extends Model
         'image_path',
     ];
 
-    protected $casts = [
-        'votes_count' => 'encrypted',
-    ];
-
     public function votes()
     {
         return $this->hasMany(VoteLog::class);

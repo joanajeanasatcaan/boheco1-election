@@ -55,14 +55,14 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Districts') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 class="text-3xl font-bold text-gray-900">9</h3>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-6 pt-4 border-t border-gray-100">
                             <a href="{{ route('districts') }}"
                                 class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center group">
-                                View all districts
+                                View all districts  
                                 <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -120,7 +120,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Votes Cast') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id="total-votes-count" class="total-votes-count text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                         </div>
@@ -140,39 +140,35 @@
             </div>
 
             <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Voting Progress Chart -->
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                    <div class="p-6 border-b border-gray-100">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-900">{{ __('Voting Progress by District') }}
-                                </h3>
-                                <p class="text-sm text-gray-500 mt-1">Voting turnout across all districts</p>
-                            </div>
-                            <div class="p-2 bg-blue-50 rounded-lg">
-                                <x-votes-cast-logo class="h-6 w-6 text-blue-600" />
-                            </div>
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">{{ __('Voting Progress by District') }}</h3>
+                            <p class="text-sm text-gray-500 mt-1">Voting turnout across all districts</p>
+                        </div>
+                        <div class="p-2 bg-blue-50 rounded-lg">
+                            <x-votes-cast-logo class="h-6 w-6 text-blue-600" />
                         </div>
                     </div>
-                    <div class="p-6">
-                        <div class="relative h-80">
-                            <canvas id="votingChart"></canvas>
-                        </div>
-                        <div class="mt-6 pt-6 border-t border-gray-100">
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                                    <span class="text-gray-600">Completed Votes</span>
-                                </div>
-                                <div class="text-gray-900 font-semibold">
-                                    Total: <span class="text-blue-600">965</span> votes
-                                </div>
+                </div>
+                <div class="p-6">
+                    <div class="relative h-80">
+                        <canvas id="votingChart"></canvas>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                                <span class="text-gray-600">Completed Votes</span>
+                            </div>
+                            <div class="text-gray-900 font-semibold">
+                                Total: <span id="total-votes-count" class="total-votes-count text-blue-600">0</span> votes
                             </div>
                         </div>
                     </div>
                 </div>
-
+            </div>
                 <!-- Recent Activity -->
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
                     <div class="p-6 border-b border-gray-100">
@@ -299,167 +295,114 @@
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-                // Voting Chart (existing code)
-                const ctx = document.getElementById('votingChart').getContext('2d');
-                let votesData = [150, 230, 180, 210, 195]; // initial data
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
-                gradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ======== Voting Chart Setup ========
+    const ctx = document.getElementById('votingChart').getContext('2d');
 
-                const votingChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['District 1', 'District 2', 'District 3', 'District 4', 'District 5'],
-                        datasets: [{
-                            label: 'Votes Cast',
-                            data: [150, 230, 180, 210, 195],
-                            backgroundColor: gradient,
-                            borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            borderSkipped: false,
-                            barPercentage: 0.6,
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                titleColor: '#1f2937',
-                                bodyColor: '#4b5563',
-                                borderColor: '#e5e7eb',
-                                borderWidth: 1,
-                                padding: 12,
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Votes: ${context.parsed.x}`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                grid: {
-                                    drawBorder: false,
-                                    color: 'rgba(229, 231, 235, 0.5)'
-                                },
-                                ticks: {
-                                    padding: 10,
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#6b7280'
-                                }
-                            },
-                            y: {
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    padding: 10,
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#374151'
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index',
-                        },
-                        animation: {
-                            duration: 1000,
-                            easing: 'easeOutQuart'
+    const labels = ['District 1', 'District 2', 'District 3', 'District 4', 'District 5', 'District 6', 'District 7', 'District 8', 'District 9'];
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
+    gradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
+
+    const votingChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Votes Cast',
+                data: new Array(labels.length).fill(0),
+                backgroundColor: gradient,
+                borderColor: 'rgba(34, 197, 94, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+                barPercentage: 0.6,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1f2937',
+                    bodyColor: '#4b5563',
+                    borderColor: '#e5e7eb',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            return `Votes: ${context.parsed.x}`;
                         }
                     }
-                });
-
-
-                // Recent Activity container
-                const activityContainer = document.getElementById('recent-activity-list');
-
-                // Function to prepend activity
-                function prependActivity(title, description, color = 'blue', icon = 'plus', timestamp = 'Just now') {
-                    const colors = {
-                        blue: ['bg-blue-100', 'text-blue-600'],
-                        green: ['bg-green-100', 'text-green-600'],
-                        purple: ['bg-purple-100', 'text-purple-600'],
-                    };
-                    const selected = colors[color] || colors.blue;
-
-                    const activityHTML = `
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="h-10 w-10 rounded-full ${selected[0]} flex items-center justify-center">
-                                    <svg class="h-5 w-5 ${selected[1]}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        ${icon === 'plus' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />` : ''}
-                                        ${icon === 'check' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />` : ''}
-                                        ${icon === 'user' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />` : ''}
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <div class="flex items-center justify-between">
-                                    <h4 class="text-sm font-semibold text-gray-900">${title}</h4>
-                                    <span class="text-xs text-gray-500">${timestamp}</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mt-1">${description}</p>
-                            </div>
-                        </div>
-                    `;
-                    // Prepend and keep max 3 items
-                    activityContainer.insertAdjacentHTML('afterbegin', activityHTML);
-                    while (activityContainer.children.length > 3) {
-                        activityContainer.removeChild(activityContainer.lastChild);
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: 'rgba(229, 231, 235, 0.5)'
+                    },
+                    ticks: {
+                        padding: 10,
+                        font: { size: 11 },
+                        color: '#6b7280'
+                    }
+                },
+                y: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: {
+                        padding: 10,
+                        font: { size: 12, weight: '500' },
+                        color: '#374151'
                     }
                 }
+            },
+            interaction: { intersect: false, mode: 'index' },
+            animation: { duration: 1000, easing: 'easeOutQuart' }
+        }
+    });
 
-                // Initialize Reverb
-                const client = new Reverb.Client('wss://your-reverb-server.example.com');
+    async function loadChart() {
+        const response = await fetch('/api/district-counts');
+        const result = await response.json();
+        const data = result.data;
 
-                client.on('message', event => {
-                    const data = JSON.parse(event.data);
+        const labels = votingChart.data.labels;
+        const votesArray = new Array(labels.length).fill(0);
 
-                    // Update chart votes
-                    if (data.district && data.votes !== undefined) {
-                        votesData[data.district - 1] = data.votes;
-                        votingChart.data.datasets[0].data = votesData;
-                        votingChart.update();
-                    }
+        data.forEach(item => {
+            const index = labels.indexOf(item.district);
+            if (index !== -1) votesArray[index] = item.votes_count;
+        });
 
-                    // Update recent activity
-                    if (data.activity) {
-                        // Example activity payload:
-                        // { activity: true, title: "New Nominee Registered", description: "Jane Doe registered in District 2", color: "purple", icon: "user", timestamp: "1 min ago" }
-                        prependActivity(
-                            data.title,
-                            data.description,
-                            data.color || 'blue',
-                            data.icon || 'plus',
-                            data.timestamp || 'Just now'
-                        );
-                    }
-                });
 
-                client.connect().then(() => console.log('Connected to Reverb WebSocket')).catch(err => console.error('Reverb connection failed:', err));
+        const grandTotal = votesArray.reduce((acc, val) => Number(acc) + Number(val), 0);
 
-            });
-            </script>
+        console.log('Grand Total Votes:', grandTotal, votesArray);
 
-        <script src="https://cdn.jsdelivr.net/npm/reverb-websocket@latest/dist/reverb.min.js"></script>
+        votingChart.data.datasets[0].data = votesArray;
+        votingChart.update();
+
+        const totalElements = document.querySelectorAll('.total-votes-count');
+        totalElements.forEach(el => {
+            el.innerText = grandTotal.toLocaleString(); 
+        });
+    }
+
+    loadChart();
+
+    window.Echo.connector.pusher.connection.bind('connected', () => {
+        console.log('✅ Connected to Reverb!');
+    });
+});
+</script>
+
 </x-app-layout>

@@ -9,6 +9,8 @@ use App\Models\MemberSpouse;
 use App\Models\VoteLog;
 use App\Http\Resources\VoteLogResource;
 use App\Models\VoterVerification;
+use App\Models\Nominee;
+use App\Events\DistrictVotesUpdated;
 
 class VoteController extends Controller
 {
@@ -21,7 +23,7 @@ class VoteController extends Controller
     public function vote(Request $request)
     {
         $request->validate([
-            'nominee_id' => 'required|exists:nominees,id',
+            'nominee_id' => 'required|exists:ECRM_Nominees,id',
             'member_id'  => 'required|string',
         ]);
 
@@ -54,9 +56,8 @@ class VoteController extends Controller
             ], 403);
         }
 
-        $alreadyVoted = VoteLog::where('nominee_id', $request->nominee_id)
-            ->where('household_id', $householdId)
-            ->exists();
+        $alreadyVoted = VoteLog::where('household_id', $householdId)->exists();
+
 
         if ($alreadyVoted) {
             return response()->json([
@@ -66,12 +67,23 @@ class VoteController extends Controller
 
         $vote = VoteLog::create([
             'nominee_id'   => $request->nominee_id,
-            'member_id'    => $member->Id,   
+            'member_id'    => $member->Id,
             'household_id' => $householdId,
             'ip_address'   => $request->ip(),
         ]);
 
+        $nominee = Nominee::find($request->nominee_id);
+        $district = $nominee->district;
+
+        $votesCount = VoteLog::whereHas('nominee', function ($q) use ($district) {
+                $q->where('district', $district);
+            })
+            ->distinct('household_id')
+            ->count('household_id');
+
+        // event(new DistrictVotesUpdated($district, $votesCount));
+
+
         return new VoteLogResource($vote);
     }
-
 }
