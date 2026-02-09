@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
                 <div
-                    class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl shadow-xl overflow-hidden">
+                    class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-lg shadow-xl overflow-hidden">
                     <div class="p-6 md:p-8 relative">
                         <div
                             class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-500/20 to-transparent rounded-full -translate-y-32 translate-x-32">
@@ -50,9 +50,7 @@
                 </div>
             </div>
 
-            <!-- Stats Dashboard -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Total Districts Card -->
                 <div
                     class="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-200">
                     <div class="p-6">
@@ -111,7 +109,7 @@
             </div>
 
             <!-- Districts Table Section -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-8">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 mb-8">
                 <!-- Table Header -->
                 <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

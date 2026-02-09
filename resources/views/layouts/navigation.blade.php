@@ -7,7 +7,7 @@
             </a>
             <div class="leading-tight">
                 <div class="text-lg font-bold text-gray-900 text-shadow-lg/30">
-                    BOHECO 1
+                    BOHECO I
                 </div>
                 <div class="text-sm text-gray-600">
                     Election Management System
@@ -21,7 +21,7 @@
         </div>
 
 
-        <div class="flex-1 flex pl-4 pr-4 flex-col justify-between overflow-y-auto">
+        <div class="flex-1 flex p-4 flex-col justify-between overflow-y-auto">
             <x-nav-link class="flex pt-4 px-4 py-6 text-center hover:bg-green-600 rounded-xl block text-sm"
                 :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 <x-dashboard-logo class="h-6 w-auto mx-auto" />

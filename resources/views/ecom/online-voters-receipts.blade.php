@@ -1,7 +1,6 @@
 <x-ecom-layout>
     <x-slot>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-            <!-- Enhanced Header Section -->
+        <div class="mx-auto px-4 sm:px-6 lg:px-8 mt-6">
             <div class="bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl p-6 mb-8 shadow-lg print:bg-white print:text-black print:shadow-none print:border print:border-gray-300">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <div class="mb-4 md:mb-0">
@@ -31,9 +30,9 @@
                 </div>
             </div>
 
-            <!-- Print Control Panel -->
             <div class="bg-white rounded-xl shadow-md p-4 mb-6 print:hidden">
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="flex flex-col md:flex-row gap-4 items-center 
+                justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="flex items-center">
                             <input type="checkbox" id="select-all" class="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
@@ -58,18 +57,20 @@
                 </div>
             </div>
 
-            <!-- Enhanced Table Container -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none print:border print:border-gray-300">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none 
+            print:border print:border-gray-300">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 print-table">
-                        <thead class="bg-gradient-to-r from-emerald-600 to-green-600 print:bg-gray-200">
+                        <thead class="bg-gradient-to-r from-emerald-600 to-green-600 
+                        print:bg-gray-200">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider print:text-gray-900 w-12 print:hidden">
                                     <div class="flex items-center">
                                         <span class="sr-only">Select</span>
                                     </div>
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider print:text-gray-900">
+                                <th class="px-6 py-4 text-left text-xs font-bold text-white 
+                                uppercase tracking-wider print:text-gray-900">
                                     <div class="flex items-center">
                                         <span>Profile</span>
                                     </div>

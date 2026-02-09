@@ -20,9 +20,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
                 <div
-                    class="bg-gradient-to-r from-green-600 via-emerald-600 
-                    to-teal-700 rounded-2xl 
-                    shadow-xl overflow-hidden">
+                    class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-lg shadow-xl overflow-hidden">
                     <div class="p-6 md:p-8 relative">
                         <div
                             class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br 
@@ -103,11 +101,10 @@
                     const firstDay = new Date(year, month, 1).getDay();
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                    // Clear calendar
+             
                     const calendarDays = document.getElementById('calendar-days');
                     calendarDays.innerHTML = '';
 
-                    // Add empty cells for days before month starts
                     for (let i = 0; i < firstDay; i++) {
                         const emptyCell = document.createElement('div');
                         emptyCell.className = 'p-3 border border-gray-200 bg-gray-50 h-20';
