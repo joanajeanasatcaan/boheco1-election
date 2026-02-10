@@ -85,23 +85,20 @@
             </div>
 
             <script>
-                let currentDate = new Date(2026, 0, 13);
+                const currentDate = new Date(); 
 
                 function renderCalendar() {
                     const year = currentDate.getFullYear();
                     const month = currentDate.getMonth();
 
-                    // Update month/year display
                     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                         'July', 'August', 'September', 'October', 'November', 'December'
                     ];
                     document.getElementById('month-year').textContent = monthNames[month] + ' ' + year;
 
-                    // Get first day and number of days in month
                     const firstDay = new Date(year, month, 1).getDay();
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-             
                     const calendarDays = document.getElementById('calendar-days');
                     calendarDays.innerHTML = '';
 
@@ -116,7 +113,8 @@
                         dayCell.className = 'p-3 border border-gray-200 h-20 hover:bg-green-50 cursor-pointer';
                         dayCell.innerHTML = `<div class="font-bold text-gray-900">${day}</div>`;
 
-                        if (day === 13 && month === 0 && year === 2026) {
+                        const today = new Date();
+                        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                             dayCell.className = 'p-3 border border-gray-200 h-20 bg-green-100 hover:bg-green-200 cursor-pointer';
                         }
 

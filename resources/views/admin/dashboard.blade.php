@@ -19,12 +19,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
                 <div
-                    class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-lg shadow-xl overflow-hidden">
+                    class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl shadow-xl overflow-hidden">
                     <div class="p-6 md:p-8 relative">
-                        <div
-                            class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br 
-                            from-green-500/20 to-transparent rounded-full 
-                            -translate-y-32 translate-x-32">
+                        <div 
+                            class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-500/20 to-transparent rounded-full -translate-y-32 translate-x-32">
                         </div>
                         <div class="relative">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -140,8 +138,9 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
             <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Voting Progress Chart -->
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
                 <div class="p-6 border-b border-gray-100">
                     <div class="flex items-center justify-between">
@@ -151,20 +150,6 @@
                         </div>
                         <div class="p-2 bg-blue-50 rounded-lg">
                             <x-votes-cast-logo class="h-6 w-6 text-blue-600" />
-=======
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
-                    <div class="p-6 border-b border-gray-100">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-900">{{ __('Voting Progress by District') }}
-                                </h3>
-                                <p class="text-sm text-gray-500 mt-1">Voting turnout across all districts</p>
-                            </div>
-                            <div class="p-2 bg-blue-50 rounded-lg">
-                                <x-votes-cast-logo class="h-6 w-6 text-blue-600" />
-                            </div>
->>>>>>> f309022407a02089e0ec9c39df3feb5c62ac104d
                         </div>
                     </div>
                 </div>
@@ -186,7 +171,7 @@
                 </div>
             </div>
                 <!-- Recent Activity -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
                     <div class="p-6 border-b border-gray-100">
                         <div class="flex items-center justify-between">
                             <div>
@@ -315,7 +300,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ======== Voting Chart Setup ========
     const ctx = document.getElementById('votingChart').getContext('2d');
 
     const labels = ['District 1', 'District 2', 'District 3', 'District 4', 'District 5', 'District 6', 'District 7', 'District 8', 'District 9'];

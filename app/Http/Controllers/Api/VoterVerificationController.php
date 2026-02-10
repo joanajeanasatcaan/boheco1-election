@@ -12,7 +12,7 @@ use App\Http\Resources\VoterVerificationResource;
 class VoterVerificationController extends Controller
 {
     public function verify(Request $request)
-    {
+    {   
         $request->validate([
             'member_id'    => 'required|string',
         ]);
