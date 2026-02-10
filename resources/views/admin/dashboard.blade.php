@@ -42,9 +42,7 @@
                 </div>
             </div>
 
-            <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Total Districts Card -->
                 <div
                     class="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
                     <div class="p-6">
@@ -74,7 +72,6 @@
                     </div>
                 </div>
 
-                <!-- Total Nominees Card -->
                 <div
                     class="group bg-white rounded-2xl shadow-lg hover:shadow-xl 
                     transition-all duration-300 overflow-hidden border 
@@ -109,7 +106,6 @@
                     </div>
                 </div>
 
-                <!-- Total Votes Cast Card -->
                 <div
                     class="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-200">
                     <div class="p-6">
@@ -172,7 +168,6 @@
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
                     <div class="p-6 border-b border-gray-100">
                         <div class="flex items-center justify-between">
@@ -218,7 +213,6 @@
                                 </div>
                             </div>
 
-                            <!-- Activity Item 2 -->
                             <div class="flex items-start">
                                 <div class="flex-shrink-0">
                                     <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -249,7 +243,6 @@
                                 </div>
                             </div>
 
-                            <!-- Activity Item 3 -->
                             <div class="flex items-start">
                                 <div class="flex-shrink-0">
                                     <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -303,7 +296,6 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const ctx = document.getElementById('votingChart').getContext('2d');
 
-                // Gradient for bars
                 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
                 gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
                 gradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
