@@ -293,19 +293,15 @@
         </div>
     </div>
 
-    <!-- Add District Modal -->
     <div id="addDistrictModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeAddDistrictModal()">
                 </div>
             </div>
 
-            <!-- Modal panel -->
             <div
                 class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full overflow-hidden">
-                <!-- Modal header -->
                 <div class="px-6 py-5 bg-gradient-to-r from-green-600 to-emerald-600">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -325,7 +321,6 @@
                     </div>
                 </div>
 
-                <!-- Modal form -->
                 <form id="addDistrictForm" method="POST" action="{{ route('districts.store') }}"
                     class="px-6 py-6">
                     @csrf
@@ -406,26 +401,22 @@
     }
 
     function openEditModal(id) {
-        // Implementation for edit modal
         console.log('Edit district:', id);
         alert('Edit functionality for district ' + id + ' would open here');
     }
 
     function openDeleteModal(id) {
         if (confirm('Are you sure you want to delete this district?')) {
-            // Delete functionality
             console.log('Delete district:', id);
         }
     }
 
-    // Close modal on Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeAddDistrictModal();
         }
     });
 
-    // Enhanced search functionality
     function filterDistrictTable() {
         const searchInput = document.getElementById('search-input');
         const filter = searchInput.value.toLowerCase();

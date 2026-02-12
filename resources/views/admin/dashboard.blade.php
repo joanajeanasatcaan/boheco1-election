@@ -182,7 +182,6 @@
                     </div>
                     <div class="p-6">
                         <div class="space-y-6">
-                            <!-- Activity Item 1 -->
                             <div class="flex items-start">
                                 <div class="flex-shrink-0">
                                     <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
