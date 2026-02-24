@@ -9,7 +9,7 @@ use App\Http\Resources\DistrictCountResource;
 use Illuminate\Support\Facades\DB;
 
 
-class DistrictCountController extends Controller
+class DashboardDistrictCountController extends Controller
 {
     public function index()
     {

@@ -46,7 +46,10 @@ class EcomProfileController extends Controller
         $profile = EcomProfile::create([
             'user_id' => $user->id,
             'district' => $request->district,
+            'ecom_password' => $request->password,
         ]);
+        
+        $user->assignRole('ecom');
 
         return new EcomUserResource($user);
     }

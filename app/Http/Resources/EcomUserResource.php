@@ -19,6 +19,7 @@ class EcomUserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'district' => $this->ecomProfile ? $this->ecomProfile->district : null,
+            'ecom_password' => $this->ecomProfile ? $this->ecomProfile->ecom_password : null,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
         ];

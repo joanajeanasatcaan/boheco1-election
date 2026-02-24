@@ -8,7 +8,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\NomineesController;
 use App\Http\Controllers\Api\EcomProfileController;
 use App\Http\Controllers\Api\VoterVerificationController;
-use App\Http\Controllers\Api\DistrictCountController;
+use App\Http\Controllers\Api\DashboardDistrictCountController;
+use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\TallyController;
 
 
@@ -28,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Voting
     Route::post('/vote', [VoteController::class, 'vote']);
     Route::post('/voters/verify', [VoterVerificationController::class, 'verify']);
-    Route::get('/district-counts', [DistrictCountController::class, 'index']);
+    Route::get('/dashboard-district-counts', [DashboardDistrictCountController::class, 'index']);
+    Route::get('/districts', [DistrictController::class, 'index']);
     Route::get('/tally-results', [TallyController::class, 'index']);
 });
