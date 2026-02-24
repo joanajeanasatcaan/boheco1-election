@@ -295,19 +295,15 @@
         </div>
     </div>
 
-    <!-- Add District Modal -->
     <div id="addDistrictModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeAddDistrictModal()">
                 </div>
             </div>
 
-            <!-- Modal panel -->
             <div
                 class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full overflow-hidden">
-                <!-- Modal header -->
                 <div class="px-6 py-5 bg-gradient-to-r from-green-600 to-emerald-600">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -327,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Modal form -->
                 <form id="addDistrictForm" method="POST" action="{{ route('districts.store') }}"
                     class="px-6 py-6">
                     @csrf
@@ -394,120 +389,9 @@
             </div>
         </div>
     </div>
+
+    @vite('resources/js/admin-districts.js')
 </x-app-layout>
-
-<script>
-    async function loadDistrictCounts() {
-        try {
-            const response = await fetch('/api/district-counts', {
-                credentials: 'include'
-            });
-            const data = await response.json();
-
-            if (data.total_districts !== undefined) {
-                document.getElementById('total-districts').innerText =
-                    data.total_districts.toLocaleString();
-            }
-
-            if (data.total_votes !== undefined) {
-                document.getElementById('total-votes').innerText =
-                    data.total_votes.toLocaleString();
-            }
-
-            // Update votes per district in table
-            if (data.by_district) {
-                data.by_district.forEach(district => {
-                    const row = document.querySelector(
-                        `tr[data-district="${district.district}"]`
-                    );
-
-                    if (row) {
-                        const voteCell = row.querySelector('td:nth-child(4) span');
-                        if (voteCell) {
-                            voteCell.innerText =
-                                parseInt(district.votes_count).toLocaleString();
-                        }
-                    }
-                });
-            }
-
-        } catch (error) {
-            console.error("Error loading district counts:", error);
-        }
-    }
-
-
-    function openAddDistrictModal() {
-        document.getElementById('addDistrictModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-
-    function closeAddDistrictModal() {
-        document.getElementById('addDistrictModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-
-    function openEditModal(id) {
-        console.log('Edit district:', id);
-        alert('Edit functionality for district ' + id + ' would open here');
-    }
-
-    function openDeleteModal(id) {
-        if (confirm('Are you sure you want to delete this district?')) {
-            // Delete functionality
-            console.log('Delete district:', id);
-        }
-    }
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeAddDistrictModal();
-        }
-    });
-
-    // Enhanced search functionality
-    function filterDistrictTable() {
-        const searchInput = document.getElementById('search-input');
-        const filter = searchInput.value.toLowerCase();
-        const table = document.querySelector('tbody');
-        const rows = table.querySelectorAll('tr');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const districtCell = row.querySelector('td:first-child');
-            if (districtCell) {
-                const text = districtCell.textContent.toLowerCase();
-                if (text.includes(filter) || filter === '') {
-                    row.style.display = '';
-                    row.classList.add('animate-fadeIn');
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-
-        // Update count display
-        const countDisplay = document.querySelector('.showing-count');
-        if (countDisplay) {
-            countDisplay.textContent = visibleCount;
-        }
-    }
-
-    // Add animation on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDistrictCounts();
-
-        setInterval(loadDistrictCounts, 5000);
-
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach((row, index) => {
-            row.style.animationDelay = `${index * 0.05}s`;
-            row.classList.add('animate-slideInUp');
-        });
-    });
-</script>
 
 <style>
     @keyframes fadeIn {
@@ -540,7 +424,6 @@
         animation: slideInUp 0.3s ease-out forwards;
     }
 
-    /* Hide scrollbar but keep functionality */
     .overflow-x-auto {
         scrollbar-width: thin;
         scrollbar-color: #d1d5db transparent;
@@ -558,4 +441,5 @@
         background-color: #d1d5db;
         border-radius: 3px;
     }
+
 </style>

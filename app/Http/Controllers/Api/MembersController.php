@@ -13,7 +13,7 @@ class MembersController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = (int) $request->get('per_page', 10);
+        $perPage = (int) $request->get('per_page', 100);
         $search  = trim($request->get('search', ''));
 
         $memberQuery = Member::with([
