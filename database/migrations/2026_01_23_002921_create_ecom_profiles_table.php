@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('districts', function (Blueprint $table) {
+        Schema::create('ECRM_EcomProfiles', function (Blueprint $table) {
             $table->id();
-            $table->string('district_name');
-            $table->string('nominees');
-            $table->string('registered_voters');
-            $table->string('votes_cast');
-            $table->string('status');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('district');
             $table->timestamps();
         });
+
     }
 
     /**
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('districts');
+        Schema::dropIfExists('ECRM_EcomProfiles');
     }
 };

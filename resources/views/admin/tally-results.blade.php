@@ -108,7 +108,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex rounded-lg border-transparent bg-gray-200 p-2 space-x-2" id="district-buttons">
                         <button onclick="showDistrict('all')" 
-                                class="district-btn active px-4 py-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-colors">
+                                class="district-bt  n active px-4 py-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-colors">
                             <p class="text-sm font-bold text-gray-900">All Districts</p>
                         </button>
                         <button onclick="showDistrict(1)" 
@@ -134,117 +134,87 @@
             </div>
         </div>
     </div>
+<script>
+    let currentDistrict = 'all';
 
-    <script>
-        const tallyData = {
-            'all': [
-                {
-                    district: "District 1",
-                    votesCast: 1234,
-                    totalVoters: 2000,
-                    turnout: 62,
-                    status: "Live",
-                    candidates: [
-                        { name: "Joana Valdez", votes: 456, percentage: 37 },
-                        { name: "Hilario Rosco", votes: 423, percentage: 34 },
-                        { name: "hahhahahaha", votes: 198, percentage: 16 },
-                        { name: "blablabla", votes: 157, percentage: 13 }
-                    ]
-                },
-            ]
-        };
+    function showDistrict(district, btn = null) {
+        currentDistrict = district;
 
-        let currentDistrict = 'all';
-
-        function showDistrict(district) {
-            currentDistrict = district;
-            
-            document.querySelectorAll('.district-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-white', 'border-gray-300');
-                btn.classList.add('border-gray-200');
-                btn.querySelector('p').classList.remove('text-gray-900');
-                btn.querySelector('p').classList.add('text-gray-800');
+        if (btn) {
+            document.querySelectorAll('.district-btn').forEach(b => {
+                b.classList.remove('active', 'bg-white', 'border-gray-300');
+                b.classList.add('border-gray-200');
+                b.querySelector('p')?.classList.remove('text-gray-900');
+                b.querySelector('p')?.classList.add('text-gray-800');
             });
-            
-            const activeBtn = event.currentTarget;
-            activeBtn.classList.add('active', 'bg-white', 'border-gray-300');
-            activeBtn.classList.remove('border-gray-200');
-            activeBtn.querySelector('p').classList.add('text-gray-900');
-            activeBtn.querySelector('p').classList.remove('text-gray-800');
-            
-            loadDistrictData(district);
+
+            btn.classList.add('active', 'bg-white', 'border-gray-300');
+            btn.classList.remove('border-gray-200');
+            btn.querySelector('p')?.classList.add('text-gray-900');
+            btn.querySelector('p')?.classList.remove('text-gray-800');
         }
 
-        function loadDistrictData(district) {
-            const data = tallyData[district];
-            const tallyGrid = document.getElementById('tally-grid');
-            
-            let totalVotes = 0;
-            let totalVoters = 0;
-            
-            data.forEach(districtData => {
-                totalVotes += districtData.votesCast;
-                totalVoters += districtData.totalVoters;
-            });
-            
-            const turnoutPercentage = totalVoters > 0 ? Math.round((totalVotes / totalVoters) * 100) : 0;
-            
-            document.getElementById('total-votes').textContent = totalVotes.toLocaleString();
-            document.getElementById('registered-voters').textContent = totalVoters.toLocaleString();
-            document.getElementById('turnout-percentage').textContent = `${turnoutPercentage}%`;
-            
-            document.getElementById('tally-results').textContent = `Showing ${data.length} ${data.length === 1 ? 'tally' : 'tallies'}`;
-            
-            tallyGrid.innerHTML = '';
-            
-            data.forEach(districtData => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300';
-                card.innerHTML = `
-                    <div class="p-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900">${districtData.district}</h3>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    ${districtData.votesCast.toLocaleString()} of ${districtData.totalVoters.toLocaleString()} votes
-                                    <span class="font-semibold">(${districtData.turnout}% turnout)</span>
-                                </p>
-                            </div>
-                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                ${districtData.status}
-                            </span>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            ${districtData.candidates.map(candidate => `
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">${candidate.name}</h4>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-bold text-gray-900">${candidate.votes.toLocaleString()} votes</p>
-                                        <p class="text-sm text-gray-600">${candidate.percentage}%</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                tallyGrid.appendChild(card);
-            });
-        }
+        loadDistrictData(district);
+    }
 
-        function showAllDistricts() {
-            showDistrict('all');
-        }
+    async function loadDistrictData(district = 'all') {
+        const tallyGrid = document.getElementById('tally-grid');
+        tallyGrid.innerHTML = '<p class="text-gray-500">Loading results...</p>';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDistrictData('all');
+        const response = await fetch(`/api/tally-results?district=${district}`);
+        const data = await response.json();
+
+        console.log('Loaded tally data:', data);
+
+        let totalVotes = 0;
+        let totalVoters = 0;
+
+        data.forEach(d => {
+            totalVotes += d.votesCast;
+            totalVoters += d.totalVoters;
         });
 
-        function exportToCSV() {
-            alert('Export functionality would be implemented here');
-        }
-    </script>
+        const turnout = totalVoters > 0
+            ? Math.round((totalVotes / totalVoters) * 100)
+            : 0;
+
+        document.getElementById('total-votes').textContent = totalVotes.toLocaleString();
+        document.getElementById('registered-voters').textContent = totalVoters.toLocaleString();
+        document.getElementById('turnout-percentage').textContent = `${turnout}%`;
+        document.getElementById('tally-results').textContent =
+            `Showing ${data.length} ${data.length === 1 ? 'tally' : 'tallies'}`;
+
+        tallyGrid.innerHTML = '';
+
+        data.forEach(districtData => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200';
+
+            card.innerHTML = `
+                <div class="p-6">
+                    <h3 class="text-lg font-bold">${districtData.district}</h3>
+                    <p class="text-sm text-gray-600 mb-3">
+                        ${districtData.votesCast} / ${districtData.totalVoters}
+                        (${districtData.turnout}% turnout)
+                    </p>
+
+                    ${districtData.candidates.map(c => `
+                        <div class="flex justify-between bg-gray-50 p-3 rounded mb-2">
+                            <span>${c.name}</span>
+                            <span class="font-bold">${c.votes} (${c.percentage}%)</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            tallyGrid.appendChild(card);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDistrictData('all');
+    });
+</script>
+
 
 </x-app-layout>

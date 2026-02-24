@@ -72,6 +72,10 @@
                             <option value="3">District 3</option>
                             <option value="4">District 4</option>
                             <option value="5">District 5</option>
+                            <option value="6">District 6</option>
+                            <option value="7">District 7</option>
+                            <option value="8">District 8</option>
+                            <option value="9">District 9</option>
                         </select>
                     </div>
                 </div>
@@ -234,6 +238,10 @@
                                 <option value="3">District 3</option>
                                 <option value="4">District 4</option>
                                 <option value="5">District 5</option>
+                                <option value="6">District 6</option>
+                                <option value="7">District 7</option>
+                                <option value="8">District 8</option>
+                                <option value="9">District 9</option>
                             </select>
                         </div>
 

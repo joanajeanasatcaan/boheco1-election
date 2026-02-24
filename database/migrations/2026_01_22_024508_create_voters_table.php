@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nominees', function (Blueprint $table) {
+        Schema::create('ECRM_Voters', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('Town');
-            $table->string('current_votes');
+            $table->boolean('has_voted')->default(false);
+            $table->foreignId('nominee_id')->constrained('ECRM_Nominees')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nominees');
+        Schema::dropIfExists('ECRM_Voters');
     }
 };

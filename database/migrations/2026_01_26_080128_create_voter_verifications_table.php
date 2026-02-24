@@ -11,22 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('online_voters_receipts', function (Blueprint $table) {
+        Schema::create('ECRM_VoterVerifications', function (Blueprint $table) {
             $table->id();
-            $table->string('profile')->nullable();
-            $table->string('name');
-            $table->string('id_number')->unique();
-            $table->timestamp('date_time_voted')->nullable();
-            $table->string('remarks')->default('Voted Online');
+            $table->string('voter_id');
+            $table->boolean('is_verified')->default(false);
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
+            $table->unique(['voter_id']);
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('online_voters_receipts');
+        Schema::dropIfExists('ECRM_VoterVerifications');
     }
 };
