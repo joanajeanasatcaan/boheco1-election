@@ -244,97 +244,35 @@
                                 <option value="9">District 9</option>
                             </select>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Town <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="town" required
-                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 placeholder-gray-400"
-                                placeholder="Enter town">
-                        </div>
                     </div>
 
-                    <div class="flex gap-3 mt-8">
-                        <button type="button" onclick="closeAddNomineeModal()"
-                            class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200">
-                            Add Nominee
-                        </button>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Town <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="town" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 placeholder-gray-400"
+                            placeholder="Enter town">
                     </div>
-                </form>
             </div>
+
+            <div class="flex gap-3 mt-8">
+                <button type="button" onclick="closeAddNomineeModal()"
+                    class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200">
+                    Add Nominee
+                </button>
+            </div>
+            </form>
         </div>
     </div>
+    </div>
+
+    @vite('resources/js/admin-nominees.js')
 </x-app-layout>
-
-<script>
-
-    function editNominee(id) {
-        alert(`Edit functionality for nominee ${id} would open here`);
-    }
-
-    function deleteNominee(id) {
-        if (confirm('Are you sure you want to delete this nominee?')) {
-            console.log('Delete nominee:', id);
-
-            const index = nominees.findIndex(n => n.id === id);
-            if (index !== -1) {
-                nominees.splice(index, 1);
-                filterNominees();
-            }
-        }
-    }
-
-    function previewProfileImage(event) {
-        const input = event.target;
-        const preview = document.getElementById('profile-preview');
-        const placeholder = document.getElementById('profile-placeholder');
-
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-            }
-
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function openAddNomineeModal() {
-        document.getElementById('addNomineeModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-
-    function closeAddNomineeModal() {
-        document.getElementById('addNomineeModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-
-        document.getElementById('addNomineeForm').reset();
-        document.getElementById('profile-preview').src = '';
-        document.getElementById('profile-preview').classList.add('hidden');
-        document.getElementById('profile-placeholder').classList.remove('hidden');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        renderNomineesGrid();
-
-        document.getElementById('search-input').addEventListener('input', filterNominees);
-        document.getElementById('district-filter').addEventListener('change', filterNominees);
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeAddNomineeModal();
-            }
-        });
-    });
-</script>
 
 <style>
     @keyframes fadeIn {

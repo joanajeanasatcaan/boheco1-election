@@ -3,5 +3,6 @@
         {{ $slot }}
     </main>
 
-        @vite('resources/js/ecom-dashboard.js')
-</div>
+    @vite('resources/js/ecom-dashboard.js')
+
+

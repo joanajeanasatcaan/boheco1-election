@@ -211,7 +211,8 @@ function viewVoterDetails(voterId) {
                     <div class="space-y-4">
                         <div class="flex items-center space-x-4">
                             <div class="relative">
-                                <div class="h-20 w-20 rounded-full border-4 border-green-100 bg-gray-200 flex items-center justify-center overflow-hidden">
+                                <div class="h-20 w-20 rounded-full border-4 border-green-100 bg-gray-200 
+                                flex items-center justify-center overflow-hidden">
                                 </div>
                                 <button onclick="uploadProfilePicture(${voterId})" class="absolute bottom-0 right-0 bg-gray-300 text-gray-400 p-1 rounded-full hover:bg-green-600 transition-colors duration-200" title="Upload profile picture">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
