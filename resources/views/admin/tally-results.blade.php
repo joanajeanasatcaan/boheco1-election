@@ -161,7 +161,9 @@
         const tallyGrid = document.getElementById('tally-grid');
         tallyGrid.innerHTML = '<p class="text-gray-500">Loading results...</p>';
 
-        const response = await fetch(`/api/tally-results?district=${district}`);
+        const response = await fetch(`/api/tally-results?district=${district}`, {
+                credentials: 'include'
+            });
         const data = await response.json();
 
         console.log('Loaded tally data:', data);

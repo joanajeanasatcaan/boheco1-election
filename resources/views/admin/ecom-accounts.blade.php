@@ -274,7 +274,9 @@
 /* LOAD DATA FROM API */
 async function loadEcomAccounts() {
     try {
-        const response = await fetch('/api/ecom-profile');
+        const response = await fetch('/api/ecom-profile', {
+                credentials: 'include'
+            });
         const json = await response.json();
 
 
@@ -433,53 +435,54 @@ function renderAccountsTable() {
 
 
     async function addNewAccount() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    const district = document.getElementById('district').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const district = document.getElementById('district').value;
 
-    if (!username || !password || !confirmPassword || !district) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match.');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/ecom-profile', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-            },
-            body: JSON.stringify({
-                name: username,
-                email: `${username}@example.com`, 
-                password: password,
-                password_confirmation: confirmPassword,
-                district: district
-            })
-        });
-
-        if (!response.ok) {
-            const err = await response.json();
-            alert(err.message ?? 'Failed to create account');
+        if (!username || !password || !confirmPassword || !district) {
+            alert('Please fill in all required fields.');
             return;
         }
 
-        closeAddAccountModal();
-        loadEcomAccounts();
-        alert('Account created successfully!');
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
 
-    } catch (error) {
-        console.error(error);
-        alert('Something went wrong.');
+        try {
+            const response = await fetch('/api/ecom-profile', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({
+                    name: username,
+                    email: `${username}@example.com`, 
+                    password: password,
+                    password_confirmation: confirmPassword,
+                    district: district
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                alert(err.message ?? 'Failed to create account');
+                return;
+            }
+
+            closeAddAccountModal();
+            loadEcomAccounts();
+            alert('Account created successfully!');
+
+        } catch (error) {
+            console.error(error);
+            alert('Something went wrong.');
+        }
     }
-}
 
 
     function openAddAccountModal() {

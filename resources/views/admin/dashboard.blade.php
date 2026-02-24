@@ -88,7 +88,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Nominees') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id='total-nominees-count' class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                             
@@ -371,9 +371,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function loadChart() {
-        const response = await fetch('/api/district-counts');
+        const response = await fetch('/api/district-counts', {
+                credentials: 'include'
+            });
         const result = await response.json();
-        const data = result.data;
+        const data = result.by_district;
 
         const labels = votingChart.data.labels;
         const votesArray = new Array(labels.length).fill(0);
@@ -390,6 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         votingChart.data.datasets[0].data = votesArray;
         votingChart.update();
+
+        const totalNomineesEl = document.getElementById('total-nominees-count');
+        if (totalNomineesEl) {
+            totalNomineesEl.innerText = Number(result.total_votes).toLocaleString();
+        }
 
         const totalElements = document.querySelectorAll('.total-votes-count');
         totalElements.forEach(el => {

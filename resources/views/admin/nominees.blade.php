@@ -137,7 +137,7 @@
                     </div>
                 </div>
 
-                <form id="addNomineeForm" method="POST" action="{{ route('nominees.store') }}" class="px-6 py-6"
+                <form id="addNomineeForm" class="px-6 py-6"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="space-y-6">
@@ -156,7 +156,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <label for="profile-image"
+                                <label for="image"
                                     class="absolute bottom-0 right-0 h-10 w-10 bg-green-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-green-700 transition-colors">
                                     <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -165,7 +165,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    <input type="file" id="profile-image" name="profile_image" accept="image/*"
+                                    <input type="file" id="image" name="image" accept="image/*"
                                         class="hidden" onchange="previewProfileImage(event)">
                                 </label>
                             </div>
@@ -204,7 +204,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Nickname
                                 </label>
-                                <input type="text" name="last_name" required
+                                <input type="text" name="nickname" required
                                     class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 placeholder-gray-400"
                                     placeholder="Enter nickname">
                             </div>
@@ -230,7 +230,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 District <span class="text-red-500">*</span>
                             </label>
-                            <select name="district_id" required
+                            <select name="district" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 bg-white">
                                 <option value="">Select District</option>
                                 <option value="1">District 1</option>
@@ -265,6 +265,7 @@
                             Add Nominee
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -272,6 +273,143 @@
 </x-app-layout>
 
 <script>
+
+    let nominees = [];
+    let filteredNominees = [];
+
+    async function fetchNominees() {
+        try {
+            const response = await fetch('/api/nominees', {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Unexpected response:', text);
+                return;
+            }
+
+            const result = await response.json();
+
+            nominees = result.data;
+            filteredNominees = nominees;
+
+            renderNomineesGrid();
+        } catch (error) {
+            console.error('Failed to load nominees:', error);
+        }
+    }
+
+
+    async function storeNominee(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/api/nominees', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Unexpected response:', text);
+                alert('Cannot save nominee. Are you logged in?');
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Nominee saved:', data);
+
+            closeAddNomineeModal();
+            fetchNominees();
+        } catch (error) {
+            console.error('Error saving nominee:', error);
+        }
+    }
+
+
+function renderNomineesGrid() {
+    const grid = document.getElementById('nominees-grid');
+    grid.innerHTML = '';
+
+    if (filteredNominees.length === 0) {
+        grid.innerHTML = `
+            <div class="text-center py-12 text-gray-500 col-span-full">
+                <p>No nominees found.</p>
+            </div>
+        `;
+        document.getElementById('nominee-count').innerText = 'Showing 0 nominees';
+        return;
+    }
+
+    filteredNominees.forEach(nominee => {
+        grid.innerHTML += `
+            <div class="bg-white rounded-xl shadow-md border p-5 hover:shadow-lg transition">
+                <div class="flex items-center gap-4 mb-4">
+                    <img
+                        src="${nominee.image_url ?? '/images/default-avatar.png'}"
+                        class="h-16 w-16 rounded-full object-cover border"
+                    >
+                    <div>
+                        <h4 class="font-bold text-gray-800">
+                            ${nominee.first_name} ${nominee.last_name}
+                        </h4>
+                        <p class="text-sm text-gray-500">
+                            ${nominee.nickname ?? ''}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p><strong>District:</strong> ${nominee.district}</p>
+                    <p><strong>Town:</strong> ${nominee.town}</p>
+                    <p><strong>Votes:</strong> ${nominee.votes_count}</p>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="editNominee(${nominee.id})"
+                        class="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        Edit
+                    </button>
+                    <button onclick="deleteNominee(${nominee.id})"
+                        class="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById('nominee-count').innerText =
+        `Showing ${filteredNominees.length} nominees`;
+}
+
+function filterNominees() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const district = document.getElementById('district-filter').value;
+
+    filteredNominees = nominees.filter(n => {
+        const fullName = `${n.first_name} ${n.last_name}`.toLowerCase();
+        const matchesSearch = fullName.includes(search);
+
+        const matchesDistrict = district
+            ? n.district == district
+            : true;
+
+        return matchesSearch && matchesDistrict;
+    });
+
+    renderNomineesGrid();
+}
+
+
 
     function editNominee(id) {
         alert(`Edit functionality for nominee ${id} would open here`);
@@ -312,7 +450,7 @@
         document.body.classList.add('overflow-hidden');
     }
 
-    function closeAddNomineeModal() {
+    function closeAddNomineeModal() {   
         document.getElementById('addNomineeModal').classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
 
@@ -322,18 +460,26 @@
         document.getElementById('profile-placeholder').classList.remove('hidden');
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        renderNomineesGrid();
+   document.addEventListener('DOMContentLoaded', async () => {
+        await fetch('/sanctum/csrf-cookie', { credentials: 'include' });
 
-        document.getElementById('search-input').addEventListener('input', filterNominees);
-        document.getElementById('district-filter').addEventListener('change', filterNominees);
+        fetchNominees();
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeAddNomineeModal();
-            }
+        document.getElementById('search-input')
+            .addEventListener('input', filterNominees);
+
+        document.getElementById('district-filter')
+            .addEventListener('change', filterNominees);
+
+        document.getElementById('addNomineeForm')
+            .addEventListener('submit', storeNominee);
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') closeAddNomineeModal();
         });
     });
+
+
 </script>
 
 <style>

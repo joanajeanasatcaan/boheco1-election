@@ -64,7 +64,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Districts') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id="total-districts" class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Voters') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id="total-voters" class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                         <div>
                             <p class="text-sm text-gray-500 mb-1">{{ __('Active Election') }}</p>
                             <div class="flex items-end justify-between">
-                                <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                <h3 id="total-votes" class="text-3xl font-bold text-gray-900">0</h3>
                             </div>
                         </div>
                         </div>
@@ -170,7 +170,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
                             @forelse($districts as $item)
-                                <tr
+                                <tr  data-district="{{ 'District ' . $item->district_name }}"
                                     class="group hover:bg-gradient-to-r hover:from-green-50/50 hover:to-emerald-50/50 transition-all duration-200 even:bg-gray-50/50">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center">
@@ -397,6 +397,46 @@
 </x-app-layout>
 
 <script>
+    async function loadDistrictCounts() {
+        try {
+            const response = await fetch('/api/district-counts', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (data.total_districts !== undefined) {
+                document.getElementById('total-districts').innerText =
+                    data.total_districts.toLocaleString();
+            }
+
+            if (data.total_votes !== undefined) {
+                document.getElementById('total-votes').innerText =
+                    data.total_votes.toLocaleString();
+            }
+
+            // Update votes per district in table
+            if (data.by_district) {
+                data.by_district.forEach(district => {
+                    const row = document.querySelector(
+                        `tr[data-district="${district.district}"]`
+                    );
+
+                    if (row) {
+                        const voteCell = row.querySelector('td:nth-child(4) span');
+                        if (voteCell) {
+                            voteCell.innerText =
+                                parseInt(district.votes_count).toLocaleString();
+                        }
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error("Error loading district counts:", error);
+        }
+    }
+
+
     function openAddDistrictModal() {
         document.getElementById('addDistrictModal').classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
@@ -457,6 +497,10 @@
 
     // Add animation on page load
     document.addEventListener('DOMContentLoaded', function() {
+        loadDistrictCounts();
+
+        setInterval(loadDistrictCounts, 5000);
+
         const rows = document.querySelectorAll('tbody tr');
         rows.forEach((row, index) => {
             row.style.animationDelay = `${index * 0.05}s`;
