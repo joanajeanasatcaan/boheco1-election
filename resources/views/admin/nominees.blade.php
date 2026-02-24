@@ -137,7 +137,7 @@
                     </div>
                 </div>
 
-                <form id="addNomineeForm" method="POST" action="{{ route('nominees.store') }}" class="px-6 py-6"
+                <form id="addNomineeForm" class="px-6 py-6"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="space-y-6">
@@ -156,7 +156,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <label for="profile-image"
+                                <label for="image"
                                     class="absolute bottom-0 right-0 h-10 w-10 bg-green-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-green-700 transition-colors">
                                     <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -165,7 +165,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    <input type="file" id="profile-image" name="profile_image" accept="image/*"
+                                    <input type="file" id="image" name="image" accept="image/*"
                                         class="hidden" onchange="previewProfileImage(event)">
                                 </label>
                             </div>
@@ -204,7 +204,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Nickname
                                 </label>
-                                <input type="text" name="last_name" required
+                                <input type="text" name="nickname" required
                                     class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 placeholder-gray-400"
                                     placeholder="Enter nickname">
                             </div>
@@ -230,7 +230,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 District <span class="text-red-500">*</span>
                             </label>
-                            <select name="district_id" required
+                            <select name="district" required
                                 class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 bg-white">
                                 <option value="">Select District</option>
                                 <option value="1">District 1</option>

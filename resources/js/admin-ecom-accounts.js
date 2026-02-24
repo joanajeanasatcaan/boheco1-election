@@ -1,9 +1,11 @@
-let ecomAccounts = [];
+   let ecomAccounts = [];
 
 /* LOAD DATA FROM API */
 async function loadEcomAccounts() {
     try {
-        const response = await fetch('/api/ecom-profile');
+        const response = await fetch('/api/ecom-profile', {
+                credentials: 'include'
+            });
         const json = await response.json();
 
 
@@ -115,148 +117,30 @@ function editAccount(id) {
     const account = ecomAccounts.find(acc => acc.id === id);
     if (!account) return;
 
-    document.getElementById('username').value = account.name || '';
-    document.getElementById('district').value = account.district ? account.district.replace('District ', '') : '';
-
-    const statusRadios = document.querySelectorAll('input[name="status"]');
-    statusRadios.forEach(radio => {
-        if (radio.value === account.status?.toLowerCase()) {
-            radio.checked = true;
-        }
-    });
+    document.getElementById('username').value = account.username;
+    document.getElementById('password').value = account.password;
+    document.getElementById('confirm_password').value = account.password;
+    document.getElementById('district').value = account.district;
+    document.querySelector(`input[name="status"][value="${account.status}"]`).checked = true;
 
     document.querySelector('#addAccountModal h3').textContent = 'Edit Account';
     document.querySelector('#addAccountModal button[type="submit"]').textContent = 'Update Account';
 
     const form = document.getElementById('addAccountForm');
-    form.onsubmit = function(e) {
+    form.onsubmit = function (e) {
         e.preventDefault();
         updateAccount(id);
     };
 
-    currentEditId = id;
-
     openAddAccountModal();
 }
 
-let currentEditId = null;
-
-async function updateAccount(id) {
-    const username = document.getElementById('username').value.trim();
+function updateAccount(id) {
+    const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
     const district = document.getElementById('district').value;
-    const status = document.querySelector('input[name="status"]:checked')?.value || 'active';
-
-    if (!username || !district) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    if (password || confirmPassword) {
-        if (!password || !confirmPassword) {
-            alert('Please fill in both password fields');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-
-        if (password.length < 8 ) {
-            alert('Password must be atleast 8 characters long');
-            return;
-        }
-    }
-
-    try {
-        const updateData = {
-            name:username,
-            district: district,
-            status: status,
-            email: `${username}@example.com`
-        };
-
-        if (password) {
-            updateData.password = password;
-            updateData.password_confirmation = confirmPassword;
-        }
-
-        const response = await fetch(`/api/ecom-profile/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || document.querySelector('meta[name="csrf-token]')?.getAttribute('content')
-            },
-            body: JSON.stringify(updateData)
-        });
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.message || 'Failed to update account');
-        }
-
-        const accountIndex = ecomAccounts.findIndex(acc => acc.id === id);
-        if (acountIndex !== -1) {
-            ecomAccounts[accountIndex] = {
-                ...ecomAccounts[accountIndex],
-                name: username,
-                district: district ? `District ${district}` : 'N/A',
-                status: status
-            };
-        }
-
-        alert('Account updated successfully');
-        closeAddAccountModal();
-        renderAccountsTable();
-    } catch (error) {
-        console.error('Update error', error);
-        alert(error.message || 'Failed to update account. Please try again');
-    }
-}
-
-async function deleteAccount(id) {
-    if (!confirm('Are yous sure you want tp delete this account?')){
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/ecom-profile/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept' : 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value ||
-                                document.querySelector('meta[name="csrf-toke"]')?.getAttribute('content')
-            }
-        });
-        
-        const json = await response.json();
-
-        if(!response.ok) {
-            alert(json.message || 'Delete failed');
-            return;
-        }
-
-        ecomAccounts = ecomAccounts.filter(acc => acc.id !== id);
-
-        renderAccountsTable();
-
-        alert('Account deleted successfully');
-
-    } catch (error) {
-        console.error('Delete error:', error);
-        alert('Error deleting account. Please try again');
-    }
-}
-
-async function addNewAccount() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    const district = document.getElementById('district').value;
-    const status = document.querySelector('input[name="status"]:checked')?.value || 'active';
+    const status = document.querySelector('input[name="status"]:checked').value;
 
     if (!username || !password || !confirmPassword || !district) {
         alert('Please fill in all required fields.');
@@ -268,8 +152,66 @@ async function addNewAccount() {
         return;
     }
 
-    if (password.length < 8) {
-        alert('Password must be at least 8 characters long');
+    const accountIndex = ecomAccounts.findIndex(acc => acc.id === id);
+    if (accountIndex !== -1) {
+        ecomAccounts[accountIndex] = {
+            ...ecomAccounts[accountIndex],
+            username,
+            password,
+            district,
+            status
+        };
+
+        alert('Account updated successfully!');
+        closeAddAccountModal();
+        filterAccounts();
+    }
+}
+
+async function deleteAccount(id) {
+    if (!confirm('Delete this profile?')) return;
+
+    try {
+        const response = await fetch(`/api/ecom-profile/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content')
+            }
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            alert(json.message || 'Delete failed');
+            return;
+        }
+
+        ecomAccounts = ecomAccounts.filter(acc => acc.id !== id);
+        renderAccountsTable();
+    } catch (error) {
+        console.error(error);
+        alert('Error deleting profile');
+    }
+}
+
+
+
+async function addNewAccount() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const district = document.getElementById('district').value;
+
+        if (!username || !password || !confirmPassword || !district) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+    if (password !== confirmPassword) {
+        alert('Passwords do not match.');
         return;
     }
 
@@ -279,52 +221,44 @@ async function addNewAccount() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
             },
             body: JSON.stringify({
                 name: username,
                 email: `${username}@example.com`,
                 password: password,
                 password_confirmation: confirmPassword,
-                district: district,
-                status: status
+                district: district
             })
         });
 
-        const json = await response.json();
-
         if (!response.ok) {
-            alert(json.message || json.errors ? Object.values(json.errors).flat().join('\n') : 'Failed to create account');
+            const err = await response.json();
+            alert(err.message ?? 'Failed to create account');
             return;
         }
 
-        closeAddAccountModal();
-        loadEcomAccounts();
-        alert('Account created successfully!');
+            closeAddAccountModal();
+            loadEcomAccounts();
+            alert('Account created successfully!');
 
     } catch (error) {
-        console.error('Add account error:', error);
+        console.error(error);
         alert('Something went wrong.');
     }
 }
 
 
-function openAddAccountModal() {
+    function openAddAccountModal() {
 
-    if (!currentEditId) {
     document.getElementById('addAccountForm').reset();
     document.querySelector('#addAccountModal h3').textContent = 'Create New Account';
     document.querySelector('#addAccountModal button[type="submit"]').textContent = 'Create Account';
-    }
 
     const form = document.getElementById('addAccountForm');
     form.onsubmit = function (e) {
         e.preventDefault();
-        if (currentEditId) {
-            updateAccount(currentEditId);
-        } else {
-            addNewAccount();
-        }
+        addNewAccount();
     };
 
     document.getElementById('addAccountModal').classList.remove('hidden');
@@ -334,72 +268,38 @@ function openAddAccountModal() {
 function closeAddAccountModal() {
     document.getElementById('addAccountModal').classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
-
-    document.getElementById('addAccountForm').reset();
-    currentEditId = null;
-
-    const form = document.getElementById('addAccountForm');
-    form.onsubmit = function(e) {
-        e.preventDefault();
-        addNewAccount();
-    };
 }
 
-function togglePassword() {
-    const passwordInput = document.getAnimations('password');
-    const eyeIcon = document.getElementById('eye-icon');
+    document.addEventListener('DOMContentLoaded', function () {
+        loadEcomAccounts();
 
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.innerHTML = `
-        <path stroke-linecap="round" stroke-linejoin="join" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-        `;
-    } else {
-        passwordInput.type = 'password';
-        eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        `;
-    }
-}
+        const searchInput = document.getElementById('search-input');
+        const statusFilter = document.getElementById('status-filter');
+        const districtFilter = document.getElementById('district-filter');
 
-function filterAccount() {
-    renderAccountsTable();
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    loadEcomAccounts();
-
-    const searchInput = document.getElementById('search-input');
-    const statusFilter = document.getElementById('status-filter');
-    const districtFilter = document.getElementById('district-filter');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', filterAccounts);
-    }
-
-    if (statusFilter) {
-        statusFilter.addEventListener('change', filterAccounts);
-    }
-
-    if (districtFilter) {
-        districtFilter.addEventListener('change', filterAccounts);
-    }
-
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            closeAddAccountModal();
+        if (searchInput) {
+            searchInput.addEventListener('input', filterAccounts);
         }
-    });
 
-    const modal = document.getElementById('addAccountModal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === this) {
+        if (statusFilter) {
+            statusFilter.addEventListener('change', filterAccounts);
+        }
+
+        if (districtFilter) {
+            districtFilter.addEventListener('change', filterAccounts);
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
                 closeAddAccountModal();
             }
         });
-    }
+
+    document.getElementById('addAccountModal')?.addEventListener('click', function (event) {
+        if (event.target === this) {
+            closeAddAccountModal();
+        }
+    });
 });
 
 window.openAddAccountModal = openAddAccountModal;

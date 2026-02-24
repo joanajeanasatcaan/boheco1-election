@@ -64,7 +64,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Districts') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id="total-districts" class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Voters') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id="total-voters" class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                         <div>
                             <p class="text-sm text-gray-500 mb-1">{{ __('Active Election') }}</p>
                             <div class="flex items-end justify-between">
-                                <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                <h3 id="total-votes" class="text-3xl font-bold text-gray-900">0</h3>
                             </div>
                         </div>
                         </div>
@@ -168,126 +168,7 @@
                                     Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            @forelse($districts as $item)
-                                <tr
-                                    class="group hover:bg-gradient-to-r hover:from-green-50/50 hover:to-emerald-50/50 transition-all duration-200 even:bg-gray-50/50">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="h-10 w-10 flex-shrink-0 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
-                                                <svg class="h-5 w-5 text-green-600" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 2a8 8 0 100 16 8 8 0 000-16zM4 10a6 6 0 1112 0 6 6 0 01-12 0z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <div
-                                                    class="font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
-                                                    {{ $item->district_name }}</div>
-                                                <div class="text-xs text-gray-500">ID: {{ $item->id ?? 'N/A' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="inline-flex flex-col items-center">
-                                            <span
-                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700">
-                                                {{ $item->nominees ?? 0 }}
-                                            </span>
-                                            <span class="text-xs text-gray-500 mt-1">nominees</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="inline-flex flex-col items-center">
-                                            <span
-                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700">
-                                                {{ $item->registered_voters ?? 0 }}
-                                            </span>
-                                            <span class="text-xs text-gray-500 mt-1">voters</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="inline-flex flex-col items-center">
-                                            <span
-                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700">
-                                                {{ $item->votes_cast ?? 0 }}
-                                            </span>
-                                            <span class="text-xs text-gray-500 mt-1">votes</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold
-                                            @if ($item->status === 'Active') bg-gradient-to-r from-green-100 to-emerald-100 text-green-700
-                                            @elseif($item->status === 'Inactive')
-                                                bg-gradient-to-r from-red-100 to-pink-100 text-red-700
-                                            @else
-                                                bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 @endif
-                                        ">
-                                            @if ($item->status === 'Active')
-                                                <span
-                                                    class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                                            @elseif($item->status === 'Inactive')
-                                                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                            @endif
-                                            {{ $item->status ?? 'Inactive' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-2">
-                                            <button onclick="openEditModal({{ $item->id }})"
-                                                class="group/edit inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-lg active:scale-95 transition-all duration-200">
-                                                <svg class="w-4 h-4 mr-1.5 group-hover/edit:rotate-12 transition-transform"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                Edit
-                                            </button>
-                                            <button onclick="openDeleteModal({{ $item->id }})"
-                                                class="group/delete inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-lg hover:from-red-600 hover:to-red-700 hover:shadow-lg active:scale-95 transition-all duration-200">
-                                                <svg class="w-4 h-4 mr-1.5 group-hover/delete:rotate-12 transition-transform"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center">
-                                        <div class="flex flex-col items-center justify-center">
-                                            <div
-                                                class="h-20 w-20 mb-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                                <svg class="h-10 w-10 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                            </div>
-                                            <h4 class="text-lg font-semibold text-gray-700 mb-2">No districts found
-                                            </h4>
-                                            <p class="text-gray-500 mb-4">Get started by adding your first district
-                                            </p>
-                                            <button onclick="openAddDistrictModal()"
-                                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all">
-                                                <x-plus-logo class="h-5 w-5 mr-2" />
-                                                Add First District
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
+                        <tbody id="district-table-body" class="divide-y divide-gray-100 bg-white">
                         </tbody>
                     </table>
                 </div>

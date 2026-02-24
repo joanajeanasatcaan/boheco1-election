@@ -85,7 +85,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">{{ __('Total Nominees') }}</p>
                                 <div class="flex items-end justify-between">
-                                    <h3 class="text-3xl font-bold text-gray-900">0</h3>
+                                    <h3 id='total-nominees-count' class="text-3xl font-bold text-gray-900">0</h3>
                                 </div>
                             </div>
 

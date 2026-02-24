@@ -13,6 +13,7 @@ class EcomProfile extends Model
     protected $fillable = [
         'user_id',
         'district',
+        'ecom_password'
     ];
 
     public function user()

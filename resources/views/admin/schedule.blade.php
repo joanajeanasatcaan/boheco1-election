@@ -58,7 +58,7 @@
                                 <div class="flex justify-between items-center">
                                     <button class="text-xl">&lt;</button>
                                     <h2 class="text-xl font-bold" id="month-year">
-                                        January 2026
+
                                     </h2>
                                     <button class="text-xl">&gt;</button>
                                 </div>

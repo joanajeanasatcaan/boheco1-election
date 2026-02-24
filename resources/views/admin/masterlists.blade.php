@@ -114,6 +114,11 @@
                             <option value="District 2">District 2</option>
                             <option value="District 3">District 3</option>
                             <option value="District 4">District 4</option>
+                            <option value="District 5">District 5</option>
+                            <option value="District 6">District 6</option>
+                            <option value="District 7">District 7</option>
+                            <option value="District 8">District 8</option>
+                            <option value="District 9">District 9</option>
                         </select>
                     </div>
 
