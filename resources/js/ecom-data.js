@@ -54,52 +54,90 @@ const validIDOptions = [{
 }
 ]
 
-const votersData = [{
-    id: 1,
-    name: "John Kenneth Lebita",
-    district: "District 1-Tubigon",
-    idNumber: "000987654321",
-    email: "john.lebita@example.com",
-    phone: "+63 912 345 6789",
-    birthdate: "1990-05-15",
-    address: "123 Purok 1, Tubigon, Bohol",
-    votedDate: "2024-03-15",
-    votedTime: "14:30 PM",
-    votingMethod: "Voted Online",
-    status: "Verified",
-    verificationDate: "2024-01-10"
-},
-{
-    id: 2,
-    name: "Chris Marie Calesa",
-    district: "District 1-Clarin",
-    idNumber: "009897656543",
-    email: "chris.calesa@example.com",
-    phone: "+63 923 456 7890",
-    birthdate: "1988-11-22",
-    address: "456 Purok 2, Clarin, Bohol",
-    votedDate: "",
-    votedTime: "",
-    votingMethod: "",
-    status: "Pending",
-    verificationDate: ""
-},
-{
-    id: 3,
-    name: "Aira Lebita",
-    district: "District 1-Loon",
-    idNumber: "009098767389",
-    email: "aira.lebita@example.com",
-    phone: "+63 934 567 8901",
-    birthdate: "1995-03-08",
-    address: "789 Purok 3, Loon, Bohol",
-    votedDate: "2025-09-23",
-    votedTime: "08:09 AM",
-    votingMethod: "Voted Physically",
-    status: "Verified",
-    verificationDate: "2024-03-05"
+let votersData = [];
+let nextCursor = null;
+
+function renderVotersTable(voters) {
+    const table = document.getElementById('votersTable');
+    table.innerHTML = '';
+
+    voters.forEach(voter => {
+
+        const fullName = `${voter.first_name} ${voter.middle_name ?? ''} ${voter.last_name}`;
+
+        const statusBadge = voter.is_verified
+                    ? `<span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">Verified</span>`
+                    : `<span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>`;
+
+
+        const district = voter.district ? `District ${voter.district}` : 'No district';
+
+        const row = `
+            <tr onclick="viewVoterDetails('${voter.member_id}')"
+                class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+
+                <td class="px-6 py-4">
+                    <input type="checkbox"
+                        class="voter-checkbox h-4 w-4 rounded border-gray-300 text-green-600"
+                        value="${voter.member_id}">
+                </td>
+
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${fullName}</div>
+                    <div class="text-sm text-gray-500">${district}</div>
+                </td>
+
+                <td class="px-6 py-4 font-mono">
+                    ${voter.member_id}
+                </td>
+
+                <td class="px-6 py-4">
+                    -
+                </td>
+
+                <td class="px-6 py-4">
+                   ${statusBadge}
+                </td>
+
+                <td class="px-6 py-4">
+                    -
+                </td>
+            </tr>
+        `;
+
+        table.insertAdjacentHTML('beforeend', row);
+    });
 }
-];
+
+async function loadVoters(params = {}) {
+    try {
+        const query = new URLSearchParams(params).toString();
+
+        const response = await fetch(`/api/members?${query}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include' 
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch voters');
+        }
+
+        const data = await response.json();
+
+        votersData = data.data;
+        console.log('Fetched voters:', votersData);
+        nextCursor = data.meta?.next_cursor ?? null;
+
+        renderVotersTable(votersData);
+
+    } catch (error) {
+        console.error(error);
+        alert('Error loading voters');
+    }
+}
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -153,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function () {
         statusFilter.addEventListener('change', filterVoters);
     }
 
+    loadVoters({
+        per_page: 20
+    });
 });
 
 function updateSelectAllState() {
@@ -201,7 +242,7 @@ function viewVoterDetails(voterId) {
     const modal = document.getElementById('voterModal');
     const modalContent = document.getElementById('modalContent');
 
-    const voter = votersData.find(v => v.id === voterId);
+    const voter = votersData.find(v => v.member_id === voterId);
     if (!voter) return;
 
     const voterIDList = voterIDs[voterId] || [];
@@ -222,9 +263,9 @@ function viewVoterDetails(voterId) {
                                 </button>
                             </div>
                             <div>
-                                <h4 class="text-xl font-bold text-gray-900">${voter.name}</h4>
-                                <p class="text-gray-600">${voter.district}</p>
-                                <span class="mt-1 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${voter.status === 'Verified' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"> ${voter.status} </span>
+                                <h4 class="text-xl font-bold text-gray-900">${voter.first_name}</h4>
+                                <p class="text-gray-600">District ${voter.district}</p>
+                                <span class="mt-1 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${voter.is_verified === true ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}"> ${voter.is_verified ? 'Verified' : 'Not Verified'} </span>
                             </div>
                         </div>
                         
@@ -237,7 +278,7 @@ function viewVoterDetails(voterId) {
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-xs text-gray-500">ID Number</p>
-                                                <p class="text-sm font-medium">${voter.idNumber}</p>
+                                                <p class="text-sm font-medium">${voter.member_id}</p>
                                             </div>
                                             <button onclick="editIDNumber(${voterId})" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,7 +316,7 @@ function viewVoterDetails(voterId) {
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-xs text-gray-500">Birthdate</p>
-                                                <p class="text-sm font-medium">${voter.birthdate}</p>
+                                                <p class="text-sm font-medium">${voter.birth_date}</p>
                                             </div>
                                             <button onclick="editBirthdate(${voterId})" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,7 +355,7 @@ function viewVoterDetails(voterId) {
                                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
-                                            <span class="text-sm">${voter.phone}</span>
+                                            <span class="text-sm">${voter.contact_number}</span>
                                         </div>
                                         <button onclick="editPhone(${voterId})" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -546,25 +587,25 @@ function removeID(voterId, index) {
 
 function editBirthdate(voterId) {
     currentEditField = 'birthdate';
-    const voter = votersData.find(v => v.id === voterId);
+    const voter = votersData.find(v => v.member_id === voterId);
     openEditModal('Edit Birthdate', 'Enter new birthdate (YYYY-MM-DD):', voter.birthdate);
 }
 
 function editEmail(voterId) {
     currentEditField = 'email';
-    const voter = votersData.find(v => v.id === voterId);
+    const voter = votersData.find(v => v.member_id === voterId);
     openEditModal('Edit Email', 'Enter new email:', voter.email);
 }
 
 function editPhone(voterId) {
     currentEditField = 'phone';
-    const voter = votersData.find(v => v.id === voterId);
+    const voter = votersData.find(v => v.member_id === voterId);
     openEditModal('Edit Phone Number', 'Enter new phone number:', voter.phone);
 }
 
 function editAddress(voterId) {
     currentEditField = 'address';
-    const voter = votersData.find(v => v.id === voterId);
+    const voter = votersData.find(v => v.member_id === voterId);
     openEditModal('Edit Address', 'Enter new address:', voter.address);
 }
 
@@ -613,7 +654,7 @@ function verifyVoter() {
     if (!currentVoterId) return;
 
     if (confirm(`Are you sure you want to verify this voter?`)) {
-        const voterIndex = votersData.findIndex(v => v.id === currentVoterId);
+        const voterIndex = votersData.findIndex(v => v.member_id === currentVoterId);
         if (voterIndex !== -1) {
             votersData[voterIndex].status = 'Verified';
             votersData[voterIndex].verificationDate = new Date().toISOString().split('T')[0];
@@ -635,35 +676,12 @@ function verifyVoter() {
 }
 
 function filterVoters() {
-    const searchInput = document.getElementById('search-input');
-    const votedFilter = document.getElementById('voted-filter');
-    const statusFilter = document.getElementById('status-filter');
+    const search = document.getElementById('search-input').value;
 
-    if (!searchInput || !votedFilter || !statusFilter) return;
-
-    const searchTerm = searchInput.value.toLowerCase();
-    const votedValue = votedFilter.value;
-    const statusValue = statusFilter.value;
-
-    const filteredVoters = votersData.filter(voter => {
-        const matchesSearch = !searchTerm ||
-            voter.name.toLowerCase().includes(searchTerm) ||
-            voter.idNumber.toLowerCase().includes(searchTerm) ||
-            voter.district.toLowerCase().includes(searchTerm);
-
-        let matchesVoted = true;
-        if (votedValue === 'Voted Online') {
-            matchesVoted = voter.votingMethod === 'Voted Online'
-        } else if (votedValue === 'Voted Physically') {
-            matchesVoted = voter.votingMethod === 'Voted Physically';
-        }
-
-        const matchesStatus = !statusValue || voter.status === statusValue;
-
-        return matchesSearch && matchesVoted && matchesStatus;
+    loadVoters({
+        search: search,
+        per_page: 20
     });
-
-    updateTable(filteredVoters);
 }
 
 function updateTable(filteredVoters) {
