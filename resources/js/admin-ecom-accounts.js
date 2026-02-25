@@ -13,6 +13,7 @@ async function loadEcomAccounts() {
             id: user.id,
             name: user.name,
             email: user.email,
+            ecom_password: user.ecom_password,
             district: user.district != null ? "District " + user.district : 'N/A',
             status: user.status ?? 'Active',
             createdAt: user.created_at
@@ -76,7 +77,13 @@ function renderAccountsTable() {
                         </div>
                     </div>
                 </td>
-
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div>
+                            <div class="font-semibold text-gray-900">${acc.ecom_password || 'N/A'}</div>
+                        </div>
+                    </div>
+                </td>
                 <td class="px-6 py-4">
                     <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700">
                         ${acc.district}
@@ -344,7 +351,7 @@ function closeAddAccountModal() {
     const form = document.getElementById('addAccountForm');
     form.onsubmit = function(e) {
         e.preventDefault();
-        addNewAccount();
+        addNewAccount();``
     };
 }
 

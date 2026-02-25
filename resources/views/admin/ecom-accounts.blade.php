@@ -71,6 +71,11 @@
                                 </th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                                     <div class="flex items-center gap-2">
+                                        Password
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                                    <div class="flex items-center gap-2">
                                         District & Access
                                     </div>
                                 </th>
