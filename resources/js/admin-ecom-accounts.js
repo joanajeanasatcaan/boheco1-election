@@ -93,19 +93,17 @@ function renderAccountsTable() {
                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                     <div class="flex items-center gap-2">
                         <button onclick="editAccount('${acc.id}')" 
-                            class="group/edit inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-lg active:scale-95 transition-all duration-200">
-                            <svg class="h-4 w-4 mr-1.5 group-hover/edit:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all duration-200 group">
+                            <svg class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
-                            Edit
                         </button>
         
                         <button onclick="deleteAccount('${acc.id}')" 
-                            class="group/delete inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold rounded-lg hover:from-red-600 hover:to-red-700 hover:shadow-lg active:scale-95 transition-all duration-200">
-                            <svg class="h-4 w-4 mr-1.5 group-hover/delete:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200 group">
+                            <svg class="h-5 w-5 group-hover:scale-110 trnasition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
-                            Delete
                         </button>
                     </div>
                 </td>
@@ -410,3 +408,112 @@ window.closeAddAccountModal = closeAddAccountModal;
 window.editAccount = editAccount;
 window.deleteAccount = deleteAccount;
 window.togglePassword = togglePassword;
+
+function openEditModal(id, name, status) {
+    const modalHtml = `
+        <div id="editDistrictModal" class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeEditModal()"></div>
+                </div>
+
+                <div class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full overflow-hidden">
+                    <div class="px-6 py-5 bg-blue-600">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center mr-3">
+                                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Edit District</h3>
+                            </div>
+                            <button onclick="closeEditModal()" class="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-white/20 active:scale-95 transition-all duration-200">
+                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="editDistrictForm" onsubmit="updateDistrict(event, ${id})" class="px-6 py-6">
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    District Name
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="district_name" value="${name}" required
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Status
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <!-- Active Button -->
+                                    <button type="button" 
+                                        onclick="selectEditStatus('Active')"
+                                        id="edit-status-active-btn"
+                                        class="edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full
+                                            ${status === 'Active' 
+                                                ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
+                                        <div class="flex items-center">
+                                            <div class="h-5 w-5 rounded-full border-2 mr-3 transition-colors
+                                                ${status === 'Active' 
+                                                    ? 'border-blue-500 bg-blue-500' 
+                                                    : 'border-gray-300 bg-white'}">
+                                            </div>
+                                            <span class="font-medium">Active</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- Inactive Button -->
+                                    <button type="button" 
+                                        onclick="selectEditStatus('Inactive')"
+                                        id="edit-status-inactive-btn"
+                                        class="edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full
+                                            ${status === 'Inactive' 
+                                                ? 'border-gray-500 bg-gray-50 text-gray-700' 
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
+                                        <div class="flex items-center">
+                                            <div class="h-5 w-5 rounded-full border-2 mr-3 transition-colors
+                                                ${status === 'Inactive' 
+                                                    ? 'border-gray-500 bg-gray-500' 
+                                                    : 'border-gray-300 bg-white'}">
+                                            </div>
+                                            <span class="font-medium">Inactive</span>
+                                        </div>
+                                    </button>
+                                </div>
+                                
+                                <!-- Hidden input to store the selected value -->
+                                <input type="hidden" name="status" id="edit-status-value" value="${status || 'Active'}" required>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 mt-8">
+                            <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all">
+                                Cancel
+                            </button>
+                            <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all">
+                                Update District
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const existingModal = document.getElementById('editDistrictModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.body.classList.add('overflow-hidden');
+}
