@@ -13,6 +13,7 @@ async function loadEcomAccounts() {
             id: user.id,
             name: user.name,
             email: user.email,
+            password: user.ecom_password,
             district: user.district != null ? "District " + user.district : 'N/A',
             status: user.status ?? 'Active',
             createdAt: user.created_at
@@ -67,16 +68,24 @@ function renderAccountsTable() {
         const statusClass = acc.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
 
         tbody.innerHTML += `
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr onclick="viewAccountDetails('${acc.id}')" 
+                class="hover:bg-gray-50 transition-colors cursor-pointer group"
+                style="cursor: pointer;">
                 <td class="px-6 py-4">
                     <div class="flex items-center">
                         <div>
-                            <div class="font-semibold text-gray-900">${acc.name || 'N/A'}</div>
+                            <div class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                ${acc.name || 'N/A'}
+                            </div>
                             <div class="text-sm text-gray-500">${acc.email || 'No email'}</div>
                         </div>
                     </div>
                 </td>
-
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="font-mono text-gray-600">••••••••</div>
+                    </div>
+                </td>
                 <td class="px-6 py-4">
                     <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700">
                         ${acc.district}
@@ -93,15 +102,17 @@ function renderAccountsTable() {
                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                     <div class="flex items-center gap-2">
                         <button onclick="editAccount('${acc.id}')" 
-                            class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all duration-200 group">
-                            <svg class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all duration-200 group/edit"
+                            title="Edit Account">
+                            <svg class="h-5 w-5 group-hover/edit:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                         </button>
         
                         <button onclick="deleteAccount('${acc.id}')" 
-                            class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200 group">
-                            <svg class="h-5 w-5 group-hover:scale-110 trnasition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all duration-200 group/delete"
+                            title="Delete Account">
+                            <svg class="h-5 w-5 group-hover/delete:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
@@ -111,6 +122,217 @@ function renderAccountsTable() {
         `;
     });
 }
+
+function viewAccountDetails(id) {
+    if (!ecomAccounts || !Array.isArray(ecomAccounts)) {
+        console.error('ecomAccounts is not defined or not an array');
+        return;
+    }
+
+    const account = ecomAccounts.find(acc => String(acc.id) === String(id));
+    if (!account) {
+        console.error('Account not found with id:', id);
+        return;
+    }
+
+    const existingModal = document.getElementById('accountDetailsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const hasPassword = account.password && account.password !== 'N/A';
+    const passwordDisplay = hasPassword ? '*******' : 'No password set';
+
+    const modalHtml = `
+          <div id="accountDetailsModal" class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                    <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeAccountDetailsModal()"></div>
+                </div>
+
+                <div class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full overflow-hidden">
+                    <div class="px-6 py-5 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold text-black">Account Details</h3>
+                                </div>
+                            </div>
+                            <button onclick="closeAccountDetailsModal()" 
+                                class="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-black/20 active:scale-95 transition-all duration-200">
+                                <svg class="h-6 w-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-6">
+                        <div class="space-y-5">
+
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</p>
+                                            <p class="text-lg font-semibold text-gray-900">${account.name || 'N/A'}</p>
+                                        </div>
+
+                                        <div class="flex justify-end">
+                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold 
+                                    ${account.status?.toLowerCase() === 'active' 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-gray-100 text-gray-700'}">
+                                    <span class="h-2.5 w-2.5 rounded-full 
+                                        ${account.status?.toLowerCase() === 'active' ? 'bg-green-500 animate-pulse' : 'bg-gray-500'} 
+                                        mr-2.5">
+                                    </span>
+                                    ${account.status || 'Unknown'}
+                                </span>
+                            </div>
+                                    </div>
+                                </div>
+
+                                ${account.email ? `
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Email</p>
+                                            <p class="text-lg text-gray-900">${account.email}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
+
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Password</p>
+                                            <div class="flex items-start">
+                                                <span class="text-lg font-mono text-gray-900" id="password-display-${account.id}">${passwordDisplay}</span>
+                                                ${hasPassword ? `
+                                                <button onclick="togglePasswordDisplay('${account.id}', '${account.password}')" 
+                                                    class="ml-3 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all"
+                                                    title="Show/Hide Password">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eye-icon-${account.id}">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">District</p>
+                                            <p class="text-lg font-semibold text-gray-900">${account.district}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center mr-3 flex-shrink-0">
+                                            <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At</p>
+                                            <p class="text-base text-gray-900">
+                                                ${account.createdAt ? new Date(account.createdAt).toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) : 'Not available'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+                        <button onclick="closeAccountDetailsModal()" 
+                            class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 active:scale-[0.98] transition-all duration-200">
+                            Close
+                        </button>
+                        <button onclick="editAccount('${account.id}'); closeAccountDetailsModal();" 
+                            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.body.classList.add('overflow-hidden');
+
+}
+
+function closeAccountDetailsModal() {
+    const modal = document.getElementById('accountDetailsModal');
+    if (modal) {
+        modal.remove();
+        document.body.classList.remove('overflow-hidden');
+    }
+}
+
+function togglePasswordDisplay(accountId, password) {
+    const passwordDisplay = document.getElementById(`password-display-${accountId}`);
+    const eyeIcon = document.getElementById(`eye-icon-${accountId}`);
+
+    if (passwordDisplay.textContent === '********') {
+        passwordDisplay.textContent = password || 'No password set';
+        if (eyeIcon) {
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            `;
+        }
+    } else {
+        passwordDisplay.textContent = '********';
+        if (eyeIcon) {
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            `;
+        }
+    }
+}
+
 function editAccount(id) {
     const account = ecomAccounts.find(acc => acc.id === id);
     if (!account) return;
@@ -129,7 +351,7 @@ function editAccount(id) {
     document.querySelector('#addAccountModal button[type="submit"]').textContent = 'Update Account';
 
     const form = document.getElementById('addAccountForm');
-    form.onsubmit = function(e) {
+    form.onsubmit = function (e) {
         e.preventDefault();
         updateAccount(id);
     };
@@ -164,7 +386,7 @@ async function updateAccount(id) {
             return;
         }
 
-        if (password.length < 8 ) {
+        if (password.length < 8) {
             alert('Password must be atleast 8 characters long');
             return;
         }
@@ -172,7 +394,7 @@ async function updateAccount(id) {
 
     try {
         const updateData = {
-            name:username,
+            name: username,
             district: district,
             status: status,
             email: `${username}@example.com`
@@ -199,7 +421,7 @@ async function updateAccount(id) {
         }
 
         const accountIndex = ecomAccounts.findIndex(acc => acc.id === id);
-        if (acountIndex !== -1) {
+        if (accountIndex !== -1) {
             ecomAccounts[accountIndex] = {
                 ...ecomAccounts[accountIndex],
                 name: username,
@@ -218,7 +440,7 @@ async function updateAccount(id) {
 }
 
 async function deleteAccount(id) {
-    if (!confirm('Are yous sure you want tp delete this account?')){
+    if (!confirm('Are yous sure you want tp delete this account?')) {
         return;
     }
 
@@ -226,15 +448,15 @@ async function deleteAccount(id) {
         const response = await fetch(`/api/ecom-profile/${id}`, {
             method: 'DELETE',
             headers: {
-                'Accept' : 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value ||
-                                document.querySelector('meta[name="csrf-toke"]')?.getAttribute('content')
+                    document.querySelector('meta[name="csrf-toke"]')?.getAttribute('content')
             }
         });
-        
+
         const json = await response.json();
 
-        if(!response.ok) {
+        if (!response.ok) {
             alert(json.message || 'Delete failed');
             return;
         }
@@ -313,9 +535,9 @@ async function addNewAccount() {
 function openAddAccountModal() {
 
     if (!currentEditId) {
-    document.getElementById('addAccountForm').reset();
-    document.querySelector('#addAccountModal h3').textContent = 'Create New Account';
-    document.querySelector('#addAccountModal button[type="submit"]').textContent = 'Create Account';
+        document.getElementById('addAccountForm').reset();
+        document.querySelector('#addAccountModal h3').textContent = 'Create New Account';
+        document.querySelector('#addAccountModal button[type="submit"]').textContent = 'Create Account';
     }
 
     const form = document.getElementById('addAccountForm');
@@ -340,7 +562,7 @@ function closeAddAccountModal() {
     currentEditId = null;
 
     const form = document.getElementById('addAccountForm');
-    form.onsubmit = function(e) {
+    form.onsubmit = function (e) {
         e.preventDefault();
         addNewAccount();
     };
@@ -395,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const modal = document.getElementById('addAccountModal');
     if (modal) {
-        modal.addEventListener('click', function(event) {
+        modal.addEventListener('click', function (event) {
             if (event.target === this) {
                 closeAddAccountModal();
             }
@@ -458,14 +680,14 @@ function openEditModal(id, name, status) {
                                         onclick="selectEditStatus('Active')"
                                         id="edit-status-active-btn"
                                         class="edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full
-                                            ${status === 'Active' 
-                                                ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
+                                            ${status === 'Active'
+            ? 'border-blue-500 bg-blue-50 text-blue-700'
+            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
                                         <div class="flex items-center">
                                             <div class="h-5 w-5 rounded-full border-2 mr-3 transition-colors
-                                                ${status === 'Active' 
-                                                    ? 'border-blue-500 bg-blue-500' 
-                                                    : 'border-gray-300 bg-white'}">
+                                                ${status === 'Active'
+            ? 'border-blue-500 bg-blue-500'
+            : 'border-gray-300 bg-white'}">
                                             </div>
                                             <span class="font-medium">Active</span>
                                         </div>
@@ -476,14 +698,14 @@ function openEditModal(id, name, status) {
                                         onclick="selectEditStatus('Inactive')"
                                         id="edit-status-inactive-btn"
                                         class="edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full
-                                            ${status === 'Inactive' 
-                                                ? 'border-gray-500 bg-gray-50 text-gray-700' 
-                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
+                                            ${status === 'Inactive'
+            ? 'border-gray-500 bg-gray-50 text-gray-700'
+            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}">
                                         <div class="flex items-center">
                                             <div class="h-5 w-5 rounded-full border-2 mr-3 transition-colors
-                                                ${status === 'Inactive' 
-                                                    ? 'border-gray-500 bg-gray-500' 
-                                                    : 'border-gray-300 bg-white'}">
+                                                ${status === 'Inactive'
+            ? 'border-gray-500 bg-gray-500'
+            : 'border-gray-300 bg-white'}">
                                             </div>
                                             <span class="font-medium">Inactive</span>
                                         </div>
@@ -517,3 +739,7 @@ function openEditModal(id, name, status) {
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     document.body.classList.add('overflow-hidden');
 }
+
+window.viewAccountDetails = viewAccountDetails;
+window.closeAccountDetailsModal = closeAccountDetailsModal;
+window.togglePasswordDisplay = togglePasswordDisplay;
