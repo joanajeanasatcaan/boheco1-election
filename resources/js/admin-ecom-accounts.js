@@ -140,7 +140,7 @@ function viewAccountDetails(id) {
         existingModal.remove();
     }
 
-    const hasPassword = account.password && account.password !== 'N/A';
+    const hasPassword = account.ecom_password && account.ecom_password !== 'N/A';
     const passwordDisplay = hasPassword ? '*******' : 'No password set';
 
     const modalHtml = `
@@ -227,7 +227,7 @@ function viewAccountDetails(id) {
                                             <div class="flex items-start ml-8">
                                                 <span class="text-lg font-mono text-gray-900" id="password-display-${account.id}">${passwordDisplay}</span>
                                                 ${hasPassword ? `
-                                                <button onclick="togglePasswordDisplay('${account.id}', '${account.password}')" 
+                                                <button onclick="togglePasswordDisplay('${account.id}', '${account.ecom_password}')" 
                                                     class="ml-2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all"
                                                     style="display: inline-flex; align-items: center; justify-content: center;"
                                                     title="Show/Hide Password">
