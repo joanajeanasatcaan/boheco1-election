@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\MemberSpouse;
 use App\Models\VoterVerification;
+use Carbon\Carbon;
+use App\Models\VoteLog;
 
-class MemberResource extends JsonResource
+class EcomListResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -31,6 +33,13 @@ class MemberResource extends JsonResource
             $isVerified = VoterVerification::where('voter_id', $voterId)
                 ->where('is_verified', true)
                 ->exists();
+            $dateVerified = VoterVerification::where('voter_id', $voterId)
+                ->where('is_verified', true)
+                ->value('verified_at');
+            $voteDate = VoteLog::where('member_id', $voterId)
+                ->value('created_at');
+            $voteMethod = VoteLog::where('member_id', $voterId)
+                ->value('voted_method');
         }
 
         if ($model instanceof \App\Models\Member) {
@@ -42,10 +51,16 @@ class MemberResource extends JsonResource
                 'suffix'    => $model->Suffix,
                 'district'  => $model->townDetail?->District,
                 'gender'    => $model->Gender,
-                'birth_date'=> $model->Birthdate,
+                'birth_date'=> Carbon::parse($model->Birthdate)->format('F d, Y'),
                 'contact_number' => $model->ContactNumbers,
                 'email'     => $model->EmailAddress,
-                'is_verified' => $isVerified,
+                'status' => $isVerified,
+                'address'   => $model->FullAddress,
+                'date_verified_time' => $dateVerified ? $dateVerified->format('H:i:s') : null,
+                'date_verified_day' => $dateVerified ? Carbon::parse($dateVerified)->format('F d, Y') : null,
+                'voted_date' => $voteDate ? Carbon::parse($voteDate)->format('F d, Y') : null,
+                'voted_time' => $voteDate ? $voteDate->format('H:i:s') : null,
+                'voted_method' => $voteMethod,
 
                 'spouse' => $model->spouse ? [
                     'id'        => (string) $model->spouse->id,
@@ -67,6 +82,7 @@ class MemberResource extends JsonResource
                 'contact_number' => $model->ContactNumbers,
                 'email'     => $model->EmailAddress,
                 'is_verified' => $isVerified,
+                'address'   => $model->FullAddress,
 
                 'member' => $model->member ? [
                     'member_id' => (string) $model->member->Id,

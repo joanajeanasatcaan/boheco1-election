@@ -28,7 +28,7 @@ class Member extends Model
         'LastName',
         'Suffix',
         'Gender',
-        'BirthDate',
+        'Birthdate',
         'Sitio',
         'Barangay',
         'Town',

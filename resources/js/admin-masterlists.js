@@ -1,9 +1,79 @@
 
 let masterlists = [];
+// let currentEditId = null;
+// let currentPage = 1;
+// let itemsPerPage = 100;
+// let filteredVoters = [];
+
+// function getPaginatedVoters() {
+//     const startIndex = (currentPage - 1) * itemsPerPage;
+//     const endIndex = startIndex + itemsPerPage;
+//     return filteredVoters.slice(startIndex, endIndex);
+// }
+
+// function updatePaginationControls() {
+//     const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
+//     const showingCount = document.getElementById('showing-count');
+//     const pageInfo = document.getElementById('page-info');
+//     const prevButton = document.getElementById('prev-page');
+//     const nextButton = document.getElementById('next-page');
+
+//     if (showingCount) {
+//         showingCount.textContent = filteredVoters.length;
+//     }
+
+//     if (pageInfo) {
+//         pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+//     }
+
+//     if(prevButton) {
+//         if (currentPage === 1) {
+//             prevButton.disabled = true;
+//             prevButton.classList.add('opacity-50', 'cursor-not-allowed');
+//         } else {
+//             prevButton.disabled = false;
+//             prevButton.classList.remove('opacity-50', 'cursor-not-allowed');
+//         }
+//     }
+
+//     if (nextButton) {
+//         if (currentPage === totalPages || totalPages === 0) {
+//             nextButton.disabled = true;
+//             nextButton.classList.add('opacity-50', 'cursor-not-allowed');
+//         } else {
+//             nextButton.disabled = false;
+//             nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+//         }
+//     }
+// }
+
+// function prevPage() {
+//     if (currentPage > 1) {
+//         currentPage--;
+//         renderMasterlistsTable();
+//     }
+// }
+
+// function nextPage() {
+//     const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
+//     if (currentPage < totalPages) {
+//         currentPage++;
+//         renderMasterlistsTable();
+//     }
+// }
+
+// function goToPage(page) {
+//     const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
+//     if (page >= 1 && page <= totalPages) {
+//             currentPage = page;
+//             renderMasterlistsTable();
+//     }
+// }
+
 
 async function loadMasterlists() {
     try {
-        const response = await fetch('/api/members', {
+        const response = await fetch('/api/admin/members', {
                 credentials: 'include'
             });
         const json = await response.json();
@@ -32,11 +102,17 @@ async function loadMasterlists() {
                 voterId: id,
                 email: member.email ?? '',
                 phone: member.contact_number ?? member.phone ?? '',
-                address: member.address ?? member.full_address ?? ''
+                address: member.address ?? member.full_address ?? '',
+                registrationDate: member.created_at || new Date().toISOString().split('T')[0],
+                lastUpdated: member.updated_at || new Date().toISOString().split('T')[0]
             };
         });
 
-        renderMasterlistsTable(masterlists);
+        filteredVoters = [...masterlists];
+
+        updateStats();
+
+        renderMasterlistsTable();
     } catch (error) {
         console.error('Failed to load masterlists:', error);
     }

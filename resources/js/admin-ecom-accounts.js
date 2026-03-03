@@ -3,7 +3,7 @@ let ecomAccounts = [];
 /* LOAD DATA FROM API */
 async function loadEcomAccounts() {
     try {
-        const response = await fetch('/api/ecom-profile', {
+        const response = await fetch('/api/admin/ecom-profile', {
             credentials: 'include'
         });
         const json = await response.json();
@@ -192,7 +192,7 @@ async function updateAccount(id) {
             updateData.password_confirmation = confirmPassword;
         }
 
-        const response = await fetch(`/api/ecom-profile/${id}`, {
+        const response = await fetch(`/api/admin/ecom-profile/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -232,12 +232,12 @@ async function deleteAccount(id) {
     }
 
     try {
-        const response = await fetch(`/api/ecom-profile/${id}`, {
+        const response = await fetch(`/api/admin/ecom-profile/${id}`, {
             method: 'DELETE',
             headers: {
                 'Accept' : 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value ||
-                                document.querySelector('meta[name="csrf-toke"]')?.getAttribute('content')
+                                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             }
         });
         
@@ -283,7 +283,7 @@ async function addNewAccount() {
     }
 
     try {
-        const response = await fetch('/api/ecom-profile', {
+        const response = await fetch('/api/admin/ecom-profile', {
             method: 'POST',
             credentials: 'include',
             headers: {

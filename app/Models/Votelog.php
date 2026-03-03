@@ -18,6 +18,7 @@ class VoteLog extends Model
         'member_id',
         'household_id',
         'ip_address',
+        'voted_method',
     ];
 
     public function nominee()

@@ -1,6 +1,6 @@
 async function loadDistrictCounts() {
     try {
-        const response = await fetch('/api/districts', {
+        const response = await fetch('/api/admin/districts', {
             credentials: 'include'
         });
 
