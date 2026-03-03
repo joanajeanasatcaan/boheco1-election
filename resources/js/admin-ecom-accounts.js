@@ -82,7 +82,7 @@ function renderAccountsTable() {
                 <td class="px-6 py-4">
                     <div class="flex items-center">
                         <div>
-                            <div class="font-semibold text-gray-900">${acc.ecom_password || 'N/A'}</div>
+                            <div class="font-mono text-gray-600">*******</div>
                         </div>
                     </div>
                 </td>
