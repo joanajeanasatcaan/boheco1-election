@@ -7,7 +7,6 @@ use App\Http\Controllers\DistrictsController;
 use App\Http\Controllers\NomineesController;
 use App\Http\Controllers\VotersListController;
 use App\Http\Controllers\OnlineVotersReceiptsController;
-use App\Http\Controllers\Api\MembersController;
 
 
 
@@ -65,4 +64,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/voter/scan/{member_id}', fn($member_id) => view('voter.scan', compact('member_id')));
 require __DIR__.'/auth.php';

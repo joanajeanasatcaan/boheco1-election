@@ -71,7 +71,9 @@ function goToPage(page) {
 
 async function loadMasterlists() {
     try {
-        const response = await fetch('/api/members');
+        const response = await fetch('/api/admin/members', {
+                credentials: 'include'
+            });
         const json = await response.json();
 
         masterlists = (json.data ?? []).map(member => {

@@ -16,6 +16,7 @@ return new class extends Migration
         $table->string('member_id');  
         $table->unsignedBigInteger('household_id');
         $table->string('ip_address')->nullable();
+        $table->string('voted_method');
         $table->foreignId('nominee_id')->constrained('ECRM_Nominees')->cascadeOnDelete();
         $table->foreign('member_id')->references('Id')->on('CRM_MemberConsumers')->cascadeOnDelete();
 

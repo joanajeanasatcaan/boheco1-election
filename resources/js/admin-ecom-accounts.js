@@ -2,7 +2,7 @@ let ecomAccounts = [];
 
 async function loadEcomAccounts() {
     try {
-        const response = await fetch('/api/ecom-profile', {
+        const response = await fetch('/api/admin/ecom-profile', {
             credentials: 'include'
         });
         const json = await response.json();
@@ -12,7 +12,7 @@ async function loadEcomAccounts() {
             id: user.id,
             name: user.name,
             email: user.email,
-            password: user.ecom_password,
+            ecom_password: user.ecom_password,
             district: user.district != null ? "District " + user.district : 'N/A',
             status: user.status ?? 'Active',
             createdAt: user.created_at
@@ -81,7 +81,9 @@ function renderAccountsTable() {
                 </td>
                 <td class="px-6 py-4">
                     <div class="flex items-center">
-                        <div class="font-mono text-gray-600">••••••••</div>
+                        <div>
+                            <div class="font-semibold text-gray-900">${acc.ecom_password || 'N/A'}</div>
+                        </div>
                     </div>
                 </td>
                 <td class="px-6 py-4">
@@ -668,7 +670,7 @@ async function updateAccount(id) {
             updateData.password_confirmation = confirmPassword;
         }
 
-        const response = await fetch(`/api/ecom-profile/${id}`, {
+        const response = await fetch(`/api/admin/ecom-profile/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -710,7 +712,7 @@ async function deleteAccount(id) {
     }
 
     try {
-        const response = await fetch(`/api/ecom-profile/${id}`, {
+        const response = await fetch(`/api/admin/ecom-profile/${id}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -761,7 +763,7 @@ async function addNewAccount() {
     }
 
     try {
-        const response = await fetch('/api/ecom-profile', {
+        const response = await fetch('/api/admin/ecom-profile', {
             method: 'POST',
             credentials: 'include',
             headers: {

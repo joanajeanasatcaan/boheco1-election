@@ -3,7 +3,7 @@ let filteredNominees = [];
 
 async function fetchNominees() {
     try {
-        const response = await fetch('/api/nominees', {
+        const response = await fetch('/api/admin/nominees', {
             credentials: 'include'
         });
 
@@ -31,7 +31,7 @@ async function storeNominee(event) {
     const formData = new FormData(form);
 
     try {
-        const response = await fetch('/api/nominees', {
+        const response = await fetch('/api/admin/nominees', {
             method: 'POST',
             body: formData,
             credentials: 'include',
@@ -241,8 +241,6 @@ function closeAddNomineeModal() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetch('/sanctum/csrf-cookie', { credentials: 'include' });
-
     fetchNominees();
 
     document.getElementById('search-input')

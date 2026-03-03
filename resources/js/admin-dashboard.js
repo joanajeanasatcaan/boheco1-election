@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function loadChart() {
-        const response = await fetch('/api/dashboard-district-counts', {
+        const response = await fetch('/api/admin/dashboard-district-counts', {  
                 credentials: 'include'
             });
         const result = await response.json();
@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const index = labels.indexOf(item.district);
             if (index !== -1) votesArray[index] = item.votes_count;
         });
-
 
         const grandTotal = votesArray.reduce((acc, val) => Number(acc) + Number(val), 0);
 

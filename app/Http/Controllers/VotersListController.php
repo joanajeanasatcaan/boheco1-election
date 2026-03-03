@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 class VotersListController extends Controller
 {
     public function index(){
-        $voters_list = VotersList::all();
-        return view('ecom.data', ['voters_list' => $voters_list]);
+        return view('ecom.data');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Ecom;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -25,6 +25,7 @@ class VoteController extends Controller
         $request->validate([
             'nominee_id' => 'required|exists:ECRM_Nominees,id',
             'member_id'  => 'required|string',
+            'voted_method' => 'required|string',
         ]);
 
         $voterId = $request->member_id;
@@ -70,6 +71,7 @@ class VoteController extends Controller
             'member_id'    => $member->Id,
             'household_id' => $householdId,
             'ip_address'   => $request->ip(),
+            'voted_method' => $request->voted_method,
         ]);
 
         $nominee = Nominee::find($request->nominee_id);
