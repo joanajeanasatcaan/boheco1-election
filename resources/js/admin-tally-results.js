@@ -78,4 +78,4 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         loadDistrictData('all');
-    });
+    });``

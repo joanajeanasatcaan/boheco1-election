@@ -137,8 +137,7 @@
                     </div>
                 </div>
 
-                <form id="addNomineeForm" class="px-6 py-6"
-                    enctype="multipart/form-data">
+                <form id="addNomineeForm" class="px-6 py-6" enctype="multipart/form-data">
                     @csrf
                     <div class="space-y-6">
                         <div class="text-center">
@@ -254,17 +253,17 @@
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition-all duration-200 placeholder-gray-400"
                             placeholder="Enter town">
                     </div>
-            </div>
 
-            <div class="flex gap-3 mt-8">
-                <button type="button" onclick="closeAddNomineeModal()"
-                    class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200">
-                    Cancel
-                </button>
-                <button type="submit"
-                    class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200">
-                    Add Nominee
-                </button>
+                    <div class="flex gap-3 mt-8">
+                        <button type="button" onclick="closeAddNomineeModal()"
+                            class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200">
+                            Add Nominee
+                        </button>
+                    </div>
             </div>
             </form>
         </div>

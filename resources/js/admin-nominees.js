@@ -74,45 +74,102 @@ function renderNomineesGrid() {
 
     filteredNominees.forEach(nominee => {
         grid.innerHTML += `
-            <div class="bg-white rounded-xl shadow-md border p-5 hover:shadow-lg transition">
-                <div class="flex items-center gap-4 mb-4">
-                    <img
-                        src="${nominee.image_url ?? '/images/default-avatar.png'}"
-                        class="h-16 w-16 rounded-full object-cover border"
-                    >
-                    <div>
-                        <h4 class="font-bold text-gray-800">
-                            ${nominee.first_name} ${nominee.last_name}
-                        </h4>
-                        <p class="text-sm text-gray-500">
-                            ${nominee.nickname ?? ''}
-                        </p>
-                    </div>
+    <div class="bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 p-5 transition-all duration-300">
+        <!-- Header with image and menu -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-4">
+                <img
+                    src="${nominee.image_url ?? '/images/default-avatar.png'}"
+                    class="h-16 w-16 rounded-full object-cover border-2 border-gray-200"
+                    alt="${nominee.first_name} ${nominee.last_name}"
+                >
+                <div>
+                    <h4 class="font-bold text-gray-800 text-lg">
+                        ${nominee.first_name} ${nominee.last_name}
+                    </h4>
+                    <p class="text-sm text-gray-500 flex items-center gap-1">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        ${nominee.nickname ?? 'Director'}
+                    </p>
                 </div>
-
-                <div class="text-sm text-gray-600 space-y-1">
-                    <p><strong>District:</strong> ${nominee.district}</p>
-                    <p><strong>Town:</strong> ${nominee.town}</p>
-                    <p><strong>Votes:</strong> ${nominee.votes_count}</p>
-                </div>
-
-                <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="editNominee(${nominee.id})"
-                        class="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                        Edit
+            </div>
+            
+            <!-- 3-dots dropdown menu -->
+            <div class="relative dropdown-container-${nominee.id}">
+                <button onclick="toggleDropdown(${nominee.id})" 
+                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="h-5 w-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="6" r="2" fill="currentColor"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                        <circle cx="12" cy="18" r="2" fill="currentColor"/>
+                    </svg>
+                </button>
+                
+                <!-- Dropdown menu -->
+                <div id="dropdown-${nominee.id}" 
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 hidden z-50">
+                    <button onclick="editNominee(${nominee.id})" 
+                        class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Nominee
                     </button>
-                    <button onclick="deleteNominee(${nominee.id})"
-                        class="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600">
-                        Delete
+                    <button onclick="deleteNominee(${nominee.id})" 
+                        class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center gap-2 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete Nominee
                     </button>
                 </div>
             </div>
-        `;
+        </div>
+
+        <!-- Location -->
+        <div class="flex items-center gap-2 text-gray-600 mb-3">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-sm">${nominee.town}, ${nominee.district}</span>
+        </div>
+
+        <!-- Votes section -->
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+            <span class="text-sm text-gray-500">Current Votes</span>
+            <span class="text-2xl font-bold text-blue-600">${nominee.votes_count}</span>
+        </div>
+    </div>
+`;
     });
 
     document.getElementById('nominee-count').innerText =
         `Showing ${filteredNominees.length} nominees`;
 }
+
+function toggleDropdown(id) {
+    const dropdown = document.getElementById(`dropdown-${id}`);
+    if (!dropdown) return;
+
+    document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+        if (d.id !== `dropdown-${id}`) {
+            d.classList.add('hidden');
+        }
+    });
+
+    dropdown.classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('[class^="dropdown-container"]')) {
+        document.querySelector.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+    }
+});
 
 function filterNominees() {
     const search = document.getElementById('search-input').value.toLowerCase();
@@ -206,3 +263,4 @@ window.openAddNomineeModal = openAddNomineeModal;
 window.closeAddNomineeModal = closeAddNomineeModal;
 window.editNominee = editNominee;
 window.deleteNominee = deleteNominee;
+window.toggleDropdown = toggleDropdown;
