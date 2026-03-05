@@ -56,8 +56,8 @@
                                 <select id="status-filter"
                                     class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none">
                                     <option value="">All Status</option>
-                                    <option value="Verified">Verified</option>
-                                    <option value="Pending">Pending</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="pending">Pending</option>
                                 </select>
                             </div>
                         </div>
@@ -218,7 +218,7 @@
                             class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
                             1
                         </button>
-                        <button
+                        <button id='nextPageButton'
                             class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
                             Next
                         </button>

@@ -49,9 +49,9 @@ class VoterVerificationController extends Controller
         if (empty($member->Barangay))  $missing[] = 'barangay';
         if (empty($member->Town))      $missing[] = 'town';
 
-        if (empty($member->ContactNumbers) && empty($member->EmailAddress)) {
-            $missing[] = 'contact_number_or_email';
-        }
+        // if (empty($member->ContactNumbers) && empty($member->EmailAddress)) {
+        //     $missing[] = 'contact_number_or_email';
+        // }
 
         if (!empty($missing)) {
             return response()->json([

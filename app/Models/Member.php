@@ -57,31 +57,28 @@ class Member extends Model
     
     public function spouse()
     {
-        return $this->hasOne(
-            MemberSpouse::class,
-            'MemberConsumerId', 
-            'Id'                
-        );
+        return $this->hasOne(MemberSpouse::class, 'MemberConsumerId', 'Id');
     }
 
     public function spouseOf()
     {
-        return $this->hasOne(
-            MemberSpouse::class,
-            'SpouseConsumerId',
-            'Id'
-        );
+        return $this->hasOne(MemberSpouse::class, 'SpouseConsumerId', 'Id');
     }
 
     public function verification()
     {
-        return $this->hasOne(
-            VoterVerification::class,
-            'voter_id',
-            'Id'
-        );
+        return $this->hasOne(VoterVerification::class, 'voter_id', 'Id');
     }
 
+    public function voteLogs()
+    {
+        return $this->hasOne(VoteLog::class, 'member_id');
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(MemberHistory::class, 'member_id', 'Id');
+    }
 
     public function townDetail()
     {
@@ -95,15 +92,11 @@ class Member extends Model
 
     public function householdId()
     {
-        return $this->spouse
-            ? $this->spouse->MemberConsumerId
-            : $this->Id;
+        return $this->spouse ? $this->spouse->MemberConsumerId : $this->Id;
     }
 
     public function hasVotedFor(Nominee $nominee): bool
     {
-        return Votelog::where('nominee_id', $nominee->id)
-            ->where('household_id', $this->householdId())
-            ->exists();
+        return Votelog::where('nominee_id', $nominee->id) ->where('household_id', $this->householdId()) ->exists();
     }
 }
