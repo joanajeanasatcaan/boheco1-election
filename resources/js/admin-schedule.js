@@ -1,15 +1,15 @@
-   const currentDate = new Date();
-const assignments = {}; 
+const currentDate = new Date();
+const assignments = {};
 const districtOptions = ['District 1', 'District 2', 'District 3', 'District 4', 'District 5', 'District 6', 'District 7', 'District 8', 'District 9'];
-let activeEditingDate = null; 
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+let activeEditingDate = null;
 
 function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    
+
     document.getElementById('month-year').textContent = monthNames[month] + ' ' + year;
 
     const firstDay = new Date(year, month, 1).getDay();
@@ -34,7 +34,7 @@ function renderCalendar() {
         if (activeEditingDate === dateKey) {
             const select = document.createElement('select');
             select.className = 'mt-2 text-xs border border-blue-500 rounded p-1 w-full bg-white outline-none';
-            
+
             select.onclick = (e) => e.stopPropagation();
 
             const defaultOpt = document.createElement('option');
@@ -57,11 +57,11 @@ function renderCalendar() {
             });
 
             select.onchange = (e) => {
-                e.stopPropagation(); 
+                e.stopPropagation();
                 if (e.target.value) assignments[dateKey] = e.target.value;
                 else delete assignments[dateKey];
-                
-                activeEditingDate = null; 
+
+                activeEditingDate = null;
                 renderCalendar();
             };
 
@@ -76,7 +76,7 @@ function renderCalendar() {
         }
 
         dayCell.onclick = (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             activeEditingDate = dateKey;
             renderCalendar();
         };

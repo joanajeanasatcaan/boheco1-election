@@ -68,7 +68,7 @@
 
         <div id="voterModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-2xl bg-white">
-                <div class="flex justify-between items-center pb-3">
+                <div class="flex justify-between items-center pb-3 border-b border-gray-150 mb-4">
                     <h3 class="text-2xl font-bold text-gray-900">Voter Details</h3>
                     <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

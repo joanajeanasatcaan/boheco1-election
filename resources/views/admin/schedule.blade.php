@@ -51,9 +51,7 @@
                             {{ __('Election Schedule Calendar') }}
                         </div>
 
-                        <!-- Calendar -->
                         <div class="bg-white rounded-lg shadow">
-                            <!-- Calendar Header -->
                             <div class="bg-green-600 text-white p-4 rounded-t-lg">
                                 <div class="flex justify-between items-center">
                                     <button class="text-xl">&lt;</button>
@@ -64,7 +62,6 @@
                                 </div>
                             </div>
 
-                            <!-- Days of Week -->
                             <div class="grid grid-cols-7 gap-0 border-b">
                                 <div class="p-3 text-center font-bold text-gray-600 bg-gray-50">Sun</div>
                                 <div class="p-3 text-center font-bold text-gray-600 bg-gray-50">Mon</div>
@@ -75,9 +72,7 @@
                                 <div class="p-3 text-center font-bold text-gray-600 bg-gray-50">Sat</div>
                             </div>
 
-                            <!-- Calendar Days -->
                             <div class="grid grid-cols-7 gap-0" id="calendar-days">
-                                <!-- Days will be populated here -->
                             </div>
                         </div>
                     </div>

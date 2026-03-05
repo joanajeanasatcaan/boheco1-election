@@ -170,7 +170,6 @@ function viewAccountDetails(id) {
                     <div class="px-6 py-6">
                         <div class="space-y-5">
                             <div class="grid grid-cols-1 gap-4">
-                                <!-- Username with Status -->
                                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
                                     <div class="flex">
                                         <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
@@ -179,7 +178,7 @@ function viewAccountDetails(id) {
                                             </svg>
                                         </div>
                                         <div class="flex-1">
-                                            <div class="flex items-center justify-between">
+                                            <div class="flex items-center justify-center gap-6">
                                                 <div>
                                                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</p>
                                                     <p class="text-lg font-semibold text-gray-900">${account.name || 'N/A'}</p>
@@ -224,11 +223,11 @@ function viewAccountDetails(id) {
                                         </div>
                                         <div class="flex-1">
                                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Password</p>
-                                            <div class="flex items-start ml-8">
+                                            <div class="flex items-center justify-center gap-2">
                                                 <span class="text-lg font-mono text-gray-900" id="password-display-${account.id}">${passwordDisplay}</span>
                                                 ${hasPassword ? `
                                                 <button onclick="togglePasswordDisplay('${account.id}', '${account.ecom_password}')" 
-                                                    class="ml-2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all"
+                                                    class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all"
                                                     style="display: inline-flex; align-items: center; justify-content: center;"
                                                     title="Show/Hide Password">
                                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="eye-icon-${account.id}">
@@ -358,7 +357,7 @@ function editAccount(id) {
                 </div>
 
                 <div class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full overflow-hidden">
-                    <div class="px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 border-b border-gray-100">
+                    <div class="px-6 py-5 bg-white border-b border-gray-100">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <div class="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center mr-3">
@@ -583,7 +582,7 @@ async function updateEditAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@example.com`
+            email: `${username}@boheco1.com`
         };
 
         if (password) {
@@ -614,7 +613,7 @@ async function updateEditAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@example.com`
+                email: `${username}@boheco1.com`
             };
         }
 
@@ -662,7 +661,7 @@ async function updateAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@example.com`
+            email: `${username}@boheco1.com`
         };
 
         if (password) {
@@ -692,7 +691,7 @@ async function updateAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@example.com`
+                email: `${username}@boheco1.com`
             }
         }
 
@@ -773,7 +772,7 @@ async function addNewAccount() {
             },
             body: JSON.stringify({
                 name: username,
-                email: `${username}@example.com`,
+                email: `${username}@boheco1.com`,
                 password: password,
                 password_confirmation: confirmPassword,
                 district: district,

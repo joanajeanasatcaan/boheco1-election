@@ -1,3 +1,42 @@
+window.toggleScheduleDetails = function() {
+    const details = document.getElementById('schedule-details');
+    const icon = document.getElementById('schedule-toggle-icon');
+    details.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+};
+
+window.updateScheduleSummary = function() {
+    const scheduleItems = document.querySelectorAll('[data-schedule-date]');
+
+    if (scheduleItems.length === 0) return;
+
+    const dates = Array.from(scheduleItems)
+        .map(item => {
+            const dateStr = item.getAttribute('data-schedule-date');
+            return new Date(dateStr);
+        })
+        .sort((a, b) => a - b);
+
+    const firstDate = dates[0];
+    const lastDate = dates[dates.length - 1];
+    const daysDiff = Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24)) + 1;
+    const totalDistricts = scheduleItems.length;
+
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    const startDate = formatter.format(firstDate);
+    const endDate = formatter.format(lastDate);
+
+    document.getElementById('schedule-summary').textContent =
+        `Election Schedule: ${startDate} - ${endDate} (${totalDistricts} Districts)`;
+
+    document.getElementById('schedule-stats').textContent =
+        `${daysDiff} days • 1 district per day`;
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('votingChart').getContext('2d');
 
@@ -107,4 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.Echo.connector.pusher.connection.bind('connected', () => {
         console.log('✅ Connected to Reverb!');
     });
+
+    updateScheduleSummary();
 });
+
+

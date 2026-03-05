@@ -135,9 +135,47 @@
                 </div>
             </div>
 
-            <!-- Charts Section -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <x-schedule-logo />
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Election Schedule</h3>
+                                    <p class="text-xs text-gray-500">May 13 - 23, 2026</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">9 Districts</span>
+                        </div>
+                    </div>
+
+                    <div class="px-5 pb-5">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                            <div class="flex items-center gap-4">
+                                <div class="text-center">
+                                    <span class="text-sm font-semibold text-gray-900">May 13</span>
+                                    <p class="text-xs text-gray-500">2026</p>
+                                </div>
+                                <div class="h-8 w-px bg-gray-200"></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">District 1</p>
+                                    <p class="text-xs text-gray-500">Tuesday · 8:00 AM - 5:00 PM</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-medium text-green-600 bg-green-50 px-3 py-1.5 rounded-full">Active</span>
+                        </div>
+                        
+                        <div class="mt-3 text-right">
+                            <a href="{{ route('schedule') }}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                                View full schedule →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Voting Progress Chart -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
                     <div class="p-6 border-b border-gray-100">
                         <div class="flex items-center justify-between">
@@ -170,7 +208,6 @@
                     </div>
                 </div>
 
-                    <!-- Recent Activity -->
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
                         <div class="p-6 border-b border-gray-100">
                             <div class="flex items-center justify-between">

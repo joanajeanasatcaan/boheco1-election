@@ -298,13 +298,19 @@ function viewVoterDetails(voterId) {
     var vb = document.getElementById('verifyButton');
     if (vb) {
         if (voter.status === true) {
-            vb.textContent = 'Already Verified'; vb.disabled = true;
-            vb.classList.remove('bg-green-500', 'hover:bg-green-600');
-            vb.classList.add('bg-gray-300', 'cursor-not-allowed');
+            vb.textContent = 'Verified'; 
+            vb.disabled = true;
+            // Remove all possible background classes
+            vb.classList.remove('bg-green-500', 'hover:bg-green-600', 'bg-green-600', 'bg-blue-500', 'bg-blue-600');
+            // Add gray background for verified state
+            vb.classList.add('bg-gray-400', 'cursor-not-allowed', 'text-white');
         } else {
-            vb.textContent = 'Verify'; vb.disabled = false;
-            vb.classList.remove('bg-gray-300', 'cursor-not-allowed');
-            vb.classList.add('bg-green-500', 'hover:bg-green-600');
+            vb.textContent = 'Verify'; 
+            vb.disabled = false;
+            // Remove gray classes
+            vb.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            // Add green background for verify state
+            vb.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white');
         }
     }
 

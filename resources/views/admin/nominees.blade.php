@@ -81,8 +81,6 @@
                 </div>
             </div>
 
-
-
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -269,6 +267,166 @@
         </div>
     </div>
     </div>
+
+ <div id="editNomineeModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeEditNomineeModal()"></div>
+        </div>
+
+        <div class="inline-block align-bottom bg-white rounded-2xl shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full overflow-hidden">
+            <div class="px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center mr-3">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Edit Nominee</h3>
+                    </div>
+                    <button onclick="closeEditNomineeModal()"
+                        class="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-white/20 active:scale-95 transition-all duration-200">
+                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <form id="editNomineeForm" onsubmit="updateNominee(event)" class="px-6 py-6" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" id="edit_nominee_id" name="id">
+                
+                <div class="space-y-6">
+                     <div class="text-center">
+                        <div class="relative inline-block">
+                            <div class="h-32 w-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                <img id="edit-profile-preview" src="" alt="" class="h-full w-full object-cover hidden">
+                                <div id="edit-profile-placeholder" class="h-full w-full flex items-center justify-center text-gray-400">
+                                    <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <label for="edit_image" class="absolute bottom-0 right-0 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-colors">
+                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <input type="file" id="edit_image" name="image" accept="image/*" class="hidden" onchange="previewEditProfileImage(event)">
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Update nominee profile picture</p>
+                    </div>
+
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                First Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_first_name" name="first_name" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                                placeholder="Enter first name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Middle Name
+                            </label>
+                            <input type="text" id="edit_middle_name" name="middle_name"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                                placeholder="Enter middle name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Last Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_last_name" name="last_name" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                                placeholder="Enter last name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Nickname
+                            </label>
+                            <input type="text" id="edit_nickname" name="nickname"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                                placeholder="Enter nickname">
+                        </div>
+                    </div>
+
+                     <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Suffix
+                        </label>
+                        <select id="edit_suffix" name="suffix"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 bg-white">
+                            <option value="">Select Suffix</option>
+                            <option value="Jr.">Jr.</option>
+                            <option value="Sr.">Sr.</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                        </select>
+                    </div>
+
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                District <span class="text-red-500">*</span>
+                            </label>
+                            <select id="edit_district" name="district" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 bg-white">
+                                <option value="">Select District</option>
+                                <option value="1">District 1</option>
+                                <option value="2">District 2</option>
+                                <option value="3">District 3</option>
+                                <option value="4">District 4</option>
+                                <option value="5">District 5</option>
+                                <option value="6">District 6</option>
+                                <option value="7">District 7</option>
+                                <option value="8">District 8</option>
+                                <option value="9">District 9</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Town <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="edit_town" name="town" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                                placeholder="Enter town">
+                        </div>
+                    </div>
+
+                     <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Votes Count
+                        </label>
+                        <input type="number" id="edit_votes_count" name="votes_count" value="0" min="0"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                            placeholder="Enter votes count">
+                    </div>
+
+                     <div class="flex gap-3 mt-8">
+                        <button type="button" onclick="closeEditNomineeModal()"
+                            class="flex-1 px-4 py-3 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all duration-200">
+                            Update Nominee
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     @vite('resources/js/admin-nominees.js')
 </x-app-layout>

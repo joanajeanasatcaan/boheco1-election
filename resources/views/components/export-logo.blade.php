@@ -1,1 +1,1 @@
-<img src="/images/export.png" alt="Export Logo" class="w-6 h-6 fill-current text-gray-500">
+<img src="/images/export.png" alt="Export Logo" class="w-6 h-6 fill-current text-gray-500">''
