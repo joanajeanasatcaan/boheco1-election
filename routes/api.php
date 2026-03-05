@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\Admin\EcomProfileController;
 use App\Http\Controllers\Api\Admin\DashboardDistrictCountController;
 use App\Http\Controllers\Api\Admin\DistrictController;
 use App\Http\Controllers\Api\Admin\TallyController;
-
+use App\Http\Controllers\Api\Ecom\MemberHistoryController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -35,4 +35,8 @@ Route::prefix('ecom')->middleware('auth:sanctum')->group(function () {
     Route::post('/vote', [VoteController::class, 'vote']);
     Route::post('/voters/verify', [VoterVerificationController::class, 'verify']);
     Route::apiResource('members', EcomDataListController::class);
+    Route::get('history', [MemberHistoryController::class, 'index']);
+    Route::post('history', [MemberHistoryController::class, 'store']);
+    Route::delete('history/{id}', [MemberHistoryController::class, 'destroy']);
+    Route::delete('history', [MemberHistoryController::class, 'destroyBulk']);
 });

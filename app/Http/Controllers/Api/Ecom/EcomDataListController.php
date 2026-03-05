@@ -11,6 +11,7 @@ use App\Http\Resources\EcomListResource;
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EcomDataListController extends Controller
 {
@@ -20,7 +21,6 @@ class EcomDataListController extends Controller
 
     // If no user is detected, the API will crash later or return nothing.
     if (!$user) {
-        // Log this to storage/logs/laravel.log so you can see it
         \Log::error('API Access Attempted without Authentication');
         return null; 
     }
@@ -49,40 +49,24 @@ class EcomDataListController extends Controller
             });
         }
 
-        if ($request->filled('gender')) {
-            $memberQuery->where('Gender', $request->gender);
-        }
-
-        if ($request->filled('id')) {
-            $memberQuery->where('Id', $request->id);
-        }
-
-        if ($request->filled('town')) {
-            $town = Town::where('Town', $request->town)->first();
-            if ($town) {
-                $memberQuery->where('Town', $town->id);
-            }
-        }
-
-        if ($request->filled('barangay')) {
-            $memberQuery->whereHas('barangayDetail', function ($q) use ($request) {
-                $q->where('Barangay', $request->barangay);
+        if ($request->filled('voted_method')) {
+            $memberQuery->whereHas('voteLogs', function ($query) use ($request) {
+                $query->where('voted_method', $request->voted_method);
             });
-        }
-
-        if ($request->filled('voted')) {
-            if ($request->voted === 'voted') {
-                $memberQuery->whereNotNull('VotedDate');
-            } elseif ($request->voted === 'not_voted') {
-                $memberQuery->whereNull('VotedDate');
-            }
         }
 
         if ($request->filled('status')) {
             if ($request->status === 'verified') {
-                $memberQuery->where('status', true);
+                $memberQuery->whereHas('verification', function ($query) {
+                    $query->where('is_verified', true);
+                });
             } elseif ($request->status === 'pending') {
-                $memberQuery->where('status', false);
+                $memberQuery->where(function ($query) {
+                    $query->whereDoesntHave('verification')
+                        ->orWhereHas('verification', function ($q) {
+                            $q->where('is_verified', false);
+                        });
+                });
             }
         }
 

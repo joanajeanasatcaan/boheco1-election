@@ -583,7 +583,7 @@ async function updateEditAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@example.com`
+            email: `${username}@boheco1.com`
         };
 
         if (password) {
@@ -614,7 +614,7 @@ async function updateEditAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@example.com`
+                email: `${username}@boheco1.com`
             };
         }
 
@@ -662,7 +662,7 @@ async function updateAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@example.com`
+            email: `${username}@boheco1.com`
         };
 
         if (password) {
@@ -692,7 +692,7 @@ async function updateAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@example.com`
+                email: `${username}@boheco1.com`
             }
         }
 
@@ -773,7 +773,7 @@ async function addNewAccount() {
             },
             body: JSON.stringify({
                 name: username,
-                email: `${username}@example.com`,
+                email: `${username}@boheco1.com`,
                 password: password,
                 password_confirmation: confirmPassword,
                 district: district,

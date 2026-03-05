@@ -33,9 +33,30 @@ function debounce(fn, delay) {
     };
 }
 
+// ─── Skeleton loader ──────────────────────────────────────────────────────────
+function renderVotersSkeleton() {
+    var table = document.getElementById('votersTable');
+    table.innerHTML = '';
+    for (var i = 0; i < 8; i++) {
+        table.insertAdjacentHTML('beforeend',
+            '<tr class="skeleton-row">' +
+            '<td class="px-6 py-4"><div class="h-4 w-4 bg-gray-200 rounded animate-pulse"></div></td>' +
+            '<td class="px-6 py-4">' +
+                '<div class="h-3.5 bg-gray-200 rounded animate-pulse w-36 mb-2"></div>' +
+                '<div class="h-3 bg-gray-200 rounded animate-pulse w-24"></div>' +
+            '</td>' +
+            '<td class="px-6 py-4"><div class="h-3.5 bg-gray-200 rounded animate-pulse w-28 font-mono"></div></td>' +
+            '<td class="px-6 py-4"><div class="h-3.5 bg-gray-200 rounded animate-pulse w-24"></div></td>' +
+            '<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full animate-pulse w-20"></div></td>' +
+            '<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full animate-pulse w-16"></div></td>' +
+            '</tr>'
+        );
+    }
+}
+
 // ─── Render table ─────────────────────────────────────────────────────────────
 function renderVotersTable(voters) {
-    var table = document.getElementById('votersTable');
+    var table = document.getElementById('votersTable'); 
     table.innerHTML = '';
     voters.forEach(function(voter) {
         var fullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
@@ -79,6 +100,9 @@ function updateSelectAllState() {
 // ─── Load voters ──────────────────────────────────────────────────────────────
 async function loadVoters(params) {
     params = params || {};
+
+    renderVotersSkeleton();
+
     try {
         var clean = {};
         Object.keys(params).forEach(function(k) { if (params[k] !== '' && params[k] != null) clean[k] = params[k]; });
@@ -161,155 +185,194 @@ function viewVoterDetails(voterId) {
     currentVoterId = voterId;
     var modal        = document.getElementById('voterModal');
     var modalContent = document.getElementById('modalContent');
-    var voter        = votersData.find(function(v) { return v.member_id === voterId; });
-    if (!voter) return;
-
-    var voterIDList = voterIDs[voterId] || [];
-    var fullName    = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
-
-    var idListHtml = voterIDList.map(function(id, index) {
-        return '<div class="bg-gray-50 p-3 rounded-lg border border-gray-200">'
-            + '<div class="flex justify-between items-start">'
-            + '<div><span class="text-sm font-medium text-gray-700">' + id.type + '</span>'
-            + '<p class="text-xs text-gray-500">' + id.number + '</p>'
-            + (id.dateAdded ? '<p class="text-xs text-gray-400 mt-1">Added: ' + id.dateAdded + '</p>' : '')
-            + '</div>'
-            + '<button onclick="removeID(\'' + voterId + '\',' + index + ')" class="text-gray-400 hover:text-red-600 p-1">'
-            + '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
-            + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>'
-            + '</svg></button></div></div>';
-    }).join('');
-
-    var votedMethod = voter.voted_method
-        ? '<span class="px-2 py-1 text-xs font-medium ' + (voter.voted_method === 'Voted Online' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') + ' rounded-full">' + voter.voted_method + '</span>'
-        : 'Not yet voted';
-
-    // Voting record — shown only if voter has voted
-    var votingRecord = voter.voted_date
-        ? '<div class="mt-6 p-4 bg-green-50 rounded-xl">'
-            + '<h5 class="text-sm font-medium text-green-800 mb-2">Voting Record</h5>'
-            + '<div class="grid grid-cols-2 gap-3">'
-            + '<div><p class="text-xs text-green-600">Date Voted</p><p class="text-sm font-medium text-green-900">' + voter.voted_date + '</p></div>'
-            + '<div><p class="text-xs text-green-600">Time Voted</p><p class="text-sm font-medium text-green-900">' + (voter.voted_time || '-') + '</p></div>'
-            + '</div></div>'
-        : '';
-
-    // QR section — always visible when voter is verified, renders inline inside the modal
-    var safeFullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ').replace(/'/g, '');
-    var qrSection = voter.status === true
-        ? '<div class="mt-4 border border-gray-200 rounded-xl overflow-hidden">'
-            + '<button onclick="toggleQrSection(\'' + voter.member_id + '\')" id="qrToggleBtn"'
-            + ' class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">'
-            + '<div class="flex items-center gap-2">'
-            + '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.243m-6.243 0H9m0 0h-.01M9 12v4m0-4V9m0 0h.01M5 15h2M5 9h2m0 0H9m-2 0V7m12 2h.01M17 9V7m0 2v4m0-4h-2M17 15h.01"/></svg>'
-            + '<span class="text-sm font-medium text-gray-700">QR Code</span>'
-            + '</div>'
-            + '<svg id="qrChevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'
-            + '</button>'
-            + '<div id="qrBody" class="hidden">'
-            + '<div class="flex flex-col items-center text-center p-4 space-y-2">'
-            + '<div id="qrCanvasWrapper" class="p-3 border-2 border-green-100 rounded-xl bg-white shadow-sm"></div>'
-            + '<p class="text-xs text-gray-400 font-mono">' + voter.member_id + '</p>'
-            + '<p class="text-xs text-gray-400">Scan with tablet to verify at the polling station</p>'
-            + '</div>'
-            + '<div class="flex gap-2 px-4 pb-4">'
-            + '<button onclick="downloadQr(\'' + voter.member_id + '\', \'' + safeFullName + '\')"'
-            + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs font-medium transition-colors">'
-            + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>'
-            + 'Download</button>'
-            + '<button onclick="triggerQrPrint()"'
-            + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">'
-            + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>'
-            + 'Print</button>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
-        : '';
-
-    var verifiedStatusClass = voter.status === true ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-    var verifiedStatusText  = voter.status === true ? 'Verified' : 'Not Verified';
-
-    var editBtn = function(fn, id) {
-        return '<button onclick="' + fn + '(\'' + id + '\')" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">'
-            + '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
-            + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>'
-            + '</svg></button>';
-    };
-
-    modalContent.innerHTML =
-        '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">'
-
-        // LEFT column
-        + '<div class="space-y-4">'
-        + '<div class="flex items-center space-x-4">'
-        + '<div class="relative">'
-        + '<div class="h-20 w-20 rounded-full border-4 border-green-100 bg-gray-200 flex items-center justify-center overflow-hidden"></div>'
-        + '<button onclick="uploadProfilePicture(\'' + voter.member_id + '\')" class="absolute bottom-0 right-0 bg-gray-300 text-gray-400 p-1 rounded-full hover:bg-green-600 transition-colors">'
-        + '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
-        + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>'
-        + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>'
-        + '</svg></button></div>'
-        + '<div><h4 class="text-xl font-bold text-gray-900">' + fullName + '</h4>'
-        + '<p class="text-gray-600">District ' + voter.district + '</p>'
-        + '<span class="mt-1 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + verifiedStatusClass + '">' + verifiedStatusText + '</span>'
-        + '</div></div>'
-
-        + '<div class="space-y-3">'
-        + '<h5 class="text-sm font-medium text-gray-500">Personal Information</h5>'
-        + '<div class="flex items-center justify-between">'
-        + '<div><p class="text-xs text-gray-500">ID Number</p><p class="text-sm font-medium">' + voter.member_id + '</p></div>'
-        + '<button onclick="editIDNumber(\'' + voter.member_id + '\')" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></button>'
-        + '</div>'
-        + '<div class="space-y-2">' + idListHtml + '</div>'
-        + '<div class="flex items-center justify-between">'
-        + '<div><p class="text-xs text-gray-500">Birthdate</p><p class="text-sm font-medium">' + (voter.birth_date || '-') + '</p></div>'
-        + editBtn('editBirthdate', voter.member_id)
-        + '</div>'
-        + '<div><p class="text-xs text-gray-500">Spouse</p><p class="text-l font-medium text-blue-900">' + (voter.spouse && voter.spouse.full_name ? voter.spouse.full_name : 'Not in a relationship') + '</p></div>'
-        + '</div></div>'
-
-        // RIGHT column
-        + '<div class="space-y-4">'
-        + '<h5 class="text-sm font-medium text-gray-500 mb-2">Contact Information</h5>'
-        + '<div class="space-y-2">'
-        + '<div class="flex items-center justify-between">'
-        + '<div class="flex items-center space-x-2"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>'
-        + '<span class="text-sm">' + (voter.email || 'No email') + '</span></div>'
-        + editBtn('editEmail', voter.member_id) + '</div>'
-        + '<div class="flex items-center justify-between">'
-        + '<div class="flex items-center space-x-2"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>'
-        + '<span class="text-sm">' + (voter.contact_number || 'No number') + '</span></div>'
-        + editBtn('editPhone', voter.member_id) + '</div>'
-        + '</div>'
-        + '<div class="flex items-center justify-between"><h5 class="text-sm font-medium text-gray-500">Address</h5>' + editBtn('editAddress', voter.member_id) + '</div>'
-        + '<p class="text-sm">' + (voter.address || '') + '</p>'
-        + '<div><h5 class="text-sm font-medium text-gray-500 mb-2">Voting Information</h5>'
-        + '<div class="grid grid-cols-2 gap-3">'
-        + '<div><p class="text-xs text-gray-500">Voting Method</p><p class="text-sm font-medium">' + votedMethod + '</p></div>'
-        + '<div><p class="text-xs text-gray-500">Verification Date</p><p class="text-sm font-medium">' + (voter.date_verified_time || 'Not verified') + '</p><p class="text-sm font-medium">' + (voter.date_verified_day || '') + '</p></div>'
-        + '</div></div>'
-        + '</div>'
-
-        + '</div>' // end grid
-        + votingRecord
-        + qrSection;
-
-    // Verify button state
-    var vb = document.getElementById('verifyButton');
-    if (vb) {
-        if (voter.status === true) {
-            vb.textContent = 'Already Verified'; vb.disabled = true;
-            vb.classList.remove('bg-green-500', 'hover:bg-green-600');
-            vb.classList.add('bg-gray-300', 'cursor-not-allowed');
-        } else {
-            vb.textContent = 'Verify'; vb.disabled = false;
-            vb.classList.remove('bg-gray-300', 'cursor-not-allowed');
-            vb.classList.add('bg-green-500', 'hover:bg-green-600');
-        }
-    }
-
     modal.classList.remove('hidden');
     modal.classList.add('block');
+    modalContent.innerHTML =
+        '<div class="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-6 p-2">'
+        // Left column skeleton
+        + '<div class="space-y-4">'
+        +   '<div class="flex items-center space-x-4">'
+        +     '<div class="h-20 w-20 rounded-full bg-gray-200"></div>'
+        +     '<div class="space-y-2">'
+        +       '<div class="h-4 bg-gray-200 rounded w-40"></div>'
+        +       '<div class="h-3 bg-gray-200 rounded w-24"></div>'
+        +       '<div class="h-5 bg-gray-200 rounded-full w-20 mt-1"></div>'
+        +     '</div>'
+        +   '</div>'
+        +   '<div class="space-y-3 mt-2">'
+        +     '<div class="h-3 bg-gray-200 rounded w-32"></div>'
+        +     '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
+        +     '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
+        +     '<div class="h-3 bg-gray-200 rounded w-28 mt-2"></div>'
+        +     '<div class="h-3 bg-gray-200 rounded w-36"></div>'
+        +   '</div>'
+        + '</div>'
+        // Right column skeleton
+        + '<div class="space-y-4">'
+        +   '<div class="h-3 bg-gray-200 rounded w-32"></div>'
+        +   '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
+        +   '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
+        +   '<div class="h-3 bg-gray-200 rounded w-20 mt-2"></div>'
+        +   '<div class="h-3 bg-gray-200 rounded w-48"></div>'
+        +   '<div class="h-3 bg-gray-200 rounded w-32 mt-2"></div>'
+        +   '<div class="grid grid-cols-2 gap-3 mt-2">'
+        +     '<div class="h-10 bg-gray-200 rounded-lg"></div>'
+        +     '<div class="h-10 bg-gray-200 rounded-lg"></div>'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+
+    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    if (!voter) return;
+
+    setTimeout(function() {
+        var voterIDList = voterIDs[voterId] || [];
+        var fullName    = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
+
+        var idListHtml = voterIDList.map(function(id, index) {
+            return '<div class="bg-gray-50 p-3 rounded-lg border border-gray-200">'
+                + '<div class="flex justify-between items-start">'
+                + '<div><span class="text-sm font-medium text-gray-700">' + id.type + '</span>'
+                + '<p class="text-xs text-gray-500">' + id.number + '</p>'
+                + (id.dateAdded ? '<p class="text-xs text-gray-400 mt-1">Added: ' + id.dateAdded + '</p>' : '')
+                + '</div>'
+                + '<button onclick="removeID(\'' + voterId + '\',' + index + ')" class="text-gray-400 hover:text-red-600 p-1">'
+                + '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+                + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>'
+                + '</svg></button></div></div>';
+        }).join('');
+
+        var votedMethod = voter.voted_method
+            ? '<span class="px-2 py-1 text-xs font-medium ' + (voter.voted_method === 'Voted Online' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') + ' rounded-full">' + voter.voted_method + '</span>'
+            : 'Not yet voted';
+
+        // Voting record — shown only if voter has voted
+        var votingRecord = voter.voted_date
+            ? '<div class="mt-6 p-4 bg-green-50 rounded-xl">'
+                + '<h5 class="text-sm font-medium text-green-800 mb-2">Voting Record</h5>'
+                + '<div class="grid grid-cols-2 gap-3">'
+                + '<div><p class="text-xs text-green-600">Date Voted</p><p class="text-sm font-medium text-green-900">' + voter.voted_date + '</p></div>'
+                + '<div><p class="text-xs text-green-600">Time Voted</p><p class="text-sm font-medium text-green-900">' + (voter.voted_time || '-') + '</p></div>'
+                + '</div></div>'
+            : '';
+
+        // QR section — always visible when voter is verified, renders inline inside the modal
+        var safeFullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ').replace(/'/g, '');
+        var qrSection = voter.status === true
+            ? '<div class="mt-4 border border-gray-200 rounded-xl overflow-hidden">'
+                + '<button onclick="toggleQrSection(\'' + voter.member_id + '\')" id="qrToggleBtn"'
+                + ' class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">'
+                + '<div class="flex items-center gap-2">'
+                + '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.243m-6.243 0H9m0 0h-.01M9 12v4m0-4V9m0 0h.01M5 15h2M5 9h2m0 0H9m-2 0V7m12 2h.01M17 9V7m0 2v4m0-4h-2M17 15h.01"/></svg>'
+                + '<span class="text-sm font-medium text-gray-700">QR Code</span>'
+                + '</div>'
+                + '<svg id="qrChevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'
+                + '</button>'
+                + '<div id="qrBody" class="hidden">'
+                + '<div class="flex flex-col items-center text-center p-4 space-y-2">'
+                + '<div id="qrCanvasWrapper" class="p-3 border-2 border-green-100 rounded-xl bg-white shadow-sm"></div>'
+                + '<p class="text-xs text-gray-400 font-mono">' + voter.member_id + '</p>'
+                + '<p class="text-xs text-gray-400">Scan with tablet to verify at the polling station</p>'
+                + '</div>'
+                + '<div class="flex gap-2 px-4 pb-4">'
+                + '<button onclick="downloadQr(\'' + voter.member_id + '\', \'' + safeFullName + '\')"'
+                + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs font-medium transition-colors">'
+                + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>'
+                + 'Download</button>'
+                + '<button onclick="triggerQrPrint()"'
+                + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">'
+                + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>'
+                + 'Print</button>'
+                + '</div>'
+                + '</div>'
+                + '</div>'
+            : '';
+
+        var verifiedStatusClass = voter.status === true ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+        var verifiedStatusText  = voter.status === true ? 'Verified' : 'Not Verified';
+
+        var editBtn = function(fn, id) {
+            return '<button onclick="' + fn + '(\'' + id + '\')" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">'
+                + '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+                + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>'
+                + '</svg></button>';
+        };
+
+        modalContent.innerHTML =
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">'
+
+            // LEFT column
+            + '<div class="space-y-4">'
+            + '<div class="flex items-center space-x-4">'
+            + '<div class="relative">'
+            + '<div class="h-20 w-20 rounded-full border-4 border-green-100 bg-gray-200 flex items-center justify-center overflow-hidden"></div>'
+            + '<button onclick="uploadProfilePicture(\'' + voter.member_id + '\')" class="absolute bottom-0 right-0 bg-gray-300 text-gray-400 p-1 rounded-full hover:bg-green-600 transition-colors">'
+            + '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+            + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>'
+            + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>'
+            + '</svg></button></div>'
+            + '<div><h4 class="text-xl font-bold text-gray-900">' + fullName + '</h4>'
+            + '<p class="text-gray-600">District ' + voter.district + '</p>'
+            + '<span class="mt-1 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + verifiedStatusClass + '">' + verifiedStatusText + '</span>'
+            + '</div></div>'
+
+            + '<div class="space-y-3">'
+            + '<h5 class="text-sm font-medium text-gray-500">Personal Information</h5>'
+            + '<div class="flex items-center justify-between">'
+            + '<div><p class="text-xs text-gray-500">ID Number</p><p class="text-sm font-medium">' + voter.member_id + '</p></div>'
+            + '<button onclick="editIDNumber(\'' + voter.member_id + '\')" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></button>'
+            + '</div>'
+            + '<div class="space-y-2">' + idListHtml + '</div>'
+            + '<div class="flex items-center justify-between">'
+            + '<div><p class="text-xs text-gray-500">Birthdate</p><p class="text-sm font-medium">' + (voter.birth_date || '-') + '</p></div>'
+            + editBtn('editBirthdate', voter.member_id)
+            + '</div>'
+            + '<div><p class="text-xs text-gray-500">Spouse</p><p class="text-l font-medium text-blue-900">' + (voter.spouse && voter.spouse.full_name ? voter.spouse.full_name : 'Not in a relationship') + '</p></div>'
+            + '</div></div>'
+
+            // RIGHT column
+            + '<div class="space-y-4">'
+            + '<h5 class="text-sm font-medium text-gray-500 mb-2">Contact Information</h5>'
+            + '<div class="space-y-2">'
+            + '<div class="flex items-center justify-between">'
+            + '<div class="flex items-center space-x-2"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>'
+            + '<span class="text-sm">' + (voter.email || 'No email') + '</span></div>'
+            + editBtn('editEmail', voter.member_id) + '</div>'
+            + '<div class="flex items-center justify-between">'
+            + '<div class="flex items-center space-x-2"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>'
+            + '<span class="text-sm">' + (voter.contact_number || 'No number') + '</span></div>'
+            + editBtn('editPhone', voter.member_id) + '</div>'
+            + '</div>'
+            + '<div class="flex items-center justify-between"><h5 class="text-sm font-medium text-gray-500">Address</h5>' + editBtn('editAddress', voter.member_id) + '</div>'
+            + '<p class="text-sm">' + (voter.address || '') + '</p>'
+            + '<div><h5 class="text-sm font-medium text-gray-500 mb-2">Voting Information</h5>'
+            + '<div class="grid grid-cols-2 gap-3">'
+            + '<div><p class="text-xs text-gray-500">Voting Method</p><p class="text-sm font-medium">' + votedMethod + '</p></div>'
+            + '<div><p class="text-xs text-gray-500">Verification Date</p><p class="text-sm font-medium">' + (voter.date_verified_time || 'Not verified') + '</p><p class="text-sm font-medium">' + (voter.date_verified_day || '') + '</p></div>'
+            + '</div></div>'
+            + '</div>'
+
+            + '</div>' // end grid
+            + votingRecord
+            + qrSection;
+
+        // Verify button state
+        var vb = document.getElementById('verifyButton');
+        if (vb) {
+            if (voter.status === true) {
+                vb.textContent = 'Already Verified'; vb.disabled = true;
+                vb.classList.remove('bg-green-500', 'hover:bg-green-600');
+                vb.classList.add('bg-gray-300', 'cursor-not-allowed');
+            } else {
+                vb.textContent = 'Verify'; vb.disabled = false;
+                vb.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                vb.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('block');
+    }, 0);
 }
 
 // ─── QR Code (URL-based — tablet browser opens verify page on scan) ───────────
@@ -464,6 +527,9 @@ function saveID() {
     if (!currentEditField) { alert('Error: No voter selected');  return; }
     if (!voterIDs[currentEditField]) voterIDs[currentEditField] = [];
     voterIDs[currentEditField].push({ type: type, number: num, dateAdded: new Date().toISOString().split('T')[0] });
+
+    logHistory('updated', currentEditField, type + ' ID added');
+
     showToast('success', type + ' added successfully');
     closeIDModal();
     if (currentVoterId) viewVoterDetails(currentVoterId);
@@ -512,6 +578,16 @@ function openEditModal(title, label, currentValue) {
 function saveEdit() {
     var val = document.getElementById('editInput').value.trim();
     if (!val) { alert('Please enter a value'); return; }
+
+    var fieldLabels = {
+        birthdate: 'Birthdate updated',
+        email:     'Email updated',
+        phone:     'Phone number updated',
+        address:   'Address updated',
+    };
+    var description = fieldLabels[currentEditField] || (currentEditField + ' updated');
+    logHistory('updated', currentVoterId, description);
+
     showToast('success', 'Updated ' + currentEditField);
     if (currentVoterId) viewVoterDetails(currentVoterId);
     closeEditModal();
@@ -547,6 +623,9 @@ async function verifyVoter() {
                 votersData[idx].date_verified_day  = data.verified_at ? new Date(data.verified_at).toLocaleDateString()  : '';
                 votersData[idx].date_verified_time = data.verified_at ? new Date(data.verified_at).toLocaleTimeString() : '';
             }
+
+            await logHistory('verified', currentVoterId, 'Voter verified by admin');
+
             showToast('success', data.message || 'Voter verified successfully.');
             renderVotersTable(votersData);
             viewVoterDetails(currentVoterId);
@@ -569,10 +648,41 @@ async function verifyVoter() {
             showToast('error', 'An unexpected error occurred.');
             restoreVerifyBtn(btn, originalText);
         }
+
+        
     } catch (err) {
         console.error(err);
         showToast('error', 'Network error. Please check your connection.');
         restoreVerifyBtn(btn, originalText);
+    }
+}
+
+// ─── Log History ──────────────────────────────────────────────────────────────
+async function logHistory(type, memberId, description) {
+    try {
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var response = await fetch('/api/ecom/history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+                'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : '',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                member_id:   memberId,
+                type:        type,
+                description: description || null,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => response.text());
+            console.error('History log failed:', response.status, errorBody);
+        }
+
+    } catch (err) {
+        console.warn('History log network error:', err.message, err);
     }
 }
 
@@ -582,6 +692,7 @@ function restoreVerifyBtn(btn, text) {
     btn.classList.remove('bg-gray-300','cursor-not-allowed');
     btn.classList.add('bg-green-500','hover:bg-green-600');
 }
+
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function showToast(type, message) {
@@ -627,3 +738,4 @@ window.removeID              = removeID;
 window.selectIDType          = selectIDType;
 window.showToast             = showToast;
 window.showVerificationToast = showToast;
+window.logHistory = logHistory;
