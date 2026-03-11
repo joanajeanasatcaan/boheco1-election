@@ -1,5 +1,5 @@
-let selectedVoters   = new Set();
-let currentVoterId   = null;
+let selectedVoters = new Set();
+let currentVoterId = null;
 let currentEditField = null;
 let voterIDs = {
     1: [{ type: "Consumer ID", number: "00989876866" }],
@@ -8,28 +8,40 @@ let voterIDs = {
 };
 
 const validIDOptions = [
-    { id: "philsys",  name: "Philsys ID"     },
-    { id: "driver",   name: "Driver License" },
-    { id: "passport", name: "Passport"       },
-    { id: "umid",     name: "UMID"           },
-    { id: "sss",      name: "SSS"            },
-    { id: "gsis",     name: "GSIS"           },
-    { id: "prc",      name: "PRC ID"         },
-    { id: "voter",    name: "Voter's ID"     },
-    { id: "nbi",      name: "NBI Clearance"  },
+    { id: "philsys", name: "Philsys ID" },
+    { id: "driver", name: "Driver License" },
+    { id: "passport", name: "Passport" },
+    { id: "umid", name: "UMID" },
+    { id: "sss", name: "SSS" },
+    { id: "gsis", name: "GSIS" },
+    { id: "prc", name: "PRC ID" },
+    { id: "voter", name: "Voter's ID" },
+    { id: "nbi", name: "NBI Clearance" },
 ];
 
 let votersData = [];
 let nextCursor = null;
 
+function showNoVotersFound() {
+    var table = document.getElementById('votersTable');
+    var template = document.getElementById('noDataTemplate');
+
+    if (!table || !template) return;
+
+    var clone = template.cloneNode(true);
+    clone.classList.remove('hidden');
+    clone.id = '';
+    table.innerHTML = '<tr><td colspan="6" class="px-6 py-12">' + clone.innerHTML + '</td></tr>';
+}
+
 // ─── Debounce ─────────────────────────────────────────────────────────────────
 let searchDebounceTimer = null;
 function debounce(fn, delay) {
     delay = delay || 600;
-    return function() {
+    return function () {
         var args = arguments;
         clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = setTimeout(function() { fn.apply(null, args); }, delay);
+        searchDebounceTimer = setTimeout(function () { fn.apply(null, args); }, delay);
     };
 }
 
@@ -42,8 +54,8 @@ function renderVotersSkeleton() {
             '<tr class="skeleton-row">' +
             '<td class="px-6 py-4"><div class="h-4 w-4 bg-gray-200 rounded animate-pulse"></div></td>' +
             '<td class="px-6 py-4">' +
-                '<div class="h-3.5 bg-gray-200 rounded animate-pulse w-36 mb-2"></div>' +
-                '<div class="h-3 bg-gray-200 rounded animate-pulse w-24"></div>' +
+            '<div class="h-3.5 bg-gray-200 rounded animate-pulse w-36 mb-2"></div>' +
+            '<div class="h-3 bg-gray-200 rounded animate-pulse w-24"></div>' +
             '</td>' +
             '<td class="px-6 py-4"><div class="h-3.5 bg-gray-200 rounded animate-pulse w-28 font-mono"></div></td>' +
             '<td class="px-6 py-4"><div class="h-3.5 bg-gray-200 rounded animate-pulse w-24"></div></td>' +
@@ -56,9 +68,15 @@ function renderVotersSkeleton() {
 
 // ─── Render table ─────────────────────────────────────────────────────────────
 function renderVotersTable(voters) {
-    var table = document.getElementById('votersTable'); 
+    var table = document.getElementById('votersTable');
     table.innerHTML = '';
-    voters.forEach(function(voter) {
+
+    if (!voters || voters.length === 0) {
+        showNoVotersFound();
+        return;
+    }
+
+    voters.forEach(function (voter) {
         var fullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
         var badge = voter.status === true
             ? '<span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">Verified</span>'
@@ -66,7 +84,17 @@ function renderVotersTable(voters) {
         var district = voter.district ? 'District ' + voter.district : 'No district';
         table.insertAdjacentHTML('beforeend',
             '<tr onclick="viewVoterDetails(\'' + voter.member_id + '\')" class="hover:bg-gray-50 transition-colors duration-150 cursor-pointer">' +
-            '<td class="px-6 py-4"><input type="checkbox" class="voter-checkbox h-4 w-4 rounded border-gray-300 text-green-600" value="' + voter.member_id + '"></td>' +
+            '<td class="px-6 py-4">' +
+            '<div class="flex items-center">' +
+            (voter.profile_image ?
+                '<img src="' + voter.profile_image + '" class="h-10 w-10 rounded-full object-cover border border-gray-200" alt="' + fullName + '">' :
+                '<div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm">' +
+                (voter.first_name ? voter.first_name.charAt(0).toUpperCase() : '?') +
+                (voter.last_name ? voter.last_name.charAt(0).toUpperCase() : '') +
+                '</div>'
+            ) +
+            '</div>' +
+            '</td>' +
             '<td class="px-6 py-4"><div class="text-sm font-medium text-gray-900">' + fullName + '</div><div class="text-sm text-gray-500">' + district + '</div></td>' +
             '<td class="px-6 py-4 font-mono">' + voter.member_id + '</td>' +
             '<td class="px-6 py-4"><div>' + (voter.voted_date || '-') + '</div></td>' +
@@ -80,20 +108,20 @@ function renderVotersTable(voters) {
 }
 
 function bindCheckboxListeners() {
-    document.querySelectorAll('.voter-checkbox').forEach(function(cb) {
-        cb.addEventListener('change', function(e) {
+    document.querySelectorAll('.voter-checkbox').forEach(function (cb) {
+        cb.addEventListener('change', function (e) {
             e.stopPropagation();
             this.checked ? selectedVoters.add(this.value) : selectedVoters.delete(this.value);
             updateSelectAllState();
         });
-        cb.addEventListener('click', function(e) { e.stopPropagation(); });
+        cb.addEventListener('click', function (e) { e.stopPropagation(); });
     });
 }
 
 function updateSelectAllState() {
-    var sa    = document.getElementById('select-all');
+    var sa = document.getElementById('select-all');
     var boxes = document.querySelectorAll('.voter-checkbox');
-    var n     = Array.from(boxes).filter(function(cb) { return cb.checked; }).length;
+    var n = Array.from(boxes).filter(function (cb) { return cb.checked; }).length;
     if (sa) { sa.checked = n === boxes.length && boxes.length > 0; sa.indeterminate = n > 0 && n < boxes.length; }
 }
 
@@ -105,22 +133,27 @@ async function loadVoters(params) {
 
     try {
         var clean = {};
-        Object.keys(params).forEach(function(k) { if (params[k] !== '' && params[k] != null) clean[k] = params[k]; });
+        Object.keys(params).forEach(function (k) { if (params[k] !== '' && params[k] != null) clean[k] = params[k]; });
         var response = await fetch('/api/ecom/members?' + new URLSearchParams(clean).toString(), {
-            method: 'GET', headers: { 'Accept': 'application/json'}, credentials: 'include'
+            method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'include'
         });
         if (!response.ok) throw new Error('Failed to fetch voters');
-        var data   = await response.json();
-        votersData = data.data;
+        var data = await response.json();
+        votersData = data.data || [];
         nextCursor = data.meta && data.meta.next_cursor ? data.meta.next_cursor : null;
-        renderVotersTable(votersData);
-        updateShowingText(votersData.length);
+
+        if (votersData.length === 0) {
+            showNoVotersFound();
+        } else {
+            renderVotersTable(votersData);
+            updateShowingText(votersData.length);
+        }
     } catch (err) { console.error(err); showToast('error', 'Error loading voters.'); }
 }
 
 function updateShowingText(count) {
     var el = document.querySelector('.text-sm.text-gray-700');
-    if (el) el.innerHTML = 'Showing <span class="font-medium">' + Math.min(1,count) + '</span> to <span class="font-medium">' + count + '</span> of <span class="font-medium">' + count + '</span> voters';
+    if (el) el.innerHTML = 'Showing <span class="font-medium">' + Math.min(1, count) + '</span> to <span class="font-medium">' + count + '</span> of <span class="font-medium">' + count + '</span> voters';
 }
 
 // ─── Filter ───────────────────────────────────────────────────────────────────
@@ -129,9 +162,9 @@ function filterVoters() {
     var vf = document.getElementById('voted-filter');
     var sf = document.getElementById('status-filter');
     var params = { per_page: 20 };
-    if (si && si.value.trim()) params.search       = si.value.trim();
-    if (vf && vf.value)        params.voted_method = vf.value;
-    if (sf && sf.value)        params.status       = sf.value;
+    if (si && si.value.trim()) params.search = si.value.trim();
+    if (vf && vf.value) params.voted_method = vf.value;
+    if (sf && sf.value) params.status = sf.value;
     loadVoters(params);
 }
 var debouncedFilter = debounce(filterVoters, 600);
@@ -139,8 +172,8 @@ var debouncedFilter = debounce(filterVoters, 600);
 document.addEventListener('DOMContentLoaded', function () {
     var sa = document.getElementById('select-all');
     if (sa) {
-        sa.addEventListener('change', function() {
-            document.querySelectorAll('.voter-checkbox').forEach(function(cb) {
+        sa.addEventListener('change', function () {
+            document.querySelectorAll('.voter-checkbox').forEach(function (cb) {
                 cb.checked = sa.checked;
                 sa.checked ? selectedVoters.add(cb.value) : selectedVoters.delete(cb.value);
             });
@@ -149,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var si = document.getElementById('search-input');
     if (si) {
         si.addEventListener('input', debouncedFilter);
-        si.addEventListener('keydown', function(e) { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); filterVoters(); } });
+        si.addEventListener('keydown', function (e) { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); filterVoters(); } });
     }
     var vf = document.getElementById('voted-filter');
     var sf = document.getElementById('status-filter');
@@ -161,8 +194,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // ─── Export CSV ───────────────────────────────────────────────────────────────
 function exportToCSV() {
     var rows = document.querySelectorAll('#votersTable tr');
-    var csv  = 'data:text/csv;charset=utf-8,Name,District,ID Number,Date Voted,Remarks,Status\n';
-    rows.forEach(function(row) {
+    var csv = 'data:text/csv;charset=utf-8,Name,District,ID Number,Date Voted,Remarks,Status\n';
+    rows.forEach(function (row) {
         var c = row.querySelectorAll('td');
         if (!c.length) return;
         var vals = [
@@ -173,7 +206,7 @@ function exportToCSV() {
             (c[4] && c[4].querySelector('span') ? c[4].querySelector('span').textContent : '').trim(),
             (c[5] && c[5].querySelector('span') ? c[5].querySelector('span').textContent : '').trim(),
         ];
-        csv += vals.map(function(v) { return '"' + v + '"'; }).join(',') + '\n';
+        csv += vals.map(function (v) { return '"' + v + '"'; }).join(',') + '\n';
     });
     var a = document.createElement('a');
     a.href = encodeURI(csv); a.download = 'voters_list.csv';
@@ -183,7 +216,7 @@ function exportToCSV() {
 // ─── Voter detail modal ───────────────────────────────────────────────────────
 function viewVoterDetails(voterId) {
     currentVoterId = voterId;
-    var modal        = document.getElementById('voterModal');
+    var modal = document.getElementById('voterModal');
     var modalContent = document.getElementById('modalContent');
     modal.classList.remove('hidden');
     modal.classList.add('block');
@@ -191,45 +224,45 @@ function viewVoterDetails(voterId) {
         '<div class="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-6 p-2">'
         // Left column skeleton
         + '<div class="space-y-4">'
-        +   '<div class="flex items-center space-x-4">'
-        +     '<div class="h-20 w-20 rounded-full bg-gray-200"></div>'
-        +     '<div class="space-y-2">'
-        +       '<div class="h-4 bg-gray-200 rounded w-40"></div>'
-        +       '<div class="h-3 bg-gray-200 rounded w-24"></div>'
-        +       '<div class="h-5 bg-gray-200 rounded-full w-20 mt-1"></div>'
-        +     '</div>'
-        +   '</div>'
-        +   '<div class="space-y-3 mt-2">'
-        +     '<div class="h-3 bg-gray-200 rounded w-32"></div>'
-        +     '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
-        +     '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
-        +     '<div class="h-3 bg-gray-200 rounded w-28 mt-2"></div>'
-        +     '<div class="h-3 bg-gray-200 rounded w-36"></div>'
-        +   '</div>'
+        + '<div class="flex items-center space-x-4">'
+        + '<div class="h-20 w-20 rounded-full bg-gray-200"></div>'
+        + '<div class="space-y-2">'
+        + '<div class="h-4 bg-gray-200 rounded w-40"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-24"></div>'
+        + '<div class="h-5 bg-gray-200 rounded-full w-20 mt-1"></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="space-y-3 mt-2">'
+        + '<div class="h-3 bg-gray-200 rounded w-32"></div>'
+        + '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
+        + '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-28 mt-2"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-36"></div>'
+        + '</div>'
         + '</div>'
         // Right column skeleton
         + '<div class="space-y-4">'
-        +   '<div class="h-3 bg-gray-200 rounded w-32"></div>'
-        +   '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
-        +   '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
-        +   '<div class="h-3 bg-gray-200 rounded w-20 mt-2"></div>'
-        +   '<div class="h-3 bg-gray-200 rounded w-48"></div>'
-        +   '<div class="h-3 bg-gray-200 rounded w-32 mt-2"></div>'
-        +   '<div class="grid grid-cols-2 gap-3 mt-2">'
-        +     '<div class="h-10 bg-gray-200 rounded-lg"></div>'
-        +     '<div class="h-10 bg-gray-200 rounded-lg"></div>'
-        +   '</div>'
+        + '<div class="h-3 bg-gray-200 rounded w-32"></div>'
+        + '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
+        + '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-20 mt-2"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-48"></div>'
+        + '<div class="h-3 bg-gray-200 rounded w-32 mt-2"></div>'
+        + '<div class="grid grid-cols-2 gap-3 mt-2">'
+        + '<div class="h-10 bg-gray-200 rounded-lg"></div>'
+        + '<div class="h-10 bg-gray-200 rounded-lg"></div>'
+        + '</div>'
         + '</div>'
         + '</div>';
 
-    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    var voter = votersData.find(function (v) { return v.member_id === voterId; });
     if (!voter) return;
 
-    setTimeout(function() {
+    setTimeout(function () {
         var voterIDList = voterIDs[voterId] || [];
-        var fullName    = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
+        var fullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ');
 
-        var idListHtml = voterIDList.map(function(id, index) {
+        var idListHtml = voterIDList.map(function (id, index) {
             return '<div class="bg-gray-50 p-3 rounded-lg border border-gray-200">'
                 + '<div class="flex justify-between items-start">'
                 + '<div><span class="text-sm font-medium text-gray-700">' + id.type + '</span>'
@@ -249,49 +282,49 @@ function viewVoterDetails(voterId) {
         // Voting record — shown only if voter has voted
         var votingRecord = voter.voted_date
             ? '<div class="mt-6 p-4 bg-green-50 rounded-xl">'
-                + '<h5 class="text-sm font-medium text-green-800 mb-2">Voting Record</h5>'
-                + '<div class="grid grid-cols-2 gap-3">'
-                + '<div><p class="text-xs text-green-600">Date Voted</p><p class="text-sm font-medium text-green-900">' + voter.voted_date + '</p></div>'
-                + '<div><p class="text-xs text-green-600">Time Voted</p><p class="text-sm font-medium text-green-900">' + (voter.voted_time || '-') + '</p></div>'
-                + '</div></div>'
+            + '<h5 class="text-sm font-medium text-green-800 mb-2">Voting Record</h5>'
+            + '<div class="grid grid-cols-2 gap-3">'
+            + '<div><p class="text-xs text-green-600">Date Voted</p><p class="text-sm font-medium text-green-900">' + voter.voted_date + '</p></div>'
+            + '<div><p class="text-xs text-green-600">Time Voted</p><p class="text-sm font-medium text-green-900">' + (voter.voted_time || '-') + '</p></div>'
+            + '</div></div>'
             : '';
 
         // QR section — always visible when voter is verified, renders inline inside the modal
         var safeFullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ').replace(/'/g, '');
         var qrSection = voter.status === true
             ? '<div class="mt-4 border border-gray-200 rounded-xl overflow-hidden">'
-                + '<button onclick="toggleQrSection(\'' + voter.member_id + '\')" id="qrToggleBtn"'
-                + ' class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">'
-                + '<div class="flex items-center gap-2">'
-                + '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.243m-6.243 0H9m0 0h-.01M9 12v4m0-4V9m0 0h.01M5 15h2M5 9h2m0 0H9m-2 0V7m12 2h.01M17 9V7m0 2v4m0-4h-2M17 15h.01"/></svg>'
-                + '<span class="text-sm font-medium text-gray-700">QR Code</span>'
-                + '</div>'
-                + '<svg id="qrChevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'
-                + '</button>'
-                + '<div id="qrBody" class="hidden">'
-                + '<div class="flex flex-col items-center text-center p-4 space-y-2">'
-                + '<div id="qrCanvasWrapper" class="p-3 border-2 border-green-100 rounded-xl bg-white shadow-sm"></div>'
-                + '<p class="text-xs text-gray-400 font-mono">' + voter.member_id + '</p>'
-                + '<p class="text-xs text-gray-400">Scan with tablet to verify at the polling station</p>'
-                + '</div>'
-                + '<div class="flex gap-2 px-4 pb-4">'
-                + '<button onclick="downloadQr(\'' + voter.member_id + '\', \'' + safeFullName + '\')"'
-                + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs font-medium transition-colors">'
-                + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>'
-                + 'Download</button>'
-                + '<button onclick="triggerQrPrint()"'
-                + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">'
-                + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>'
-                + 'Print</button>'
-                + '</div>'
-                + '</div>'
-                + '</div>'
+            + '<button onclick="toggleQrSection(\'' + voter.member_id + '\')" id="qrToggleBtn"'
+            + ' class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">'
+            + '<div class="flex items-center gap-2">'
+            + '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.243m-6.243 0H9m0 0h-.01M9 12v4m0-4V9m0 0h.01M5 15h2M5 9h2m0 0H9m-2 0V7m12 2h.01M17 9V7m0 2v4m0-4h-2M17 15h.01"/></svg>'
+            + '<span class="text-sm font-medium text-gray-700">QR Code</span>'
+            + '</div>'
+            + '<svg id="qrChevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>'
+            + '</button>'
+            + '<div id="qrBody" class="hidden">'
+            + '<div class="flex flex-col items-center text-center p-4 space-y-2">'
+            + '<div id="qrCanvasWrapper" class="p-3 border-2 border-green-100 rounded-xl bg-white shadow-sm"></div>'
+            + '<p class="text-xs text-gray-400 font-mono">' + voter.member_id + '</p>'
+            + '<p class="text-xs text-gray-400">Scan with tablet to verify at the polling station</p>'
+            + '</div>'
+            + '<div class="flex gap-2 px-4 pb-4">'
+            + '<button onclick="downloadQr(\'' + voter.member_id + '\', \'' + safeFullName + '\')"'
+            + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs font-medium transition-colors">'
+            + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>'
+            + 'Download</button>'
+            + '<button onclick="triggerQrPrint()"'
+            + ' class="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors">'
+            + '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>'
+            + 'Print</button>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
             : '';
 
         var verifiedStatusClass = voter.status === true ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-        var verifiedStatusText  = voter.status === true ? 'Verified' : 'Not Verified';
+        var verifiedStatusText = voter.status === true ? 'Verified' : 'Not Verified';
 
-        var editBtn = function(fn, id) {
+        var editBtn = function (fn, id) {
             return '<button onclick="' + fn + '(\'' + id + '\')" class="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100">'
                 + '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
                 + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>'
@@ -386,7 +419,7 @@ function printQrCode(voterId) {
 }
 
 function toggleQrSection(voterId) {
-    var body    = document.getElementById('qrBody');
+    var body = document.getElementById('qrBody');
     var chevron = document.getElementById('qrChevron');
     if (!body) return;
 
@@ -403,17 +436,17 @@ function toggleQrSection(voterId) {
 
         var wrapper = document.getElementById('qrCanvasWrapper');
         if (wrapper && wrapper.children.length === 0) {
-            var voter   = votersData.find(function(v) { return v.member_id === voterId; });
+            var voter = votersData.find(function (v) { return v.member_id === voterId; });
             if (!voter) return;
             var scanUrl = APP_URL + '/voter/scan/' + encodeURIComponent(voter.member_id);
 
-            loadQrLibrary(function() {
+            loadQrLibrary(function () {
                 new QRCode(wrapper, {
-                    text:         scanUrl,
-                    width:        180,
-                    height:       180,
-                    colorDark:    '#166534',
-                    colorLight:   '#ffffff',
+                    text: scanUrl,
+                    width: 180,
+                    height: 180,
+                    colorDark: '#166534',
+                    colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.H,
                 });
             });
@@ -423,9 +456,9 @@ function toggleQrSection(voterId) {
 
 function loadQrLibrary(callback) {
     if (window.QRCode) { callback(); return; }
-    const script   = document.createElement('script');
-    script.src     = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-    script.onload  = callback;
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.onload = callback;
     script.onerror = function () { showToast('error', 'Failed to load QR library. Check your connection.'); };
     document.head.appendChild(script);
 }
@@ -434,20 +467,20 @@ function downloadQr(memberId, fullName) {
     // qrcodejs renders an <img> — grab its src
     const img = document.querySelector('#qrCanvasWrapper img');
     if (!img) return;
-    const a      = document.createElement('a');
-    a.download   = 'qr-' + memberId + '-' + fullName.replace(/\s+/g, '_') + '.png';
-    a.href       = img.src;
+    const a = document.createElement('a');
+    a.download = 'qr-' + memberId + '-' + fullName.replace(/\s+/g, '_') + '.png';
+    a.href = img.src;
     a.click();
 }
 
 function triggerQrPrint() {
-    const img       = document.querySelector('#qrCanvasWrapper img');
+    const img = document.querySelector('#qrCanvasWrapper img');
     const printArea = document.getElementById('qrPrintArea');
     if (!img || !printArea) return;
 
-    const name = printArea.querySelector('p.font-semibold')?.textContent    ?? '';
-    const dist = printArea.querySelectorAll('p')[1]?.textContent             ?? '';
-    const id   = printArea.querySelectorAll('p')[2]?.textContent             ?? '';
+    const name = printArea.querySelector('p.font-semibold')?.textContent ?? '';
+    const dist = printArea.querySelectorAll('p')[1]?.textContent ?? '';
+    const id = printArea.querySelectorAll('p')[2]?.textContent ?? '';
 
     const win = window.open('', '_blank', 'width=420,height=580');
     win.document.write('<!DOCTYPE html><html><head><title>Voter QR Code</title><style>'
@@ -476,7 +509,9 @@ function triggerQrPrint() {
 }
 
 // ─── Modal helpers ────────────────────────────────────────────────────────────
-function uploadProfilePicture() { alert('Upload profile picture code here'); }
+function uploadProfilePicture() { 
+    alert("hahahaha");
+}
 
 function closeModal() {
     document.getElementById('voterModal').classList.remove('block');
@@ -501,7 +536,7 @@ function editIDNumber(voterId) {
     var c = document.getElementById('editIDModalContent');
     c.innerHTML = '<div class="space-y-4"><p class="text-sm text-gray-600">Select a valid ID type to add:</p>'
         + '<div class="grid grid-cols-2 gap-3">'
-        + validIDOptions.map(function(id) {
+        + validIDOptions.map(function (id) {
             return '<button onclick="selectIDType(\'' + id.id + '\',\'' + id.name + '\')" class="flex items-center p-3 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-left"><p class="text-sm font-medium text-gray-900">' + id.name + '</p></button>';
         }).join('')
         + '</div><div id="idInputSection" class="hidden space-y-3"><label class="block text-sm font-medium text-gray-700" id="idTypeLabel"></label>'
@@ -514,17 +549,17 @@ function editIDNumber(voterId) {
 function selectIDType(id, name) {
     document.getElementById('idTypeLabel').textContent = name + ' Number';
     document.getElementById('idInputSection').classList.remove('hidden');
-    setTimeout(function() { document.getElementById('idNumberInput').focus(); }, 100);
+    setTimeout(function () { document.getElementById('idNumberInput').focus(); }, 100);
 }
 
 function saveID() {
-    var inp   = document.getElementById('idNumberInput');
+    var inp = document.getElementById('idNumberInput');
     var label = document.getElementById('idTypeLabel');
     if (!inp || !label) { alert('Error: Could not find input elements'); return; }
-    var num  = inp.value.trim();
-    var type = label.textContent.replace(' Number','').trim();
-    if (!num)              { alert('Please enter an ID number'); return; }
-    if (!currentEditField) { alert('Error: No voter selected');  return; }
+    var num = inp.value.trim();
+    var type = label.textContent.replace(' Number', '').trim();
+    if (!num) { alert('Please enter an ID number'); return; }
+    if (!currentEditField) { alert('Error: No voter selected'); return; }
     if (!voterIDs[currentEditField]) voterIDs[currentEditField] = [];
     voterIDs[currentEditField].push({ type: type, number: num, dateAdded: new Date().toISOString().split('T')[0] });
 
@@ -548,22 +583,22 @@ function removeID(voterId, index) {
 // ─── Edit fields ──────────────────────────────────────────────────────────────
 function editBirthdate(voterId) {
     currentEditField = 'birthdate';
-    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    var voter = votersData.find(function (v) { return v.member_id === voterId; });
     openEditModal('Edit Birthdate', 'Enter new birthdate (YYYY-MM-DD):', voter ? voter.birth_date || '' : '');
 }
 function editEmail(voterId) {
     currentEditField = 'email';
-    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    var voter = votersData.find(function (v) { return v.member_id === voterId; });
     openEditModal('Edit Email', 'Enter new email:', voter ? voter.email || '' : '');
 }
 function editPhone(voterId) {
     currentEditField = 'phone';
-    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    var voter = votersData.find(function (v) { return v.member_id === voterId; });
     openEditModal('Edit Phone Number', 'Enter new phone number:', voter ? voter.contact_number || '' : '');
 }
 function editAddress(voterId) {
     currentEditField = 'address';
-    var voter = votersData.find(function(v) { return v.member_id === voterId; });
+    var voter = votersData.find(function (v) { return v.member_id === voterId; });
     openEditModal('Edit Address', 'Enter new address:', voter ? voter.address || '' : '');
 }
 function openEditModal(title, label, currentValue) {
@@ -573,7 +608,7 @@ function openEditModal(title, label, currentValue) {
         + '<input type="text" id="editInput" value="' + currentValue + '" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></div>';
     document.getElementById('editModal').classList.remove('hidden');
     document.getElementById('editModal').classList.add('block');
-    setTimeout(function() { document.getElementById('editInput').focus(); }, 100);
+    setTimeout(function () { document.getElementById('editInput').focus(); }, 100);
 }
 function saveEdit() {
     var val = document.getElementById('editInput').value.trim();
@@ -581,9 +616,9 @@ function saveEdit() {
 
     var fieldLabels = {
         birthdate: 'Birthdate updated',
-        email:     'Email updated',
-        phone:     'Phone number updated',
-        address:   'Address updated',
+        email: 'Email updated',
+        phone: 'Phone number updated',
+        address: 'Address updated',
     };
     var description = fieldLabels[currentEditField] || (currentEditField + ' updated');
     logHistory('updated', currentVoterId, description);
@@ -598,12 +633,12 @@ async function verifyVoter() {
     if (!currentVoterId) return;
     if (!confirm('Are you sure you want to verify this voter?')) return;
 
-    var btn          = document.getElementById('verifyButton');
+    var btn = document.getElementById('verifyButton');
     var originalText = btn.textContent;
-    btn.disabled     = true;
-    btn.textContent  = 'Verifying...';
-    btn.classList.remove('bg-green-500','hover:bg-green-600');
-    btn.classList.add('bg-gray-300','cursor-not-allowed');
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+    btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+    btn.classList.add('bg-gray-300', 'cursor-not-allowed');
 
     try {
         var csrfMeta = document.querySelector('meta[name="csrf-token"]');
@@ -616,11 +651,11 @@ async function verifyVoter() {
         var data = await response.json();
 
         if (response.ok) {
-            var idx = votersData.findIndex(function(v) { return v.member_id === currentVoterId; });
+            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
             if (idx !== -1) {
-                votersData[idx].status             = true;
-                votersData[idx].date_verified      = data.verified_at || new Date().toISOString().split('T')[0];
-                votersData[idx].date_verified_day  = data.verified_at ? new Date(data.verified_at).toLocaleDateString()  : '';
+                votersData[idx].status = true;
+                votersData[idx].date_verified = data.verified_at || new Date().toISOString().split('T')[0];
+                votersData[idx].date_verified_day = data.verified_at ? new Date(data.verified_at).toLocaleDateString() : '';
                 votersData[idx].date_verified_time = data.verified_at ? new Date(data.verified_at).toLocaleTimeString() : '';
             }
 
@@ -632,7 +667,7 @@ async function verifyVoter() {
 
         } else if (response.status === 409) {
             showToast('warning', data.message || 'This household is already verified.');
-            var idx = votersData.findIndex(function(v) { return v.member_id === currentVoterId; });
+            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
             if (idx !== -1) votersData[idx].status = true;
             viewVoterDetails(currentVoterId);
 
@@ -649,7 +684,7 @@ async function verifyVoter() {
             restoreVerifyBtn(btn, originalText);
         }
 
-        
+
     } catch (err) {
         console.error(err);
         showToast('error', 'Network error. Please check your connection.');
@@ -665,13 +700,13 @@ async function logHistory(type, memberId, description) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept':       'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : '',
             },
             credentials: 'include',
             body: JSON.stringify({
-                member_id:   memberId,
-                type:        type,
+                member_id: memberId,
+                type: type,
                 description: description || null,
             }),
         });
@@ -687,10 +722,10 @@ async function logHistory(type, memberId, description) {
 }
 
 function restoreVerifyBtn(btn, text) {
-    btn.disabled    = false;
+    btn.disabled = false;
     btn.textContent = text;
-    btn.classList.remove('bg-gray-300','cursor-not-allowed');
-    btn.classList.add('bg-green-500','hover:bg-green-600');
+    btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+    btn.classList.add('bg-green-500', 'hover:bg-green-600');
 }
 
 
@@ -699,43 +734,43 @@ function showToast(type, message) {
     var old = document.getElementById('verificationToast');
     if (old) old.remove();
     var colors = { success: 'bg-green-500', warning: 'bg-yellow-500', error: 'bg-red-500' };
-    var icons  = {
+    var icons = {
         success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>',
         warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>',
-        error:   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>',
+        error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>',
     };
-    var toast       = document.createElement('div');
-    toast.id        = 'verificationToast';
+    var toast = document.createElement('div');
+    toast.id = 'verificationToast';
     toast.className = 'fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-5 py-4 rounded-xl text-white shadow-xl ' + colors[type] + ' transition-all duration-300 opacity-0 translate-y-2';
     toast.innerHTML = '<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">' + icons[type] + '</svg><span class="text-sm font-medium">' + message + '</span>';
     document.body.appendChild(toast);
-    requestAnimationFrame(function() { toast.classList.replace('opacity-0','opacity-100'); toast.classList.replace('translate-y-2','translate-y-0'); });
-    setTimeout(function() { toast.classList.replace('opacity-100','opacity-0'); setTimeout(function() { toast.remove(); }, 300); }, 4000);
+    requestAnimationFrame(function () { toast.classList.replace('opacity-0', 'opacity-100'); toast.classList.replace('translate-y-2', 'translate-y-0'); });
+    setTimeout(function () { toast.classList.replace('opacity-100', 'opacity-0'); setTimeout(function () { toast.remove(); }, 300); }, 4000);
 }
 // Alias used by old calls
 var showVerificationToast = showToast;
 
 // ─── Global exports ───────────────────────────────────────────────────────────
-window.viewVoterDetails      = viewVoterDetails;
-window.closeModal            = closeModal;
-window.closeIDModal          = closeIDModal;
-window.closeEditModal        = closeEditModal;
-window.exportToCSV           = exportToCSV;
-window.verifyVoter           = verifyVoter;
-window.saveID                = saveID;
-window.saveEdit              = saveEdit;
-window.editIDNumber          = editIDNumber;
-window.editBirthdate         = editBirthdate;
-window.editEmail             = editEmail;
-window.editPhone             = editPhone;
-window.editAddress           = editAddress;
-window.uploadProfilePicture  = uploadProfilePicture;
-window.printQrCode           = printQrCode;
-window.toggleQrSection        = toggleQrSection;
-window.downloadQr            = downloadQr;
-window.triggerQrPrint        = triggerQrPrint;
-window.removeID              = removeID;
-window.selectIDType          = selectIDType;
-window.showToast             = showToast;
+window.viewVoterDetails = viewVoterDetails;
+window.closeModal = closeModal;
+window.closeIDModal = closeIDModal;
+window.closeEditModal = closeEditModal;
+window.exportToCSV = exportToCSV;
+window.verifyVoter = verifyVoter;
+window.saveID = saveID;
+window.saveEdit = saveEdit;
+window.editIDNumber = editIDNumber;
+window.editBirthdate = editBirthdate;
+window.editEmail = editEmail;
+window.editPhone = editPhone;
+window.editAddress = editAddress;
+window.uploadProfilePicture = uploadProfilePicture;
+window.printQrCode = printQrCode;
+window.toggleQrSection = toggleQrSection;
+window.downloadQr = downloadQr;
+window.triggerQrPrint = triggerQrPrint;
+window.removeID = removeID;
+window.selectIDType = selectIDType;
+window.showToast = showToast;
 window.showVerificationToast = showToast;
 window.logHistory = logHistory;

@@ -8,46 +8,30 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-100">
-    <nav class="bg-white border-b border-gray-200 shadow-lg py-4">
-        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+<body class="bg-gray-50">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <a href="{{ route('ecom') }}" class="flex items-center space-x-3 group">
-                        <div class="relative">
-                            <x-application-logo class="relative h-12 w-12 " />
-                        </div>
-                        <div class="transform transition-all duration-500 group-hover:translate-x-2">
-                            <div class="font-helvetica text-2xl font-black text-gray-900">
-                                BOHECO I
-                            </div>
-                            <div class="font-helvetica text-sm font-semibold text-gray-600">
-                                Election Committee Portal
-                            </div>
-                        </div>
+                <a href="{{ route('ecom') }}" class="flex items-center gap-3">
+                    <x-application-logo class="h-8 w-8 text-blue-600" />
+                    <div>
+                        <span class="font-bold text-gray-900">BOHECO I</span>
+                        <span class="text-xs text-gray-500 block -mt-1">Election Portal</span>
+                    </div>
+                </a>
+
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('history') }}" 
+                       class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition {{ request()->routeIs('history') ? 'text-blue-600 bg-blue-50' : '' }}">
+                        <x-history-no-color-logo class="h-5 w-5" />
                     </a>
-                </div>
 
-                <div class="flex relative">
-                    {{-- <x-nav-link :href="route('online-voters-receipts')" :active="request()->routeIs('online-voters-receipts')"
-                    class="group relative flex items-center px-5 py-3 rounded-xl font-semibold text-sm text-gray-700 tracking-wide bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md border border-gray-200">
-                    <x-print-logo class="h-5 w-5 mr-2 text-gray-600 group-hover:text-emerald-600 transition-colors duration-300" />
-                    <span class="group-hover:text-emerald-700 transition-colors duration-300">Print Receipts</span>
-                </x-nav-link> --}}
-
-                    <x-nav-link :href="route('history')" :active="request()->routeIs('history')"
-                        class="group mr-2 relative flex items-center px-5 py-3 rounded-2xl tracking-wide bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500/30 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md border border-gray-200">
-                        <x-history-no-color-logo
-                            class="h-5 w-5 mr-2 group-hover:text-gray-600 transition-colors duration-300" />
-                    </x-nav-link>
                     <button id="profileButton"
                         class="flex items-center gap-3 px-4 py-2.5 bg-white/10 backdrop-blur-sm rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray/20 transition-all duration-300 border border-gray/20 hover:border-gray/30 focus:outline-none focus:ring-2 focus:ring-gray/40 focus:ring-offset-2 focus:ring-offset-blue-900">
                         <div class="text-left">
@@ -86,6 +70,8 @@
     <div>
         @include('ecom.dashboard')
     </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 
 </html>
