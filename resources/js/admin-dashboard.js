@@ -4,38 +4,126 @@ window.toggleScheduleDetails = function() {
     details.classList.toggle('hidden');
     icon.classList.toggle('rotate-180');
 };
+// ─── Schedule summary ─────────────────────────────────────────────────────────
+async function loadScheduleSummary() {
+    try {
+        const response = await fetch('/api/admin/schedules', {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to load schedules');
+        const result    = await response.json();
+        const schedules = result.data ?? [];
 
-window.updateScheduleSummary = function() {
-    const scheduleItems = document.querySelectorAll('[data-schedule-date]');
+        const summaryEl = document.getElementById('schedule-summary');
+        const countEl   = document.getElementById('schedule-district-count');
+        const nextEl    = document.getElementById('schedule-next');
+        const allEl     = document.getElementById('schedule-all');
+        const toggleBtn = document.getElementById('schedule-toggle-btn');
 
-    if (scheduleItems.length === 0) return;
+        if (!schedules.length) {
+            if (summaryEl) summaryEl.textContent = 'No schedules set';
+            if (countEl)   countEl.textContent   = '0 Districts';
+            if (nextEl)    nextEl.innerHTML = `<p class="text-sm text-gray-400 italic">No upcoming schedules.</p>`;
+            return;
+        }
 
-    const dates = Array.from(scheduleItems)
-        .map(item => {
-            const dateStr = item.getAttribute('data-schedule-date');
-            return new Date(dateStr);
-        })
-        .sort((a, b) => a - b);
+        // ── Helpers ───────────────────────────────────────────────
+        const today    = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    const firstDate = dates[0];
-    const lastDate = dates[dates.length - 1];
-    const daysDiff = Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24)) + 1;
-    const totalDistricts = scheduleItems.length;
+        const sorted   = [...schedules].sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
 
-    const formatter = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-    const startDate = formatter.format(firstDate);
-    const endDate = formatter.format(lastDate);
+        function getStatus(dateStr) {
+            const d = new Date(dateStr);
+            d.setHours(0, 0, 0, 0);
+            if (d.toDateString() === today.toDateString()) return 'today';
+            if (d < today) return 'finished';
+            return 'upcoming';
+        }
 
-    document.getElementById('schedule-summary').textContent =
-        `Election Schedule: ${startDate} - ${endDate} (${totalDistricts} Districts)`;
+        function badgeHtml(status) {
+            if (status === 'today')    return `<span class="text-xs font-medium text-green-600 bg-green-50 px-3 py-1.5 rounded-full whitespace-nowrap">Active Today</span>`;
+            if (status === 'finished') return `<span class="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full whitespace-nowrap">Finished</span>`;
+            return `<span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full whitespace-nowrap">Upcoming</span>`;
+        }
 
-    document.getElementById('schedule-stats').textContent =
-        `${daysDiff} days • 1 district per day`;
-};
+        function rowHtml(s, highlight = false) {
+            const d        = new Date(s.scheduled_date);
+            const status   = getStatus(s.scheduled_date);
+            const monthDay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const year     = d.getFullYear();
+            const dayName  = d.toLocaleDateString('en-US', { weekday: 'long' });
+            const bg       = highlight ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100';
+            const opacity  = status === 'finished' ? 'opacity-60' : '';
+
+            return `
+                <div class="flex items-center justify-between p-4 ${bg} ${opacity} rounded-lg border">
+                    <div class="flex items-center gap-4">
+                        <div class="text-center min-w-[3rem]">
+                            <span class="text-sm font-semibold text-gray-900">${monthDay}</span>
+                            <p class="text-xs text-gray-500">${year}</p>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200"></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${s.district}</p>
+                            <p class="text-xs text-gray-500">${dayName} · 8:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                    ${badgeHtml(status)}
+                </div>
+            `;
+        }
+
+        // ── Summary header ────────────────────────────────────────
+        const formatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+        const firstDate = new Date(sorted[0].scheduled_date);
+        const lastDate  = new Date(sorted[sorted.length - 1].scheduled_date);
+        if (summaryEl) summaryEl.textContent =
+            `${formatter.format(firstDate)} – ${formatter.format(lastDate)}, ${lastDate.getFullYear()}`;
+        if (countEl) countEl.textContent = `${schedules.length} District${schedules.length !== 1 ? 's' : ''}`;
+
+        // ── Next upcoming row ─────────────────────────────────────
+        const upcoming = sorted.filter(s => getStatus(s.scheduled_date) !== 'finished');
+        const next     = upcoming.length ? upcoming[0] : sorted[sorted.length - 1];
+        if (nextEl) nextEl.innerHTML = rowHtml(next, true);
+
+        // ── Full list ─────────────────────────────────────────────
+        if (allEl) allEl.innerHTML = sorted.map(s => rowHtml(s, getStatus(s.scheduled_date) === 'today')).join('');
+
+        // ── Burger toggle ─────────────────────────────────────────
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                const isExpanded = !allEl.classList.contains('hidden');
+
+                if (isExpanded) {
+                    // Collapse — show next only
+                    allEl.classList.add('hidden');
+                    nextEl.classList.remove('hidden');
+                    toggleBtn.title = 'View all schedules';
+                    toggleBtn.innerHTML = `
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>`;
+                } else {
+                    // Expand — show full list
+                    allEl.classList.remove('hidden');
+                    nextEl.classList.add('hidden');
+                    toggleBtn.title = 'Show next only';
+                    toggleBtn.innerHTML = `
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>`;
+                }
+            });
+        }
+
+    } catch (err) {
+        console.error('Schedule summary error:', err);
+        const summaryEl = document.getElementById('schedule-summary');
+        if (summaryEl) summaryEl.textContent = 'Unable to load schedule';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('votingChart').getContext('2d');
@@ -84,23 +172,12 @@ document.addEventListener('DOMContentLoaded', function() {
             scales: {
                 x: {
                     beginAtZero: true,
-                    grid: {
-                        drawBorder: false,
-                        color: 'rgba(229, 231, 235, 0.5)'
-                    },
-                    ticks: {
-                        padding: 10,
-                        font: { size: 11 },
-                        color: '#6b7280'
-                    }
+                    grid: { drawBorder: false, color: 'rgba(229, 231, 235, 0.5)' },
+                    ticks: { padding: 10, font: { size: 11 }, color: '#6b7280' }
                 },
                 y: {
                     grid: { display: false, drawBorder: false },
-                    ticks: {
-                        padding: 10,
-                        font: { size: 12, weight: '500' },
-                        color: '#374151'
-                    }
+                    ticks: { padding: 10, font: { size: 12, weight: '500' }, color: '#374151' }
                 }
             },
             interaction: { intersect: false, mode: 'index' },
@@ -109,15 +186,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function loadChart() {
-        const response = await fetch('/api/admin/dashboard-district-counts', {  
-                credentials: 'include'
-            });
+        const response = await fetch('/api/admin/dashboard-district-counts', {
+            credentials: 'include'
+        });
         const result = await response.json();
         const data = result.by_district;
 
-        const labels = votingChart.data.labels;
         const votesArray = new Array(labels.length).fill(0);
-
         data.forEach(item => {
             const index = labels.indexOf(item.district);
             if (index !== -1) votesArray[index] = item.votes_count;
@@ -125,29 +200,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const grandTotal = votesArray.reduce((acc, val) => Number(acc) + Number(val), 0);
 
-        console.log('Grand Total Votes:', grandTotal, votesArray);
-
         votingChart.data.datasets[0].data = votesArray;
         votingChart.update();
 
         const totalNomineesEl = document.getElementById('total-nominees-count');
-        if (totalNomineesEl) {
-            totalNomineesEl.innerText = Number(result.total_votes).toLocaleString();
-        }
+        if (totalNomineesEl) totalNomineesEl.innerText = Number(result.total_votes).toLocaleString();
 
-        const totalElements = document.querySelectorAll('.total-votes-count');
-        totalElements.forEach(el => {
-            el.innerText = grandTotal.toLocaleString(); 
+        document.querySelectorAll('.total-votes-count').forEach(el => {
+            el.innerText = grandTotal.toLocaleString();
         });
     }
 
+    // ✅ Load both on init
     loadChart();
-
-    window.Echo.connector.pusher.connection.bind('connected', () => {
-        console.log('✅ Connected to Reverb!');
-    });
-
-    updateScheduleSummary();
+    loadScheduleSummary();
 });
-
-

@@ -4,131 +4,200 @@ let currentPage = 1;
 let itemsPerPage = 100;
 let filteredVoters = [];
 
-function getPaginatedVoters() {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredVoters.slice(startIndex, endIndex);
+let nextCursor     = null;
+let cursorHistory  = []; // stack for going back
+let activeFilters  = {}; // current search/filter params
+// ✅ No longer needed — server handles pagination, remove getPaginatedVoters()
+
+// ─── Debounce ─────────────────────────────────────────────────────────────────
+let searchDebounceTimer = null;
+
+function debounce(fn, delay) {
+    return function() {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => fn(), delay);
+    };
 }
 
+const debouncedFilter = debounce(filterVoters, 600);
+
 function updatePaginationControls() {
-    const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
     const showingCount = document.getElementById('showing-count');
-    const pageInfo = document.getElementById('page-info');
-    const prevButton = document.getElementById('prev-page');
-    const nextButton = document.getElementById('next-page');
+    const pageInfo     = document.getElementById('page-info');
+    const prevButton   = document.getElementById('prev-page');
+    const nextButton   = document.getElementById('next-page');
 
-    if (showingCount) {
-        showingCount.textContent = filteredVoters.length;
-    }
+    if (showingCount) showingCount.textContent = filteredVoters.length;
 
-    if (pageInfo) {
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
-    }
+    if (pageInfo) pageInfo.textContent = `Page ${currentPage}${nextCursor ? '+' : ''}`;
 
-    if(prevButton) {
-        if (currentPage === 1) {
-            prevButton.disabled = true;
-            prevButton.classList.add('opacity-50', 'cursor-not-allowed');
-        } else {
-            prevButton.disabled = false;
-            prevButton.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
+    if (prevButton) {
+        prevButton.disabled = currentPage <= 1;
+        prevButton.classList.toggle('opacity-50',        currentPage <= 1);
+        prevButton.classList.toggle('cursor-not-allowed', currentPage <= 1);
     }
 
     if (nextButton) {
-        if (currentPage === totalPages || totalPages === 0) {
-            nextButton.disabled = true;
-            nextButton.classList.add('opacity-50', 'cursor-not-allowed');
-        } else {
-            nextButton.disabled = false;
-            nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
+        nextButton.disabled = !nextCursor;
+        nextButton.classList.toggle('opacity-50',         !nextCursor);
+        nextButton.classList.toggle('cursor-not-allowed', !nextCursor);
     }
 }
 
 function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        renderMasterlistsTable();
-    }
+    if (currentPage <= 1) return;
+    currentPage--;
+    cursorHistory.pop();
+    const cursor = cursorHistory.length > 0 ? cursorHistory[cursorHistory.length - 1] : null;
+    loadMasterlists(activeFilters, cursor);
 }
 
 function nextPage() {
-    const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderMasterlistsTable();
-    }
+    if (!nextCursor) return;
+    cursorHistory.push(nextCursor);
+    currentPage++;
+    loadMasterlists(activeFilters, nextCursor);
 }
 
 function goToPage(page) {
-    const totalPages = Math.ceil(filteredVoters.length / itemsPerPage);
-    if (page >= 1 && page <= totalPages) {
-            currentPage = page;
-            renderMasterlistsTable();
+    // Not practical with cursor pagination — just go to first page
+    if (page === 1) {
+        currentPage   = 1;
+        cursorHistory = [];
+        loadMasterlists(activeFilters, null);
     }
 }
 
-async function loadMasterlists() {
+function renderMasterlistsSkeleton() {
+    const tableBody = document.getElementById('masterlists-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = Array.from({ length: 8 }, () => `
+        <tr class="animate-pulse">
+            <td class="px-6 py-4">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 flex-shrink-0 rounded-lg bg-gray-200 mr-3"></div>
+                    <div class="space-y-2">
+                        <div class="h-3.5 bg-gray-200 rounded w-36"></div>
+                        <div class="h-3 bg-gray-200 rounded w-24"></div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="space-y-2">
+                    <div class="h-6 bg-gray-200 rounded-full w-28"></div>
+                    <div class="h-3 bg-gray-200 rounded w-32"></div>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="h-6 bg-gray-200 rounded-full w-20"></div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="h-8 bg-gray-200 rounded-lg w-9"></div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function loadMasterlists(params, cursor) {
+    params = params || {};
+    renderMasterlistsSkeleton();
+
     try {
-        const response = await fetch('/api/admin/members', {
-                credentials: 'include'
-            });
+        const clean = { per_page: itemsPerPage, ...params };
+
+        if (cursor) {
+            // ✅ Search mode returns numeric page, default mode returns cursor string
+            const isPageNumber = /^\d+$/.test(String(cursor));
+            if (isPageNumber) {
+                clean.page = cursor;
+            } else {
+                clean.cursor = cursor;
+            }
+        }
+
+        const response = await fetch('/api/admin/members?' + new URLSearchParams(clean).toString(), {
+            credentials: 'include'
+        });
         const json = await response.json();
 
+        nextCursor = json.meta?.next_cursor ?? null;
+
         masterlists = (json.data ?? []).map(member => {
-            const id = member.id ?? member.member_id ?? '';
-
-            let firstName = member.first_name ?? '';
-            let middleName = member.middle_name ?? '';
-            let lastName = member.last_name ?? '';
-
             if (member.is_verified !== undefined) {
                 member.status = member.is_verified ? 'Verified' : 'Pending';
             }
-
-            let completeDistrict = member.district != null ? "District " + member.district : 'N/A';
-
+            // ✅ Handle both member_id (Member) and id (MemberSpouse)
+            const id = member.member_id ?? member.id ?? '';
             return {
-                id: id,
-                firstName: member.first_name ?? firstName,
-                middleName: member.middle_name ?? middleName,
-                lastName: member.last_name ?? lastName,
-                suffix: member.suffix ?? '',
-                district: completeDistrict,
-                status: member.status ?? 'Pending',
-                voterId: id,
-                email: member.email ?? '',
-                phone: member.contact_number ?? member.phone ?? '',
-                address: member.address ?? member.full_address ?? '',
-                registrationDate: member.created_at || new Date().toISOString().split('T')[0],
-                lastUpdated: member.updated_at || new Date().toISOString().split('T')[0]
+                id:               id,
+                firstName:        member.first_name  ?? '',
+                middleName:       member.middle_name ?? '',
+                lastName:         member.last_name   ?? '',
+                suffix:           member.suffix      ?? '',
+                district:         member.district != null ? 'District ' + member.district : 'N/A',
+                status:           member.status      ?? 'Pending',
+                voterId:          id,
+                email:            member.email                          ?? '',
+                phone:            member.contact_number ?? member.phone ?? '',
+                address:          member.address ?? member.full_address ?? '',
+                registrationDate: member.created_at  || new Date().toISOString().split('T')[0],
+                lastUpdated:      member.updated_at  || new Date().toISOString().split('T')[0],
+                // ✅ Flag so the row can show "Spouse of X" if needed
+                isSpouse:         !!member.member,
+                spouseOf:         member.member?.full_name ?? null,
             };
         });
 
         filteredVoters = [...masterlists];
-
         updateStats();
-
         renderMasterlistsTable();
+
     } catch (error) {
         console.error('Failed to load masterlists:', error);
+        const tableBody = document.getElementById('masterlists-table-body');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="h-16 w-16 mb-4 rounded-full bg-red-50 flex items-center justify-center">
+                                <svg class="h-8 w-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-base font-semibold text-gray-700 mb-1">Failed to load voters</h4>
+                            <p class="text-sm text-gray-500 mb-4">Check your connection and try again</p>
+                            <button onclick="loadMasterlists(activeFilters)"
+                                class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                                Retry
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        }
     }
 }
 
 function updateStats() {
-    const totalVoters = document.getElementById('total-voters');
-    const verifiedVoters = document.getElementById('verified-voters');
+    const showingCount   = document.getElementById('showing-count');
+    const voterCountEl   = document.getElementById('voter-count');
+
+    // ✅ These can only reflect the current page now
+    if (showingCount)  showingCount.textContent  = filteredVoters.length;
+    if (voterCountEl)  voterCountEl.textContent  = `Showing ${filteredVoters.length} voters`;
+
+    // ✅ Cross-page stats are no longer accurate — hide or leave as-is
+    const totalVoters      = document.getElementById('total-voters');
+    const verifiedVoters   = document.getElementById('verified-voters');
     const districtsCovered = document.getElementById('districts-covered');
-    const voterCountElement = document.getElementById('voter-count');
 
-    const verifiedCount = masterlists.filter(voter => voter.status === 'Verified').length;
-    const uniqueDistricts = new Set(masterlists.map(voter => voter.district)).size;
+    const verifiedCount  = filteredVoters.filter(v => v.status === 'Verified').length;
+    const uniqueDistricts = new Set(filteredVoters.map(v => v.district)).size;
 
-    if (totalVoters) totalVoters.textContent = masterlists.length;
-    if (verifiedVoters) verifiedVoters.textContent = verifiedCount;
+    if (totalVoters)      totalVoters.textContent      = filteredVoters.length + ' (this page)';
+    if (verifiedVoters)   verifiedVoters.textContent   = verifiedCount;
     if (districtsCovered) districtsCovered.textContent = uniqueDistricts;
-    if (voterCountElement) voterCountElement.textContent = `Showing ${filteredVoters.length} voters`;
 }
 
 function getFullName(voter) {
@@ -141,7 +210,6 @@ function getFullName(voter) {
 
 function createVoterRow(voter) {
     const fullName = getFullName(voter);
-
     let statusClass, statusIcon;
     switch (voter.status) {
         case 'Verified':
@@ -172,9 +240,6 @@ function createVoterRow(voter) {
                     <div>
                         <div class="font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
                             ${fullName}
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            ID: ${voter.voterId}
                         </div>
                     </div>
                 </div>
@@ -216,8 +281,6 @@ function renderMasterlistsTable() {
     const tableBody = document.getElementById('masterlists-table-body');
     if (!tableBody) return;
 
-    const paginatedVoters = getPaginatedVoters();
-
     if (filteredVoters.length === 0) {
         tableBody.innerHTML = `
         <tr>
@@ -235,49 +298,46 @@ function renderMasterlistsTable() {
                         <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                            Add First Voter
+                        Add First Voter
                     </button>
                 </div>
             </td>
-        </tr>
-        `;
+        </tr>`;
     } else {
-        tableBody.innerHTML = paginatedVoters.map(voter => createVoterRow(voter)).join('');
+        // ✅ Use filteredVoters directly — already the current page from the server
+        tableBody.innerHTML = filteredVoters.map(voter => createVoterRow(voter)).join('');
     }
+
     updatePaginationControls();
     updateStats();
 }
 
 function filterVoters() {
-    const searchInput = document.getElementById('search-input');
+    const searchInput    = document.getElementById('search-input');
     const districtFilter = document.getElementById('district-filter');
-    const statusFilter = document.getElementById('status-filter');
+    const statusFilter   = document.getElementById('status-filter');
 
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-    const selectedDistrict = districtFilter ? districtFilter.value : '';
-    const selectedStatus = statusFilter ? statusFilter.value : '';
+    activeFilters = {};
 
-    filteredVoters = [...masterlists];
+    if (searchInput && searchInput.value.trim()) {
+        const val = searchInput.value.trim();
+        const isIdSearch = /^\d{2,}$/.test(val); // ✅ 3+ digits = ID search
 
-    if (searchTerm) {
-        filteredVoters = filteredVoters.filter(voter =>
-            getFullName(voter).toLowerCase().includes(searchTerm) ||
-            voter.voterId.toLowerCase().includes(searchTerm) ||
-            voter.district.toLowerCase().includes(searchTerm)
-        );
+        if (isIdSearch) {
+            activeFilters.id_search = val; // ✅ separate param for ID
+        } else {
+            activeFilters.search = val;
+        }
     }
 
-    if (selectedDistrict) {
-        filteredVoters = filteredVoters.filter(voter => voter.district === selectedDistrict);
+    if (statusFilter   && statusFilter.value) activeFilters.status = statusFilter.value;
+    if (districtFilter && districtFilter.value) {
+        activeFilters.district = districtFilter.value.replace('District ', '').trim();
     }
 
-    if (selectedStatus) {
-        filteredVoters = filteredVoters.filter(voter => voter.status === selectedStatus);
-    }
-
-    currentPage = 1;
-
-    renderMasterlistsTable();
+    currentPage   = 1;
+    cursorHistory = [];
+    loadMasterlists(activeFilters, null);
 }
 
 function openAddVoterModal() {
@@ -373,7 +433,7 @@ function createEditVoterModal() {
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                                     <input type="email" id="edit_email" name="email"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                        placeholder="consumer@boheco1.com">
+                                        placeholder="consumer@boheco1election.com">
                                 </div>
                                 
                                 <div>
@@ -963,22 +1023,36 @@ function getFilteredVoters() {
 
 document.addEventListener('DOMContentLoaded', function () {
     loadMasterlists();
-    renderMasterlistsTable();
 
-    const searchInput = document.getElementById('search-input');
+    const searchInput    = document.getElementById('search-input');
     const districtFilter = document.getElementById('district-filter');
-    const statusFilter = document.getElementById('status-filter');
+    const statusFilter   = document.getElementById('status-filter');
 
-    if (searchInput) searchInput.addEventListener('input', filterVoters);
-    if (districtFilter) districtFilter.addEventListener('change', filterVoters);
-    if (statusFilter) statusFilter.addEventListener('change', filterVoters);
-
-    const voterForm = document.getElementById('voterForm');
-    if (voterForm) {
-        voterForm.addEventListener('submit', saveVoter);
+    // ✅ Debounced — only fires 600ms after user stops typing
+    if (searchInput) {
+        searchInput.addEventListener('input', debouncedFilter);
+        // ✅ Enter key fires immediately
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(searchDebounceTimer);
+                filterVoters();
+            }
+        });
     }
 
-    document.addEventListener('keydown', function (event) {
+    if (districtFilter) districtFilter.addEventListener('change', filterVoters);
+    if (statusFilter)   statusFilter.addEventListener('change',   filterVoters);
+
+    // ✅ Wire pagination buttons — this was the missing piece
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    if (prevBtn) prevBtn.addEventListener('click', prevPage);
+    if (nextBtn) nextBtn.addEventListener('click', nextPage);
+
+    const voterForm = document.getElementById('voterForm');
+    if (voterForm) voterForm.addEventListener('submit', saveVoter);
+
+    document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeVoterModal();
             closeVoterDetailsModal();
@@ -987,10 +1061,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const voterModal = document.getElementById('voterModal');
     if (voterModal) {
-        voterModal.addEventListener('click', function (event) {
-            if (event.target === this) {
-                closeVoterModal();
-            }
+        voterModal.addEventListener('click', function(event) {
+            if (event.target === this) closeVoterModal();
         });
     }
 });
@@ -1007,3 +1079,5 @@ window.closeVoterDetailsModal = closeVoterDetailsModal;
 window.uploadProfilePicture = uploadProfilePicture;
 window.filterVoters = filterVoters;
 window.closeEditVoterModal = closeEditVoterModal;
+window.prevPage = prevPage;
+window.nextPage = nextPage;

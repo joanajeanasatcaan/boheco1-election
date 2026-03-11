@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\Admin\DashboardDistrictCountController;
 use App\Http\Controllers\Api\Admin\DistrictController;
 use App\Http\Controllers\Api\Admin\TallyController;
 use App\Http\Controllers\Api\Ecom\MemberHistoryController;
+use App\Http\Controllers\Api\Admin\ElectionScheduleController;
+use App\Http\Controllers\Api\Member\UserInfoController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -29,14 +31,18 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard-district-counts', [DashboardDistrictCountController::class, 'index']);
     Route::get('/districts', [DistrictController::class, 'index']);
     Route::get('/tally-results', [TallyController::class, 'index']);
+    Route::apiResource('schedules', ElectionScheduleController::class)->except(['show']);
 });
 
 Route::prefix('ecom')->middleware('auth:sanctum')->group(function () {
     Route::post('/vote', [VoteController::class, 'vote']);
     Route::post('/voters/verify', [VoterVerificationController::class, 'verify']);
     Route::apiResource('members', EcomDataListController::class);
-    Route::get('history', [MemberHistoryController::class, 'index']);
-    Route::post('history', [MemberHistoryController::class, 'store']);
-    Route::delete('history/{id}', [MemberHistoryController::class, 'destroy']);
-    Route::delete('history', [MemberHistoryController::class, 'destroyBulk']);
+    Route::delete('history/bulk', [MemberHistoryController::class, 'destroyBulk']);
+    Route::apiResource('history', MemberHistoryController::class);
+});
+
+Route::get('/members/{id}', [UserInfoController::class, 'show']);
+Route::prefix('voters')->middleware('auth:sanctum')->group(function () {
+    Route::post('/vote', [VoteController::class, 'vote']);
 });

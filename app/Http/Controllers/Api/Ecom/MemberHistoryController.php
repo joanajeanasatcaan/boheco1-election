@@ -64,7 +64,7 @@ class MemberHistoryController extends Controller
     {
         $request->validate([
             'ids'   => 'required|array',
-            'ids.*' => 'integer|exists:member_histories,id',
+            'ids.*' => 'integer|exists:ECRM_member_histories,id',
         ]);
 
         MemberHistory::whereIn('id', $request->ids)->delete();

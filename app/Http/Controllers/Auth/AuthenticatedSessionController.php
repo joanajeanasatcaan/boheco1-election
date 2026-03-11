@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
         return match (true) {
             $user->hasRole('ecom') => redirect()->intended(route('ecom')),
             $user->hasRole('admin') => redirect()->intended(route('dashboard')),
-            default => redirect()->intended(route('dashboard')),
+            default => redirect()->intended(route('login')),
         };
     }
 

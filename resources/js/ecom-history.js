@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Bulk delete via API ────────────────────────────────────────
     async function deleteBulk(ids) {
         try {
-            const response = await fetch('/api/ecom/history', {
+            const response = await fetch('/api/ecom/history/bulk', { 
                 method: 'DELETE',
                 headers: {
                     'Accept':       'application/json',
@@ -176,7 +176,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ ids }),
             });
 
-            if (!response.ok) throw new Error('Bulk delete failed');
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({ message: response.statusText }));
+                throw new Error(err.message || `Server error ${response.status}`);
+            }
+
+            const data = await response.json();
 
             document.querySelectorAll('.history-checkbox:checked').forEach(cb => {
                 const row = cb.closest('.history-row');
@@ -192,11 +197,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 deleteOptionContainer.classList.remove('flex');
             }, 350);
 
-            showToast(`${ids.length} record(s) deleted`);
+            showToast(data.message || `${ids.length} record(s) deleted`);
 
         } catch (err) {
             console.error(err);
-            showToast('Failed to delete records', 'error');
+            showToast(err.message || 'Failed to delete records', 'error');
         }
     }
 
