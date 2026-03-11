@@ -65,13 +65,12 @@ function renderDistrictTable(districts) {
                         <span class="text-green-700 font-bold text-sm">${district.district?.charAt(0) || 'D'}</span>
                     </div>
                     <div>
-                        <div class="font-semibold text-gray-800">${district.district || 'Unnamed District'}</div>
-                        <div class="text-xs text-gray-500">ID: ${district.id || 'N/A'}</div>
+                        <div class="font-semibold text-gray-800">District ${district.district || 'Unnamed District'}</div>
                     </div>
                 </div>
             </td>
             <td class="px-6 py-4 text-center">
-                <span class="font-medium text-gray-700">${district.nominees_count ?? 0}</span>
+                <span class="font-medium text-gray-700">${district.nominee_count ?? 0}</span>
             </td>
             <td class="px-6 py-4 text-center">
                 <span class="font-medium text-gray-700">${registeredVoters.toLocaleString()}</span>

@@ -206,20 +206,20 @@
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span
-                            class="font-medium">3</span> voters
+                        Showing <span class="font-medium">1</span> to <span class="font-medium">20</span> of <span
+                            class="font-medium">20</span> voters
                     </div>
                     <div class="flex space-x-2">
-                        <button
-                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        <button id="prevPageButton"
+                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Previous
                         </button>
-                        <button
+                        <button id="pageNumberButton"
                             class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
                             1
                         </button>
-                        <button id='nextPageButton'
-                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        <button id="nextPageButton"
+                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Next
                         </button>
                     </div>

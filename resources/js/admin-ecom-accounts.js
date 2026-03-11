@@ -582,7 +582,7 @@ async function updateEditAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@boheco1.com`
+            email: `${username}@boheco1election.com`
         };
 
         if (password) {
@@ -613,7 +613,7 @@ async function updateEditAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@boheco1.com`
+                email: `${username}@boheco1election.com`
             };
         }
 
@@ -661,7 +661,7 @@ async function updateAccount(id) {
             name: username,
             district: district,
             status: status,
-            email: `${username}@boheco1.com`
+            email: `${username}@boheco1election.com`
         };
 
         if (password) {
@@ -691,7 +691,7 @@ async function updateAccount(id) {
                 name: username,
                 district: district ? `District ${district}` : 'N/A',
                 status: status,
-                email: `${username}@boheco1.com`
+                email: `${username}@boheco1election.com`
             }
         }
 
@@ -732,7 +732,6 @@ async function deleteAccount(id) {
         renderAccountsTable();
 
         alert('Account deleted successfully');
-
     } catch (error) {
         console.error('Delete error:', error);
         alert(error.message || 'Failed to update account. Please try again');
@@ -772,7 +771,7 @@ async function addNewAccount() {
             },
             body: JSON.stringify({
                 name: username,
-                email: `${username}@boheco1.com`,
+                email: `${username}@boheco1election.com`,
                 password: password,
                 password_confirmation: confirmPassword,
                 district: district,

@@ -143,29 +143,44 @@
                                 <x-schedule-logo />
                                 <div>
                                     <h3 class="font-semibold text-gray-900">Election Schedule</h3>
-                                    <p class="text-xs text-gray-500">May 13 - 23, 2026</p>
+                                    <p class="text-xs text-gray-500" id="schedule-summary">Loading...</p>
                                 </div>
                             </div>
-                            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">9 Districts</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full" id="schedule-district-count">—</span>
+                                {{-- Burger toggle --}}
+                                <button id="schedule-toggle-btn" title="View all schedules"
+                                    class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150">
+                                    <svg id="schedule-burger-icon" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="px-5 pb-5">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                            <div class="flex items-center gap-4">
-                                <div class="text-center">
-                                    <span class="text-sm font-semibold text-gray-900">May 13</span>
-                                    <p class="text-xs text-gray-500">2026</p>
+                        {{-- Next upcoming (default view) --}}
+                        <div id="schedule-next" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                            <div class="animate-pulse flex items-center gap-4 w-full">
+                                <div class="text-center space-y-1">
+                                    <div class="h-4 bg-gray-200 rounded w-12"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-8"></div>
                                 </div>
                                 <div class="h-8 w-px bg-gray-200"></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">District 1</p>
-                                    <p class="text-xs text-gray-500">Tuesday · 8:00 AM - 5:00 PM</p>
+                                <div class="space-y-1 flex-1">
+                                    <div class="h-4 bg-gray-200 rounded w-24"></div>
+                                    <div class="h-3 bg-gray-200 rounded w-32"></div>
                                 </div>
+                                <div class="h-6 bg-gray-200 rounded-full w-16"></div>
                             </div>
-                            <span class="text-xs font-medium text-green-600 bg-green-50 px-3 py-1.5 rounded-full">Active</span>
                         </div>
-                        
+
+                        {{-- Full schedule list (hidden by default) --}}
+                        <div id="schedule-all" class="hidden mt-3 space-y-2 max-h-72 overflow-y-auto pr-1">
+                            {{-- Populated by JS --}}
+                        </div>
+
                         <div class="mt-3 text-right">
                             <a href="{{ route('schedule') }}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
                                 View full schedule →
@@ -207,7 +222,6 @@
                         </div>
                     </div>
                 </div>
-
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100">
                         <div class="p-6 border-b border-gray-100">
                             <div class="flex items-center justify-between">

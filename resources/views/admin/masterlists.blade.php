@@ -225,15 +225,15 @@
                         <div class="mb-2 md:mb-0">
                             Showing <span class="font-semibold text-gray-700" id="showing-count">0</span> voters
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button id="prev-page" onclick="prevPage()" class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                Previous
-                            </button>
-                            <span id="page-info" class="px-3 py-1.5 text-gray-600">Page 1 of 1</span>
-                            <button id="next-page" onclick="nextPage()" class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                Next
-                            </button>
-                        </div>
+                        <button id="prev-page"
+                            class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            Previous
+                        </button>
+                        <span id="page-info" class="px-3 py-1.5 text-gray-600">Page 1 of 1</span>
+                        <button id="next-page"
+                            class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,12 @@
 let selectedVoters   = new Set();
 let currentVoterId   = null;
 let currentEditField = null;
+let nextCursor = null;
+let prevCursor = null;
+let cursorHistory = []; // stack of previous cursors
+let currentPage  = 1;
+let totalLoaded  = 0;
+
 let voterIDs = {
     1: [{ type: "Consumer ID", number: "00989876866" }],
     2: [{ type: "Consumer ID", number: "09877996588" }],
@@ -20,7 +26,6 @@ const validIDOptions = [
 ];
 
 let votersData = [];
-let nextCursor = null;
 
 // ─── Debounce ─────────────────────────────────────────────────────────────────
 let searchDebounceTimer = null;
@@ -98,24 +103,117 @@ function updateSelectAllState() {
 }
 
 // ─── Load voters ──────────────────────────────────────────────────────────────
-async function loadVoters(params) {
+async function loadVoters(params, cursor) {
     params = params || {};
-
     renderVotersSkeleton();
 
     try {
         var clean = {};
-        Object.keys(params).forEach(function(k) { if (params[k] !== '' && params[k] != null) clean[k] = params[k]; });
+        Object.keys(params).forEach(function(k) {
+            if (params[k] !== '' && params[k] != null) clean[k] = params[k];
+        });
+
+        // ✅ Attach cursor if navigating
+        if (cursor) clean.cursor = cursor;
+
         var response = await fetch('/api/ecom/members?' + new URLSearchParams(clean).toString(), {
-            method: 'GET', headers: { 'Accept': 'application/json'}, credentials: 'include'
+            method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'include'
         });
         if (!response.ok) throw new Error('Failed to fetch voters');
-        var data   = await response.json();
+
+        var data = await response.json();
         votersData = data.data;
-        nextCursor = data.meta && data.meta.next_cursor ? data.meta.next_cursor : null;
+
+        // ✅ Store cursors from meta
+        nextCursor = data.meta?.next_cursor ?? null;
+        prevCursor = data.meta?.prev_cursor ?? null;
+
         renderVotersTable(votersData);
-        updateShowingText(votersData.length);
-    } catch (err) { console.error(err); showToast('error', 'Error loading voters.'); }
+        updatePagination(data.meta);
+
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'Error loading voters.');
+    }
+}
+
+function updatePagination(meta) {
+    if (!meta) return;
+
+    const perPage = meta.per_page ?? 20;
+
+    // Showing X to Y
+    const from = votersData.length === 0 ? 0 : ((currentPage - 1) * perPage) + 1;
+    const to   = ((currentPage - 1) * perPage) + votersData.length;
+
+    var el = document.querySelector('.text-sm.text-gray-700');
+    if (el) {
+        el.innerHTML = votersData.length === 0
+            ? 'No voters found'
+            : `Showing <span class="font-medium">${from}</span> to <span class="font-medium">${to}</span> voters`;
+    }
+
+    // ✅ Page number badge
+    var pageBtn = document.getElementById('pageNumberButton');
+    if (pageBtn) pageBtn.textContent = currentPage;
+
+    // ✅ Prev button
+    var prevBtn = document.getElementById('prevPageButton');
+    if (prevBtn) {
+        if (currentPage <= 1) {
+            prevBtn.disabled = true;
+            prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            prevBtn.disabled = false;
+            prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // ✅ Next button
+    var nextBtn = document.getElementById('nextPageButton');
+    if (nextBtn) {
+        if (!nextCursor) {
+            nextBtn.disabled = true;
+            nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+}
+
+function getFilterParams() {
+    var si = document.getElementById('search-input');
+    var vf = document.getElementById('voted-filter');
+    var sf = document.getElementById('status-filter');
+    var params = { per_page: 20 };
+    if (si && si.value.trim()) params.search       = si.value.trim();
+    if (vf && vf.value)        params.voted_method = vf.value;
+    if (sf && sf.value)        params.status       = sf.value;
+    return params;
+}
+
+
+function goNextPage() {
+    if (!nextCursor) return;
+    cursorHistory.push(nextCursor); // save for going back
+    currentPage++;
+    loadVoters(getFilterParams(), nextCursor);
+}
+
+function goPrevPage() {
+    if (currentPage <= 1) return;
+    currentPage--;
+    cursorHistory.pop(); // remove current
+    const cursor = cursorHistory.length > 0 ? cursorHistory[cursorHistory.length - 1] : null;
+    loadVoters(getFilterParams(), cursor);
+}
+
+function resetPagination() {
+    currentPage   = 1;
+    nextCursor    = null;
+    prevCursor    = null;
+    cursorHistory = [];
 }
 
 function updateShowingText(count) {
@@ -125,18 +223,12 @@ function updateShowingText(count) {
 
 // ─── Filter ───────────────────────────────────────────────────────────────────
 function filterVoters() {
-    var si = document.getElementById('search-input');
-    var vf = document.getElementById('voted-filter');
-    var sf = document.getElementById('status-filter');
-    var params = { per_page: 20 };
-    if (si && si.value.trim()) params.search       = si.value.trim();
-    if (vf && vf.value)        params.voted_method = vf.value;
-    if (sf && sf.value)        params.status       = sf.value;
-    loadVoters(params);
+    resetPagination(); // ✅ always start from page 1 on new filter
+    loadVoters(getFilterParams());
 }
 var debouncedFilter = debounce(filterVoters, 600);
 
-document.addEventListener('DOMContentLoaded', function () {
+function initVoterPage() {
     var sa = document.getElementById('select-all');
     if (sa) {
         sa.addEventListener('change', function() {
@@ -146,16 +238,40 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
     var si = document.getElementById('search-input');
     if (si) {
         si.addEventListener('input', debouncedFilter);
-        si.addEventListener('keydown', function(e) { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); filterVoters(); } });
+        si.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); filterVoters(); }
+        });
     }
+
     var vf = document.getElementById('voted-filter');
     var sf = document.getElementById('status-filter');
     if (vf) vf.addEventListener('change', filterVoters);
     if (sf) sf.addEventListener('change', filterVoters);
+
+    // ✅ Wire pagination buttons
+    var nextBtn = document.getElementById('nextPageButton');
+    if (nextBtn) nextBtn.addEventListener('click', goNextPage);
+
+    var prevBtn = document.getElementById('prevPageButton');
+    if (prevBtn) prevBtn.addEventListener('click', goPrevPage);
+
     loadVoters({ per_page: 20 });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    // ✅ If gate already resolved (flag set), init immediately
+    if (window.__scheduleAccessGranted) {
+        initVoterPage();
+        return;
+    }
+    // ✅ Otherwise wait for the gate event
+    document.addEventListener('scheduleAccessGranted', function() {
+        initVoterPage();
+    });
 });
 
 // ─── Export CSV ───────────────────────────────────────────────────────────────
@@ -547,22 +663,22 @@ function removeID(voterId, index) {
 
 // ─── Edit fields ──────────────────────────────────────────────────────────────
 function editBirthdate(voterId) {
-    currentEditField = 'birthdate';
+    currentEditField = 'BirthDate';
     var voter = votersData.find(function(v) { return v.member_id === voterId; });
     openEditModal('Edit Birthdate', 'Enter new birthdate (YYYY-MM-DD):', voter ? voter.birth_date || '' : '');
 }
 function editEmail(voterId) {
-    currentEditField = 'email';
+    currentEditField = 'EmailAddress';
     var voter = votersData.find(function(v) { return v.member_id === voterId; });
     openEditModal('Edit Email', 'Enter new email:', voter ? voter.email || '' : '');
 }
 function editPhone(voterId) {
-    currentEditField = 'phone';
+    currentEditField = 'ContactNumbers';
     var voter = votersData.find(function(v) { return v.member_id === voterId; });
     openEditModal('Edit Phone Number', 'Enter new phone number:', voter ? voter.contact_number || '' : '');
 }
 function editAddress(voterId) {
-    currentEditField = 'address';
+    currentEditField = 'Sitio';
     var voter = votersData.find(function(v) { return v.member_id === voterId; });
     openEditModal('Edit Address', 'Enter new address:', voter ? voter.address || '' : '');
 }
@@ -570,27 +686,69 @@ function openEditModal(title, label, currentValue) {
     document.getElementById('editModalTitle').textContent = title;
     document.getElementById('editModalContent').innerHTML =
         '<div class="space-y-3"><label class="block text-sm font-medium text-gray-700">' + label + '</label>'
-        + '<input type="text" id="editInput" value="' + currentValue + '" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></div>';
+        + '<input type="text" id="editInput" value="' + (currentValue || '') + '" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></div>';
     document.getElementById('editModal').classList.remove('hidden');
     document.getElementById('editModal').classList.add('block');
     setTimeout(function() { document.getElementById('editInput').focus(); }, 100);
 }
-function saveEdit() {
+async function saveEdit() {
     var val = document.getElementById('editInput').value.trim();
     if (!val) { alert('Please enter a value'); return; }
+    if (!currentVoterId || !currentEditField) { alert('Error: Missing voter or field'); return; }
 
-    var fieldLabels = {
-        birthdate: 'Birthdate updated',
-        email:     'Email updated',
-        phone:     'Phone number updated',
-        address:   'Address updated',
-    };
-    var description = fieldLabels[currentEditField] || (currentEditField + ' updated');
-    logHistory('updated', currentVoterId, description);
+    var saveBtn = document.querySelector('#editModal button[onclick="saveEdit()"]');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
 
-    showToast('success', 'Updated ' + currentEditField);
-    if (currentVoterId) viewVoterDetails(currentVoterId);
-    closeEditModal();
+    try {
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var response = await fetch('/api/ecom/members/' + currentVoterId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+                'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : '',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ [currentEditField]: val }),
+        });
+
+        var data = await response.json();
+
+        if (!response.ok) {
+            if (data.errors) {
+                var msgs = Object.values(data.errors).flat().join(' ');
+                showToast('error', msgs);
+            } else {
+                showToast('error', data.message || 'Failed to update.');
+            }
+            return;
+        }
+
+        var idx = votersData.findIndex(function(v) { return v.member_id === currentVoterId; });
+        if (idx !== -1) {
+            var fieldMap = {
+                BirthDate:      'birth_date',
+                EmailAddress:   'email',
+                ContactNumbers: 'contact_number',
+                Sitio:          'address',
+            };
+            var localKey = fieldMap[currentEditField];
+            if (localKey) votersData[idx][localKey] = val;
+        }
+
+        await logHistory('updated', currentVoterId, currentEditField + ' updated');
+
+        showToast('success', 'Updated successfully');
+        closeEditModal();
+        renderVotersTable(votersData);
+        viewVoterDetails(currentVoterId);
+
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'Network error. Please check your connection.');
+    } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+    }
 }
 
 // ─── Verify voter ─────────────────────────────────────────────────────────────
@@ -731,11 +889,11 @@ window.editPhone             = editPhone;
 window.editAddress           = editAddress;
 window.uploadProfilePicture  = uploadProfilePicture;
 window.printQrCode           = printQrCode;
-window.toggleQrSection        = toggleQrSection;
+window.toggleQrSection       = toggleQrSection;
 window.downloadQr            = downloadQr;
 window.triggerQrPrint        = triggerQrPrint;
 window.removeID              = removeID;
 window.selectIDType          = selectIDType;
 window.showToast             = showToast;
 window.showVerificationToast = showToast;
-window.logHistory = logHistory;
+window.logHistory            = logHistory;

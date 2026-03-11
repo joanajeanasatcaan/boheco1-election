@@ -54,11 +54,9 @@
                         <div class="bg-white rounded-lg shadow">
                             <div class="bg-green-600 text-white p-4 rounded-t-lg">
                                 <div class="flex justify-between items-center">
-                                    <button class="text-xl">&lt;</button>
-                                    <h2 class="text-xl font-bold" id="month-year">
-
-                                    </h2>
-                                    <button class="text-xl">&gt;</button>
+                                   <button data-nav="prev" class="text-xl px-2 hover:opacity-75 transition-opacity">&lt;</button>
+                                    <h2 class="text-xl font-bold" id="month-year"></h2>
+                                    <button data-nav="next" class="text-xl px-2 hover:opacity-75 transition-opacity">&gt;</button>
                                 </div>
                             </div>
 
