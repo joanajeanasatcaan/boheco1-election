@@ -48,7 +48,7 @@
                                     class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none">
                                     <option value="">All Voters</option>
                                     <option value="Online">Voted Online</option>
-                                    <option value="Physically">Voted Physically</option>
+                                    <option value="Onsite">Voted Onsite</option>
                                 </select>
                             </div>
 

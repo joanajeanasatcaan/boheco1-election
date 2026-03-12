@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api\Member;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Member;
+use App\Models\MemberSpouse;
+use App\Http\Resources\MemberResource;
 
 class UserInfoController extends Controller
 {

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\MemberSpouse;
 use App\Models\VoterVerification;
+use Carbon\Carbon;
+use App\Models\VoteLog;
 
 class MemberResource extends JsonResource
 {
@@ -42,10 +44,11 @@ class MemberResource extends JsonResource
                 'suffix'    => $model->Suffix,
                 'district'  => $model->townDetail?->District,
                 'gender'    => $model->Gender,
-                'birth_date'=> $model->Birthdate,
+                'birth_date'=> Carbon::parse($model->Birthdate)->format('F d, Y'),
                 'contact_number' => $model->ContactNumbers,
                 'email'     => $model->EmailAddress,
                 'is_verified' => $isVerified,
+                'has_voted' => VoteLog::where('household_id', $voterId)->exists(),
 
                 'spouse' => $model->spouse ? [
                     'id'        => (string) $model->spouse->id,
@@ -56,14 +59,14 @@ class MemberResource extends JsonResource
 
         if ($model instanceof \App\Models\MemberSpouse) {
             return [
-                'id'        => (string) $model->id,
+                'id' => (string) $model->id,
                 'first_name' => $model->FirstName,
                 'middle_name' => $model->MiddleName,
                 'last_name' => $model->LastName,
-                'suffix'    => $model->Suffix,
-                'district'  => $model->townDetail?->District,
-                'gender'    => $model->Gender,
-                'birth_date'=> $model->BirthDate,
+                'suffix' => $model->Suffix,
+                'district' => $model->townDetail?->District,
+                'gender' => $model->Gender,
+                'birth_date' => $model->BirthDate,
                 'contact_number' => $model->ContactNumbers,
                 'email'     => $model->EmailAddress,
                 'is_verified' => $isVerified,

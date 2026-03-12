@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Ecom\MemberHistoryController;
 use App\Http\Controllers\Api\Ecom\VoterVerificationController;
-use App\Http\Controllers\Api\Ecom\VoteController;
 use App\Http\Controllers\Api\Ecom\EcomDataListController;
 use App\Http\Controllers\Api\Admin\MembersController;
 use App\Http\Controllers\Api\Admin\AuthController;
@@ -12,9 +12,10 @@ use App\Http\Controllers\Api\Admin\EcomProfileController;
 use App\Http\Controllers\Api\Admin\DashboardDistrictCountController;
 use App\Http\Controllers\Api\Admin\DistrictController;
 use App\Http\Controllers\Api\Admin\TallyController;
-use App\Http\Controllers\Api\Ecom\MemberHistoryController;
 use App\Http\Controllers\Api\Admin\ElectionScheduleController;
 use App\Http\Controllers\Api\Member\UserInfoController;
+use App\Http\Controllers\Api\Member\UserNomineeController;
+use App\Http\Controllers\Api\Member\VoteController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -42,7 +43,8 @@ Route::prefix('ecom')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('history', MemberHistoryController::class);
 });
 
-Route::get('/members/{id}', [UserInfoController::class, 'show']);
-Route::prefix('voters')->middleware('auth:sanctum')->group(function () {
+Route::prefix('voters')->group(function () {
+    Route::get('/nominees', [UserNomineeController::class, 'index']);
+    Route::get('/members/{id}', [UserInfoController::class, 'show']); 
     Route::post('/vote', [VoteController::class, 'vote']);
 });

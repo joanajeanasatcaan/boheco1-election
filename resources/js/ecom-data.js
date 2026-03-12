@@ -521,7 +521,7 @@ function toggleQrSection(voterId) {
         if (wrapper && wrapper.children.length === 0) {
             var voter   = votersData.find(function(v) { return v.member_id === voterId; });
             if (!voter) return;
-            var scanUrl = APP_URL + '/voter/scan/' + encodeURIComponent(voter.member_id);
+            var scanUrl = APP_URL + '/voter/' + encodeURIComponent(voter.member_id);
 
             loadQrLibrary(function() {
                 new QRCode(wrapper, {
@@ -782,7 +782,7 @@ async function verifyVoter() {
                 votersData[idx].date_verified_time = data.verified_at ? new Date(data.verified_at).toLocaleTimeString() : '';
             }
 
-            await logHistory('verified', currentVoterId, 'Voter verified by admin');
+            await logHistory('verified', currentVoterId, 'Voter verified by ecom');
 
             showToast('success', data.message || 'Voter verified successfully.');
             renderVotersTable(votersData);
