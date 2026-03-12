@@ -299,26 +299,26 @@ function selectEditStatus(status) {
     const inactiveBtn = document.getElementById('edit-status-inactive-btn');
     
     if (status === 'Active') {
-        activeBtn.className = 'edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-blue-500 bg-blue-50 text-blue-700';
-        const activeCircle = activeBtn.querySelector('div:first-child div:first-child');
+         activeBtn.className = 'flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-blue-500 bg-blue-50 text-blue-700';
+        const activeCircle = activeBtn.querySelector('.h-5.w-5.rounded-full');
         if (activeCircle) {
             activeCircle.className = 'h-5 w-5 rounded-full border-2 mr-3 transition-colors border-blue-500 bg-blue-500';
         }
         
-        inactiveBtn.className = 'edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50';
-        const inactiveCircle = inactiveBtn.querySelector('div:first-child div:first-child');
+         inactiveBtn.className = 'flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50';
+        const inactiveCircle = inactiveBtn.querySelector('.h-5.w-5.rounded-full');
         if (inactiveCircle) {
             inactiveCircle.className = 'h-5 w-5 rounded-full border-2 mr-3 transition-colors border-gray-300 bg-white';
         }
     } else {
-        inactiveBtn.className = 'edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-500 bg-gray-50 text-gray-700';
-        const inactiveCircle = inactiveBtn.querySelector('div:first-child div:first-child');
+         inactiveBtn.className = 'flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-500 bg-gray-50 text-gray-700';
+        const inactiveCircle = inactiveBtn.querySelector('.h-5.w-5.rounded-full');
         if (inactiveCircle) {
             inactiveCircle.className = 'h-5 w-5 rounded-full border-2 mr-3 transition-colors border-gray-500 bg-gray-500';
         }
         
-        activeBtn.className = 'edit-status-btn flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50';
-        const activeCircle = activeBtn.querySelector('div:first-child div:first-child');
+         activeBtn.className = 'flex items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 w-full border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50';
+        const activeCircle = activeBtn.querySelector('.h-5.w-5.rounded-full');
         if (activeCircle) {
             activeCircle.className = 'h-5 w-5 rounded-full border-2 mr-3 transition-colors border-gray-300 bg-white';
         }
