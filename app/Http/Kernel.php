@@ -11,7 +11,6 @@ class Kernel extends HttpKernel
      * Global HTTP middleware stack.
      */
     protected $middleware = [
-        \Illuminate\Http\Middleware\HandleCors::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
@@ -41,7 +40,7 @@ class Kernel extends HttpKernel
      * Route middleware.
      */
     protected $routeMiddleware = [
-        'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+        // 'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

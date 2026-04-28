@@ -14,7 +14,7 @@ async function loadEcomAccounts() {
             email: user.email,
             ecom_password: user.ecom_password,
             district: user.district != null ? "District " + user.district : 'N/A',
-            status: user.status ?? 'Active',
+            // status: user.status ?? 'Active',
             createdAt: user.created_at
         }));
 
@@ -63,7 +63,7 @@ function renderAccountsTable() {
     if (counter) counter.textContent = `Showing ${ecomAccounts.length} accounts`;
 
     ecomAccounts.forEach(acc => {
-        const statusClass = acc.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
+        // const statusClass = acc.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
 
         tbody.innerHTML += `
             <tr onclick="viewAccountDetails('${acc.id}')" 
@@ -90,13 +90,6 @@ function renderAccountsTable() {
                     <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700">
                         ${acc.district}
                     </div>
-                </td>
-
-                <td class="px-6 py-4">
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${statusClass}">
-                        <span class="h-2 w-2 rounded-full ${acc.status?.toLowerCase() === 'active' ? 'bg-green-500' : 'bg-gray-500'} mr-2"></span>
-                        ${acc.status?.charAt(0).toUpperCase() + acc.status?.slice(1) || 'Unknown'}
-                    </span>
                 </td>
 
                 <td class="px-6 py-4" onclick="event.stopPropagation()">
@@ -183,16 +176,6 @@ function viewAccountDetails(id) {
                                                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</p>
                                                     <p class="text-lg font-semibold text-gray-900">${account.name || 'N/A'}</p>
                                                 </div>
-                                                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold 
-                                                    ${account.status?.toLowerCase() === 'active' 
-                                                        ? 'bg-green-100 text-green-700' 
-                                                        : 'bg-gray-100 text-gray-700'}">
-                                                    <span class="h-2.5 w-2.5 rounded-full 
-                                                        ${account.status?.toLowerCase() === 'active' ? 'bg-green-500 animate-pulse' : 'bg-gray-500'} 
-                                                        mr-2.5">
-                                                    </span>
-                                                    ${account.status || 'Unknown'}
-                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -448,43 +431,6 @@ function editAccount(id) {
                                     <option value="8" ${districtValue === '8' ? 'selected' : ''}>District 8</option>
                                     <option value="9" ${districtValue === '9' ? 'selected' : ''}>District 9</option>
                                 </select>
-                            </div>
-
-                            <!-- Status -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Account Status
-                                </label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" name="edit_status" value="active" 
-                                            ${account.status?.toLowerCase() === 'active' ? 'checked' : ''}
-                                            class="peer sr-only">
-                                        <div class="flex items-center justify-center p-4 rounded-xl border-2 border-gray-200 peer-checked:border-green-500 peer-checked:bg-green-50 transition-all duration-200">
-                                            <div class="flex items-center">
-                                                <div class="h-5 w-5 rounded-full border-2 border-gray-300 peer-checked:border-green-500 peer-checked:bg-green-500 mr-3 transition-colors"></div>
-                                                <div>
-                                                    <span class="font-medium text-gray-700 peer-checked:text-green-700">Active</span>
-                                                    <p class="text-xs text-gray-500">Account can login</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" name="edit_status" value="inactive"
-                                            ${account.status?.toLowerCase() === 'inactive' ? 'checked' : ''}
-                                            class="peer sr-only">
-                                        <div class="flex items-center justify-center p-4 rounded-xl border-2 border-gray-200 peer-checked:border-red-500 peer-checked:bg-red-50 transition-all duration-200">
-                                            <div class="flex items-center">
-                                                <div class="h-5 w-5 rounded-full border-2 border-gray-300 peer-checked:border-red-500 peer-checked:bg-red-500 mr-3 transition-colors"></div>
-                                                <div>
-                                                    <span class="font-medium text-gray-700 peer-checked:text-red-700">Inactive</span>
-                                                    <p class="text-xs text-gray-500">Account disabled</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
                             </div>
                         </div>
 

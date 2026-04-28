@@ -15,6 +15,7 @@ class VoterVerification extends Model
         'voter_id',
         'is_verified',
         'verified_at',
+        'remarks'
     ];
 
     protected $casts = [

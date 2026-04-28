@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\Ecom\MemberHistoryController;
 use App\Http\Controllers\Api\Ecom\VoterVerificationController;
 use App\Http\Controllers\Api\Ecom\EcomDataListController;
 use App\Http\Controllers\Api\Admin\MembersController;
-use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\NomineesController;
 use App\Http\Controllers\Api\Admin\EcomProfileController;
 use App\Http\Controllers\Api\Admin\DashboardDistrictCountController;
@@ -16,16 +15,14 @@ use App\Http\Controllers\Api\Admin\ElectionScheduleController;
 use App\Http\Controllers\Api\Member\UserInfoController;
 use App\Http\Controllers\Api\Member\UserNomineeController;
 use App\Http\Controllers\Api\Member\VoteController;
+use App\Http\Controllers\Api\Member\AuthController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
-
-Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+//Admin Routes
+Route::prefix('admin')->group(function () {
     Route::apiResource('members', MembersController::class);
     Route::apiResource('nominees', NomineesController::class);
     Route::apiResource('ecom-profile', EcomProfileController::class);
@@ -35,7 +32,8 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('schedules', ElectionScheduleController::class)->except(['show']);
 });
 
-Route::prefix('ecom')->middleware('auth:sanctum')->group(function () {
+//Ecom Routes
+Route::prefix('ecom')->middleware('web')->group(function () {
     Route::post('/vote', [VoteController::class, 'vote']);
     Route::post('/voters/verify', [VoterVerificationController::class, 'verify']);
     Route::apiResource('members', EcomDataListController::class);
@@ -43,7 +41,12 @@ Route::prefix('ecom')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('history', MemberHistoryController::class);
 });
 
-Route::prefix('voters')->group(function () {
+//Voters tablet Routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::prefix('voters')->middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/nominees', [UserNomineeController::class, 'index']);
     Route::get('/members/{id}', [UserInfoController::class, 'show']); 
     Route::post('/vote', [VoteController::class, 'vote']);

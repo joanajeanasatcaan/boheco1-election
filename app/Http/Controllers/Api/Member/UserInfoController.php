@@ -24,6 +24,8 @@ class UserInfoController extends Controller
             return new MemberResource($spouse);
         }
 
+        
+
         // If neither found, return 404
         return response()->json([
             'message' => 'Person not found'

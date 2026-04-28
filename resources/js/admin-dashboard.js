@@ -7,9 +7,10 @@ window.toggleScheduleDetails = function() {
 // ─── Schedule summary ─────────────────────────────────────────────────────────
 async function loadScheduleSummary() {
     try {
-        const response = await fetch('/api/admin/schedules', {
+        const response = await fetch('http://192.168.1.5:8000/api/admin/schedules', {
             headers: { 'Accept': 'application/json' },
             credentials: 'include',
+            
         });
         if (!response.ok) throw new Error('Failed to load schedules');
         const result    = await response.json();

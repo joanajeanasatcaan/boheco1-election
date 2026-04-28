@@ -30,7 +30,7 @@
                     Dashboard
                 </span>
             </x-nav-link>
-
+{{-- 
             <x-nav-link :href="route('districts')" :active="request()->routeIs('districts')"
                 class="flex items-center px-4 py-3 rounded-xl hover:bg-green-600 transition-all"
                 x-bind:class="open ? 'justify-start' : 'justify-center'">
@@ -38,7 +38,7 @@
                 <span x-show="open" x-transition class="ml-3 font-semibold">
                     Districts
                 </span>
-            </x-nav-link>
+            </x-nav-link> --}}
 
             <x-nav-link :href="route('nominees')" :active="request()->routeIs('nominees')"
                 class="flex items-center px-4 py-3 rounded-xl hover:bg-green-600 transition-all"

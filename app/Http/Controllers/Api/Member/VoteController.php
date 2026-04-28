@@ -23,12 +23,14 @@ class VoteController extends Controller
     public function vote(Request $request)
     {
         $request->validate([
-            'nominee_id' => 'required|exists:ECRM_Nominees,id',
-            'member_id'  => 'required|string',
+            // nullable — null means abstain
+            'nominee_id'   => 'nullable|exists:ECRM_Nominees,id',
+            'member_id'    => 'required|string',
             'voted_method' => 'required|string',
         ]);
 
-        $voterId = $request->member_id;
+        $voterId  = $request->member_id;
+        $isAbstain = is_null($request->nominee_id);
 
         $member = Member::with('spouse')->find($voterId);
 
@@ -59,7 +61,6 @@ class VoteController extends Controller
 
         $alreadyVoted = VoteLog::where('household_id', $householdId)->exists();
 
-
         if ($alreadyVoted) {
             return response()->json([
                 'message' => 'This household has already voted.'
@@ -67,24 +68,27 @@ class VoteController extends Controller
         }
 
         $vote = VoteLog::create([
-            'nominee_id'   => $request->nominee_id,
+            'nominee_id'   => $isAbstain ? null : $request->nominee_id,
             'member_id'    => $member->Id,
             'household_id' => $householdId,
             'ip_address'   => $request->ip(),
             'voted_method' => $request->voted_method,
         ]);
 
-        $nominee = Nominee::find($request->nominee_id);
-        $district = $nominee->district;
+        // Only fire district update event for actual (non-abstain) votes
+        if (!$isAbstain) {
+            $nominee  = Nominee::find($request->nominee_id);
+            $district = $nominee->district;
 
-        $votesCount = VoteLog::whereHas('nominee', function ($q) use ($district) {
-                $q->where('district', $district);
-            })
-            ->distinct('household_id')
-            ->count('household_id');
+            $votesCount = VoteLog::whereHas('nominee', function ($q) use ($district) {
+                    $q->where('district', $district);
+                })
+                ->whereNotNull('nominee_id')
+                ->distinct('household_id')
+                ->count('household_id');
 
-        // event(new DistrictVotesUpdated($district, $votesCount));
-
+            // event(new DistrictVotesUpdated($district, $votesCount));
+        }
 
         return new VoteLogResource($vote);
     }

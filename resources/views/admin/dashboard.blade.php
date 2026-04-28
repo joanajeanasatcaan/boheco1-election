@@ -56,7 +56,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-gray-100">
+                        {{-- <div class="mt-6 pt-4 border-t border-gray-100">
                             <a href="{{ route('districts') }}"
                                 class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center group">
                                 View all districts
@@ -66,7 +66,7 @@
                                         d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 

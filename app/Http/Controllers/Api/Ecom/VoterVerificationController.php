@@ -15,6 +15,7 @@ class VoterVerificationController extends Controller
     {   
         $request->validate([
             'member_id'    => 'required|string',
+            'remarks'   => 'nullable|string|max:255',
         ]);
 
         $voterId = $request->member_id;
@@ -67,6 +68,7 @@ class VoterVerificationController extends Controller
             [
                 'is_verified' => true,
                 'verified_at' => now(),
+                'remarks' => $request->remarks,
             ]
         );
 

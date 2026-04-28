@@ -18,8 +18,8 @@ Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/districts', [DistrictsController::class, 'index'])
-    ->middleware(['auth', 'verified'])->name('districts');
+// Route::get('/districts', [DistrictsController::class, 'index'])
+//     ->middleware(['auth', 'verified'])->name('districts');
 
 Route::post('/districts', [DistrictsController::class, 'store'])
     ->middleware(['auth', 'verified'])->name('districts.store');
@@ -48,7 +48,7 @@ Route::get('/masterlists', [MasterListController::class, 'index'])
 
 //Ecom Routes
 Route::get('/ecom', [VotersListController::class, 'index'])
-    ->middleware(['auth', 'verified'])->name('ecom');
+    ->middleware(['verified'])->name('ecom');
 
 Route::get('/history', function () {
     return view('ecom.history');

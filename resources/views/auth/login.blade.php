@@ -90,17 +90,17 @@
                     </div>
                 </div>
                 <span
-                    class="ms-3 text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                    class="ms-3 text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-color    s duration-200">
                     {{ __('Remember me') }}
                 </span>
             </label>
-
+{{-- 
             @if (Route::has('password.request'))
                 <a class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-1 rounded-md px-2 py-1"
                     href="{{ route('password.request') }}">
                     {{ __('Forgot password?') }}
                 </a>
-            @endif
+            @endif --}}
         </div>
 
         <!-- Login Button -->

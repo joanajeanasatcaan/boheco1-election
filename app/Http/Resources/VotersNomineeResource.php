@@ -6,15 +6,18 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class NomineeResource extends JsonResource
+class VotersNomineeResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
-   public function toArray($request)
+    public function toArray($request)
     {
+        // Read the image file and encode it as base64
+        $imageBase64 = null;
+        if ($this->image_path && Storage::disk('public')->exists($this->image_path)) {
+            $imageData = Storage::disk('public')->get($this->image_path);
+            $mimeType  = Storage::disk('public')->mimeType($this->image_path);
+            $imageBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+        }
+
         return [
             'id'          => $this->id,
             'first_name'  => $this->first_name,
@@ -24,10 +27,7 @@ class NomineeResource extends JsonResource
             'district'    => $this->district,
             'nickname'    => $this->nickname,
             'votes_count' => $this->votes()->distinct('household_id')->count('household_id'),
-            'image_url'   => $this->image_path 
-                                ? asset('storage/' . $this->image_path) 
-                                : null,
-                                
+            'image_base64'=> $imageBase64,
             'created_at'  => $this->created_at,
             'updated_at'  => $this->updated_at,
         ];

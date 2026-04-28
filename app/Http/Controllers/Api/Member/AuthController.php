@@ -1,6 +1,5 @@
 <?php
-
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Member;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -16,22 +15,26 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $request->session()->regenerate();
+        $user = Auth::user();
 
+        $token = $user->createToken('boheco_auth_token')->plainTextToken;
+    
         return response()->json([
             'message' => 'Logged in successfully',
-            'user' => Auth::user()
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
         ]);
     }
 
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6'
         ]);
@@ -42,16 +45,19 @@ class AuthController extends Controller
             'password' => bcrypt($data['password']),
         ]);
         
-        return response()->json($user, 201);
+        $token = $user->createToken('boheco_auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+        ], 201);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        $request->user()->currentAccessToken()->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

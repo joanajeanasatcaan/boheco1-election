@@ -70,43 +70,29 @@
 
         <!-- Table Container -->
         <div class="flex-1 min-h-0 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden flex flex-col">
-            <!-- Table Header (Fixed) -->
             <div class="flex-shrink-0">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="min-w-full table-fixed divide-y divide-gray-200">
                     <thead class="bg-gradient-to-r from-green-600 to-emerald-600">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">Profile</div>
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">Name</div>
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">ID Number</div>
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">Date/Time Voted</div>
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">Remarks</div>
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                                <div class="flex items-center gap-2">Status</div>
-                            </th>
+                            <th scope="col" class="w-[8%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Profile</th>
+                            <th scope="col" class="w-[25%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Name</th>
+                            <th scope="col" class="w-[15%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">ID Number</th>
+                            <th scope="col" class="w-[15%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Date/Time Voted</th>
+                            <th scope="col" class="w-[22%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Voted by</th>
+                            <th scope="col" class="w-[15%] px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider text-center">Status</th>
                         </tr>
                     </thead>
                 </table>
             </div>
 
-            <!-- Scrollable Table Body -->
             <div class="flex-1 overflow-y-auto" id="tableScrollContainer">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="min-w-full table-fixed divide-y divide-gray-200">
+                    <colgroup>
+                        <col class="w-[8%]">  <col class="w-[25%]"> <col class="w-[15%]"> <col class="w-[15%]"> <col class="w-[22%]"> <col class="w-[15%]"> </colgroup>
                     <tbody class="bg-white divide-y divide-gray-100" id="votersTable">
-                        <!-- Dynamic content will be inserted by JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
                 
-                <!-- No Data Template (Hidden by default, shown via JS) -->
                 <div id="noDataTemplate" class="hidden">
                     <div class="flex flex-col items-center justify-center py-12">
                         <div class="h-20 w-20 mb-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -115,29 +101,24 @@
                             </svg>
                         </div>
                         <h4 class="text-lg font-semibold text-gray-700 mb-2">No voters found</h4>
-                        <p class="text-gray-500">Try adjusting your search or filter to find what you're looking for.</p>
+                        <p class="text-gray-500 text-center px-4">Try adjusting your search or filter to find what you're looking for.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Pagination -->
             <div class="flex-shrink-0 bg-white px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">20</span> of <span
-                            class="font-medium">20</span> voters
+                        Showing <span class="font-medium">1</span> to <span class="font-medium">20</span> of <span class="font-medium">20</span> voters
                     </div>
                     <div class="flex space-x-2">
-                        <button id="prevPageButton"
-                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="prevPageButton" class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Previous
                         </button>
-                        <button id="pageNumberButton"
-                            class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
+                        <button id="pageNumberButton" class="px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
                             1
                         </button>
-                        <button id="nextPageButton"
-                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="nextPageButton" class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             Next
                         </button>
                     </div>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Member;
 
-use App\Http\Resources\NomineeResource;
+use App\Http\Resources\VotersNomineeResource;
 use App\Models\Nominee;
 use App\Http\Controllers\Controller;  
 
@@ -14,6 +14,6 @@ class UserNomineeController extends Controller
     public function index()
     {
         $nominees = Nominee::withCount('votes')->get();
-        return NomineeResource::collection($nominees);
+        return VotersNomineeResource::collection($nominees);
     }
 }

@@ -3,52 +3,58 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Nominee;
+use App\Models\VoteLog;
 use App\Http\Resources\DistrictCountResource;
 use Illuminate\Support\Facades\DB;
-
 
 class DashboardDistrictCountController extends Controller
 {
     public function index()
     {
-        $totals = Nominee::query()
-            ->from('ECRM_Nominees as nominees') 
-            ->join('ECRM_VoteLogs as vote_logs', 'nominees.id', '=', 'vote_logs.nominee_id')
-            ->selectRaw('nominees.district, COUNT(DISTINCT vote_logs.member_id) as votes_count')
-            ->groupBy('nominees.district')
-            ->get();
-        $totalNominees = Nominee::query()
-            ->from('ECRM_Nominees as nominees')
-            ->selectRaw('COUNT(nominees.id) as total_nominees')
-            ->get();
+        // ── Candidate votes per district (nominee_id NOT NULL)
+        $candidateVotes = DB::table('ECRM_VoteLogs as vl')
+            ->join('ECRM_Nominees as n', 'vl.nominee_id', '=', 'n.id')
+            ->whereNotNull('vl.nominee_id')
+            ->selectRaw('n.district, COUNT(DISTINCT vl.member_id) as votes_count')
+            ->groupBy('n.district')
+            ->get()
+            ->keyBy('district');
+
+        // ── Abstain votes per district (nominee_id IS NULL)
+        //    Look up district via Member → townDetail
+        $abstainVotes = DB::table('ECRM_VoteLogs as vl')
+            ->join('CRM_MemberConsumers as m', 'vl.member_id', '=', 'm.Id')
+            ->join('CRM_Towns as t', 'm.Town', '=', 't.Id')
+            ->whereNull('vl.nominee_id')
+            ->selectRaw('t.District as district, COUNT(DISTINCT vl.member_id) as abstain_count')
+            ->groupBy('t.District')
+            ->get()
+            ->keyBy('district');
+
+        // ── Merge: all districts that have any vote
+        $allDistricts = $candidateVotes->keys()
+            ->merge($abstainVotes->keys())
+            ->unique()
+            ->sort()
+            ->values();
+
+        $totals = $allDistricts->map(function ($district) use ($candidateVotes, $abstainVotes) {
+            $candidate = (int) ($candidateVotes->get($district)?->votes_count ?? 0);
+            $abstain   = (int) ($abstainVotes->get($district)?->abstain_count ?? 0);
+
+            return (object) [
+                'district'       => $district,
+                'votes_count'    => $candidate + $abstain,
+                'abstain_count'  => $abstain,
+                'candidate_votes'=> $candidate,
+            ];
+        });
+
+        $totalVotes = $totals->sum('votes_count');
 
         return response()->json([
             'by_district' => DistrictCountResource::collection($totals),
-            'total_votes' => $totalNominees->first()->total_nominees ?? 0,
+            'total_votes' => $totalVotes,
         ]);
     }
-
-    // public function index()
-    // {
-    //     $districts = DB::table('districts as d')
-    //         ->leftJoin('ECRM_Nominees as n', 'd.district_name', '=', 'n.district')
-    //         ->leftJoin('ECRM_VoteLogs as v', 'n.id', '=', 'v.nominee_id')
-    //         ->selectRaw('
-    //             d.id,
-    //             d.district_name,
-    //             d.status,
-    //             COUNT(DISTINCT n.id) as nominees,
-    //             COUNT(DISTINCT v.member_id) as votes_cast
-    //         ')
-    //         ->groupBy('d.id', 'd.district_name', 'd.status')
-    //         ->get();
-
-    //     return response()->json([
-    //         'districts' => $districts,
-    //         'total_districts' => $districts->count(),
-    //         'total_votes' => $districts->sum('votes_cast'),
-    //     ]);
-    // }
 }

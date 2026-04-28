@@ -33,9 +33,9 @@ class EcomDataListController extends Controller
         $search  = trim($request->get('search', ''));
         $district = $this->ecomDistrict();
 
-        if (!Auth::check()) {
-        return response()->json(['debug' => 'Not Logged In'], 401);
-    }
+    //  if (!Auth::check()) {
+    //     return response()->json(['debug' => 'Not Logged In'], 401);
+    // }
 
         $memberQuery = Member::with([
             'spouse',

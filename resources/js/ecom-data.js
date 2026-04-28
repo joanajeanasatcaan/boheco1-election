@@ -3,7 +3,7 @@ let currentVoterId = null;
 let currentEditField = null;
 let nextCursor = null;
 let prevCursor = null;
-let cursorHistory = []; // stack of previous cursors
+let cursorHistory = []; 
 let currentPage  = 1;
 let totalLoaded  = 0;
 
@@ -90,7 +90,7 @@ function renderVotersTable(voters) {
             '</td>' +
             '<td class="px-6 py-4"><div class="text-sm font-medium text-gray-900">' + fullName + '</div><div class="text-sm text-gray-500">' + district + '</div></td>' +
             '<td class="px-6 py-4 font-mono">' + voter.member_id + '</td>' +
-            '<td class="px-6 py-4"><div>' + (voter.voted_date || '-') + '</div></td>' +
+            '<td class="px-6 py-4"><div>' + (voter.voted_time || '-') + '</div></td>' +
             '<td class="px-6 py-4"><div>' + (voter.voted_method || '-') + '</div></td>' +
             '<td class="px-6 py-4">' + badge + '</td>' +
             '</tr>'
@@ -129,7 +129,6 @@ async function loadVoters(params, cursor) {
             if (params[k] !== '' && params[k] != null) clean[k] = params[k];
         });
 
-        // ✅ Attach cursor if navigating
         if (cursor) clean.cursor = cursor;
 
         var response = await fetch('/api/ecom/members?' + new URLSearchParams(clean).toString(), {
@@ -139,8 +138,7 @@ async function loadVoters(params, cursor) {
 
         var data = await response.json();
         votersData = data.data;
-
-        // ✅ Store cursors from meta
+        
         nextCursor = data.meta?.next_cursor ?? null;
         prevCursor = data.meta?.prev_cursor ?? null;
 
@@ -158,7 +156,6 @@ function updatePagination(meta) {
 
     const perPage = meta.per_page ?? 20;
 
-    // Showing X to Y
     const from = votersData.length === 0 ? 0 : ((currentPage - 1) * perPage) + 1;
     const to   = ((currentPage - 1) * perPage) + votersData.length;
 
@@ -169,11 +166,9 @@ function updatePagination(meta) {
             : `Showing <span class="font-medium">${from}</span> to <span class="font-medium">${to}</span> voters`;
     }
 
-    // ✅ Page number badge
     var pageBtn = document.getElementById('pageNumberButton');
     if (pageBtn) pageBtn.textContent = currentPage;
 
-    // ✅ Prev button
     var prevBtn = document.getElementById('prevPageButton');
     if (prevBtn) {
         if (currentPage <= 1) {
@@ -185,7 +180,6 @@ function updatePagination(meta) {
         }
     }
 
-    // ✅ Next button
     var nextBtn = document.getElementById('nextPageButton');
     if (nextBtn) {
         if (!nextCursor) {
@@ -209,10 +203,9 @@ function getFilterParams() {
     return params;
 }
 
-
 function goNextPage() {
     if (!nextCursor) return;
-    cursorHistory.push(nextCursor); // save for going back
+    cursorHistory.push(nextCursor);
     currentPage++;
     loadVoters(getFilterParams(), nextCursor);
 }
@@ -220,7 +213,7 @@ function goNextPage() {
 function goPrevPage() {
     if (currentPage <= 1) return;
     currentPage--;
-    cursorHistory.pop(); // remove current
+    cursorHistory.pop(); 
     const cursor = cursorHistory.length > 0 ? cursorHistory[cursorHistory.length - 1] : null;
     loadVoters(getFilterParams(), cursor);
 }
@@ -239,7 +232,7 @@ function updateShowingText(count) {
 
 // ─── Filter ───────────────────────────────────────────────────────────────────
 function filterVoters() {
-    resetPagination(); // ✅ always start from page 1 on new filter
+    resetPagination();
     loadVoters(getFilterParams());
 }
 var debouncedFilter = debounce(filterVoters, 600);
@@ -268,7 +261,6 @@ function initVoterPage() {
     if (vf) vf.addEventListener('change', filterVoters);
     if (sf) sf.addEventListener('change', filterVoters);
 
-    // ✅ Wire pagination buttons
     var nextBtn = document.getElementById('nextPageButton');
     if (nextBtn) nextBtn.addEventListener('click', goNextPage);
 
@@ -279,12 +271,10 @@ function initVoterPage() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // ✅ If gate already resolved (flag set), init immediately
     if (window.__scheduleAccessGranted) {
         initVoterPage();
         return;
     }
-    // ✅ Otherwise wait for the gate event
     document.addEventListener('scheduleAccessGranted', function() {
         initVoterPage();
     });
@@ -321,7 +311,6 @@ function viewVoterDetails(voterId) {
     modal.classList.add('block');
     modalContent.innerHTML =
         '<div class="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-6 p-2">'
-        // Left column skeleton
         + '<div class="space-y-4">'
         + '<div class="flex items-center space-x-4">'
         + '<div class="h-20 w-20 rounded-full bg-gray-200"></div>'
@@ -329,17 +318,14 @@ function viewVoterDetails(voterId) {
         + '<div class="h-4 bg-gray-200 rounded w-40"></div>'
         + '<div class="h-3 bg-gray-200 rounded w-24"></div>'
         + '<div class="h-5 bg-gray-200 rounded-full w-20 mt-1"></div>'
-        + '</div>'
-        + '</div>'
+        + '</div></div>'
         + '<div class="space-y-3 mt-2">'
         + '<div class="h-3 bg-gray-200 rounded w-32"></div>'
         + '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
         + '<div class="h-10 bg-gray-200 rounded-lg w-full"></div>'
         + '<div class="h-3 bg-gray-200 rounded w-28 mt-2"></div>'
         + '<div class="h-3 bg-gray-200 rounded w-36"></div>'
-        + '</div>'
-        + '</div>'
-        // Right column skeleton
+        + '</div></div>'
         + '<div class="space-y-4">'
         + '<div class="h-3 bg-gray-200 rounded w-32"></div>'
         + '<div class="h-8 bg-gray-200 rounded-lg w-full"></div>'
@@ -350,9 +336,7 @@ function viewVoterDetails(voterId) {
         + '<div class="grid grid-cols-2 gap-3 mt-2">'
         + '<div class="h-10 bg-gray-200 rounded-lg"></div>'
         + '<div class="h-10 bg-gray-200 rounded-lg"></div>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+        + '</div></div></div>';
 
     var voter = votersData.find(function (v) { return v.member_id === voterId; });
     if (!voter) return;
@@ -378,7 +362,6 @@ function viewVoterDetails(voterId) {
             ? '<span class="px-2 py-1 text-xs font-medium ' + (voter.voted_method === 'Voted Online' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') + ' rounded-full">' + voter.voted_method + '</span>'
             : 'Not yet voted';
 
-        // Voting record — shown only if voter has voted
         var votingRecord = voter.voted_date
             ? '<div class="mt-6 p-4 bg-green-50 rounded-xl">'
             + '<h5 class="text-sm font-medium text-green-800 mb-2">Voting Record</h5>'
@@ -388,8 +371,7 @@ function viewVoterDetails(voterId) {
             + '</div></div>'
             : '';
 
-        // QR section — always visible when voter is verified, renders inline inside the modal
-        var safeFullName = [voter.first_name, voter.middle_name, voter.last_name].filter(Boolean).join(' ').replace(/'/g, '');
+        var safeFullName = fullName.replace(/'/g, '');
         var qrSection = voter.status === true
             ? '<div class="mt-4 border border-gray-200 rounded-xl overflow-hidden">'
             + '<button onclick="toggleQrSection(\'' + voter.member_id + '\')" id="qrToggleBtn"'
@@ -417,6 +399,14 @@ function viewVoterDetails(voterId) {
             + 'Print</button>'
             + '</div>'
             + '</div>'
+            + '</div>'
+            : '';
+
+        // ── Remarks section — shown only if already verified and has remarks
+        var remarksSection = (voter.status === true && voter.remarks)
+            ? '<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">'
+            + '<p class="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">Verification Remarks</p>'
+            + '<p class="text-sm text-amber-900">' + voter.remarks + '</p>'
             + '</div>'
             : '';
 
@@ -472,7 +462,7 @@ function viewVoterDetails(voterId) {
             + editBtn('editEmail', voter.member_id) + '</div>'
             + '<div class="flex items-center justify-between">'
             + '<div class="flex items-center space-x-2"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>'
-            + '<span class="text-sm">' + (voter.contact_number || 'No number') + '</span></div>'
+            + '<span class="text-sm">' + ((voter.contact_number && voter.contact_number !== "0") ? voter.contact_number : "No number on file") + '</span></div>'
             + editBtn('editPhone', voter.member_id) + '</div>'
             + '</div>'
             + '<div class="flex items-center justify-between"><h5 class="text-sm font-medium text-gray-500">Address</h5>' + editBtn('editAddress', voter.member_id) + '</div>'
@@ -482,10 +472,18 @@ function viewVoterDetails(voterId) {
             + '<div><p class="text-xs text-gray-500">Voting Method</p><p class="text-sm font-medium">' + votedMethod + '</p></div>'
             + '<div><p class="text-xs text-gray-500">Verification Date</p><p class="text-sm font-medium">' + (voter.date_verified_time || 'Not verified') + '</p><p class="text-sm font-medium">' + (voter.date_verified_day || '') + '</p></div>'
             + '</div></div>'
+            // ── Remarks textarea — only shown when voter is not yet verified
+            + (voter.status !== true
+                ? '<div class="mt-3">'
+                + '<label for="inlineRemarksInput" class="block text-xs font-medium text-gray-500 mb-1">Remarks <span class="text-gray-400 font-normal">(optional)</span></label>'
+                + '<textarea id="inlineRemarksInput" rows="2" maxlength="255" placeholder="e.g. Presented PhilSys ID and Voter\'s ID..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none transition-colors"></textarea>'
+                + '</div>'
+                : '')
             + '</div>'
 
             + '</div>' // end grid
             + votingRecord
+            + remarksSection
             + qrSection;
 
         // Verify button state
@@ -507,15 +505,13 @@ function viewVoterDetails(voterId) {
     }, 0);
 }
 
-// ─── QR Code (URL-based — tablet browser opens verify page on scan) ───────────
-// QR encodes: https://yoursite.com/voter/scan/{member_id}
-// Tablet scans -> opens that URL -> page auto-calls verify API
 const APP_URL = window.location.origin;
 
 function printQrCode(voterId) {
-    // QR is now rendered inline inside the voter modal — just toggle open the QR section
     toggleQrSection(voterId);
 }
+
+''
 
 function toggleQrSection(voterId) {
     var body = document.getElementById('qrBody');
@@ -525,11 +521,9 @@ function toggleQrSection(voterId) {
     var isOpen = !body.classList.contains('hidden');
 
     if (isOpen) {
-        // Collapse
         body.classList.add('hidden');
         if (chevron) chevron.style.transform = '';
     } else {
-        // Expand and generate QR if not yet rendered
         body.classList.remove('hidden');
         if (chevron) chevron.style.transform = 'rotate(180deg)';
 
@@ -563,7 +557,6 @@ function loadQrLibrary(callback) {
 }
 
 function downloadQr(memberId, fullName) {
-    // qrcodejs renders an <img> — grab its src
     const img = document.querySelector('#qrCanvasWrapper img');
     if (!img) return;
     const a = document.createElement('a');
@@ -626,6 +619,84 @@ function closeEditModal() {
     document.getElementById('editModal').classList.remove('block');
     document.getElementById('editModal').classList.add('hidden');
     currentEditField = null;
+}
+
+// ─── Verify voter ─────────────────────────────────────────────────────────────
+async function verifyVoter() {
+    if (!currentVoterId) return;
+    if (!confirm('Are you sure you want to verify this voter?')) return;
+
+    // Read remarks directly from the textarea inside the voter modal
+    var remarksInput = document.getElementById('inlineRemarksInput');
+    var remarks = remarksInput ? remarksInput.value.trim() : '';
+
+    var btn = document.getElementById('verifyButton');
+    var originalText = btn ? btn.textContent : 'Verify';
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Verifying...';
+        btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+        btn.classList.add('bg-gray-300', 'cursor-not-allowed');
+    }
+
+    try {
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var response = await fetch('/api/ecom/voters/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : ''
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                member_id: currentVoterId,
+                remarks: remarks || null,
+            })
+        });
+        var data = await response.json();
+
+        if (response.ok) {
+            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
+            if (idx !== -1) {
+                votersData[idx].status = true;
+                votersData[idx].remarks = remarks || null;
+                votersData[idx].date_verified = data.verified_at || new Date().toISOString().split('T')[0];
+                votersData[idx].date_verified_day = data.verified_at ? new Date(data.verified_at).toLocaleDateString() : '';
+                votersData[idx].date_verified_time = data.verified_at ? new Date(data.verified_at).toLocaleTimeString() : '';
+            }
+
+            await logHistory('verified', currentVoterId, 'Voter verified' + (remarks ? ': ' + remarks : ''));
+
+            showToast('success', data.message || 'Voter verified successfully.');
+            renderVotersTable(votersData);
+            viewVoterDetails(currentVoterId);
+
+        } else if (response.status === 409) {
+            showToast('warning', data.message || 'This household is already verified.');
+            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
+            if (idx !== -1) votersData[idx].status = true;
+            viewVoterDetails(currentVoterId);
+
+        } else if (response.status === 422) {
+            var missing = data.missing_fields ? data.missing_fields.join(', ') : '';
+            showToast('error', (data.message || 'Incomplete data.') + (missing ? ' Missing: ' + missing : ''));
+            if (btn) restoreVerifyBtn(btn, originalText);
+
+        } else if (response.status === 404) {
+            showToast('error', data.message || 'Voter not found.');
+            if (btn) restoreVerifyBtn(btn, originalText);
+
+        } else {
+            showToast('error', 'An unexpected error occurred.');
+            if (btn) restoreVerifyBtn(btn, originalText);
+        }
+
+    } catch (err) {
+        console.error(err);
+        showToast('error', 'Network error. Please check your connection.');
+        if (btn) restoreVerifyBtn(btn, originalText);
+    }
 }
 
 // ─── Edit ID ──────────────────────────────────────────────────────────────────
@@ -709,6 +780,7 @@ function openEditModal(title, label, currentValue) {
     document.getElementById('editModal').classList.add('block');
     setTimeout(function () { document.getElementById('editInput').focus(); }, 100);
 }
+
 async function saveEdit() {
     var val = document.getElementById('editInput').value.trim();
     if (!val) { alert('Please enter a value'); return; }
@@ -769,70 +841,6 @@ async function saveEdit() {
     }
 }
 
-// ─── Verify voter ─────────────────────────────────────────────────────────────
-async function verifyVoter() {
-    if (!currentVoterId) return;
-    if (!confirm('Are you sure you want to verify this voter?')) return;
-
-    var btn = document.getElementById('verifyButton');
-    var originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Verifying...';
-    btn.classList.remove('bg-green-500', 'hover:bg-green-600');
-    btn.classList.add('bg-gray-300', 'cursor-not-allowed');
-
-    try {
-        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
-        var response = await fetch('/api/ecom/voters/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfMeta ? csrfMeta.content : '' },
-            credentials: 'include',
-            body: JSON.stringify({ member_id: currentVoterId })
-        });
-        var data = await response.json();
-
-        if (response.ok) {
-            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
-            if (idx !== -1) {
-                votersData[idx].status = true;
-                votersData[idx].date_verified = data.verified_at || new Date().toISOString().split('T')[0];
-                votersData[idx].date_verified_day = data.verified_at ? new Date(data.verified_at).toLocaleDateString() : '';
-                votersData[idx].date_verified_time = data.verified_at ? new Date(data.verified_at).toLocaleTimeString() : '';
-            }
-
-            await logHistory('verified', currentVoterId, 'Voter verified by ecom');
-
-            showToast('success', data.message || 'Voter verified successfully.');
-            renderVotersTable(votersData);
-            viewVoterDetails(currentVoterId);
-
-        } else if (response.status === 409) {
-            showToast('warning', data.message || 'This household is already verified.');
-            var idx = votersData.findIndex(function (v) { return v.member_id === currentVoterId; });
-            if (idx !== -1) votersData[idx].status = true;
-            viewVoterDetails(currentVoterId);
-
-        } else if (response.status === 422) {
-            var missing = data.missing_fields ? data.missing_fields.join(', ') : '';
-            showToast('error', (data.message || 'Incomplete data.') + ' Missing: ' + missing);
-            restoreVerifyBtn(btn, originalText);
-
-        } else if (response.status === 404) {
-            showToast('error', data.message || 'Voter not found.');
-            restoreVerifyBtn(btn, originalText);
-        } else {
-            showToast('error', 'An unexpected error occurred.');
-            restoreVerifyBtn(btn, originalText);
-        }
-
-
-    } catch (err) {
-        console.error(err);
-        showToast('error', 'Network error. Please check your connection.');
-        restoreVerifyBtn(btn, originalText);
-    }
-}
-
 // ─── Log History ──────────────────────────────────────────────────────────────
 async function logHistory(type, memberId, description) {
     try {
@@ -869,7 +877,6 @@ function restoreVerifyBtn(btn, text) {
     btn.classList.add('bg-green-500', 'hover:bg-green-600');
 }
 
-
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function showToast(type, message) {
     var old = document.getElementById('verificationToast');
@@ -888,30 +895,29 @@ function showToast(type, message) {
     requestAnimationFrame(function () { toast.classList.replace('opacity-0', 'opacity-100'); toast.classList.replace('translate-y-2', 'translate-y-0'); });
     setTimeout(function () { toast.classList.replace('opacity-100', 'opacity-0'); setTimeout(function () { toast.remove(); }, 300); }, 4000);
 }
-// Alias used by old calls
 var showVerificationToast = showToast;
 
 // ─── Global exports ───────────────────────────────────────────────────────────
-window.viewVoterDetails      = viewVoterDetails;
-window.closeModal            = closeModal;
-window.closeIDModal          = closeIDModal;
-window.closeEditModal        = closeEditModal;
-window.exportToCSV           = exportToCSV;
-window.verifyVoter           = verifyVoter;
-window.saveID                = saveID;
-window.saveEdit              = saveEdit;
-window.editIDNumber          = editIDNumber;
-window.editBirthdate         = editBirthdate;
-window.editEmail             = editEmail;
-window.editPhone             = editPhone;
-window.editAddress           = editAddress;
-window.uploadProfilePicture  = uploadProfilePicture;
-window.printQrCode           = printQrCode;
-window.toggleQrSection       = toggleQrSection;
-window.downloadQr            = downloadQr;
-window.triggerQrPrint        = triggerQrPrint;
-window.removeID              = removeID;
-window.selectIDType          = selectIDType;
-window.showToast             = showToast;
-window.showVerificationToast = showToast;
-window.logHistory            = logHistory;
+window.viewVoterDetails         = viewVoterDetails;
+window.closeModal               = closeModal;
+window.closeIDModal             = closeIDModal;
+window.closeEditModal           = closeEditModal;
+window.exportToCSV              = exportToCSV;
+window.verifyVoter              = verifyVoter;
+window.saveID                   = saveID;
+window.saveEdit                 = saveEdit;
+window.editIDNumber             = editIDNumber;
+window.editBirthdate            = editBirthdate;
+window.editEmail                = editEmail;
+window.editPhone                = editPhone;
+window.editAddress              = editAddress;
+window.uploadProfilePicture     = uploadProfilePicture;
+window.printQrCode              = printQrCode;
+window.toggleQrSection          = toggleQrSection;
+window.downloadQr               = downloadQr;
+window.triggerQrPrint           = triggerQrPrint;
+window.removeID                 = removeID;
+window.selectIDType             = selectIDType;
+window.showToast                = showToast;
+window.showVerificationToast    = showToast;
+window.logHistory               = logHistory;

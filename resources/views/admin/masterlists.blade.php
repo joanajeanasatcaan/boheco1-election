@@ -31,7 +31,7 @@
                                         {{ __('Voter lists management across all election districts.') }}
                                     </p>
                                 </div>
-                                <button onclick="openAddVoterModal()"
+                                {{-- <button onclick="openAddVoterModal()"
                                     class="group text-sm inline-flex items-center 
                                     justify-center px-6 py-3 bg-white text-green-700 
                                     font-semibold rounded-xl hover:bg-green-50 
@@ -41,7 +41,7 @@
                                     focus:ring-offset-green-700">
                                     <x-plus-logo class="h-5 w-5 mr-2 group-hover:rotate-90 transition-transform" />
                                     Add Voter
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                     </div>

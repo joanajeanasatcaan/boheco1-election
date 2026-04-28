@@ -79,11 +79,11 @@
                                         District & Access
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                                {{-- <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                                     <div class="flex items-center gap-2">
                                         Status
                                     </div>
-                                </th>
+                                </th> --}}
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                                     Actions
                                 </th>
@@ -213,7 +213,7 @@
                             </select>
                         </div>
 
-                        <div>
+                        {{-- <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Account Status
                             </label>
@@ -245,7 +245,7 @@
                                     </div>
                                 </label>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <div class="flex gap-3 mt-8">

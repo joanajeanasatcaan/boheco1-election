@@ -123,6 +123,30 @@
                                 class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
                             <p class="text-sm font-bold text-gray-800">District 3</p>
                         </button>
+                        <button onclick="showDistrict(4)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 4</p>
+                        </button>
+                        <button onclick="showDistrict(5)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 5</p>
+                        </button>
+                        <button onclick="showDistrict(6)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 6</p>
+                        </button>
+                        <button onclick="showDistrict(7)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 7</p>
+                        </button>
+                        <button onclick="showDistrict(8)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 8</p>
+                        </button>
+                        <button onclick="showDistrict(9)" 
+                                class="district-btn px-4 py-1 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                            <p class="text-sm font-bold text-gray-800">District 9</p>
+                        </button>
                     </div>
                     <div class="text-sm text-gray-500" id="tally-results">
                         Showing 0 tallies

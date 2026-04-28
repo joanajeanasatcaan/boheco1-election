@@ -8,4 +8,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        cors: true,
+        origin: 'http://192.168.12.185:5173'
+    }
 });
